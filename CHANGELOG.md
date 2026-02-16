@@ -1,81 +1,49 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ## [1.0.0] - 2026-02-16
 
-### Added
+First release of `clickup-cli` — a full-featured CLI for the ClickUp API, optimized for AI agents.
 
-#### Core
-- JSON-first output format optimized for AI agent workflows
-- Config file support (`~/.clickup-cli.yaml`) for token and workspace persistence
-- Global flags: `--token`, `--workspace`, `--format`, `--verbose`
-- Structured error output with error codes
-- `clickup version` command with build info
+### Features
 
-#### Authentication
-- `auth login` — configure API token with validation
-- `auth whoami` — display current user info
+**53 commands** covering the complete ClickUp API surface:
 
-#### Workspaces
-- `workspace list` — list authorized workspaces
+- **Tasks** — Create, read, update, delete, and search tasks across your workspace. Full filter support: status, assignee, tags, due dates, custom fields, date ranges, and more. Subtask and dependency management included.
 
-#### Spaces
-- `space list`, `space get`, `space create`, `space update`, `space delete`
+- **Docs (v3 API)** — Create and manage ClickUp Docs (wiki). Full page CRUD: create, read, update pages within docs. Search docs across your workspace.
 
-#### Folders
-- `folder list`, `folder get`, `folder create`, `folder update`, `folder delete`
+- **Spaces, Folders & Lists** — Complete hierarchy management. Create, update, delete at every level. Folderless list support for flat structures.
 
-#### Lists
-- `list list`, `list get`, `list create`, `list update`, `list delete`
-- Folderless list support via `--space` flag
+- **Comments** — Task and list-level comments with threading support. Create, update, delete, and list threaded replies.
 
-#### Tasks
-- `task list` — 24 filter flags matching full ClickUp API surface
-- `task get`, `task create`, `task update`, `task delete`
-- `task search` — workspace-wide task search
-- Full custom field, date range, and assignee filtering support
+- **Custom Fields** — List custom fields at any level (workspace, space, folder, list). Set and remove values on tasks.
 
-#### Comments
-- `comment list` — task and list level comments
-- `comment create`, `comment update`, `comment delete`
-- Threaded comment support
+- **Tags** — Full tag lifecycle: create, update, delete space tags. Add and remove tags from tasks.
 
-#### Docs (v3 API)
-- `doc list`, `doc get`, `doc create`
-- `doc page-list`, `doc page-get`, `doc page-create`, `doc page-update`
+- **Checklists** — Create and manage checklists on tasks. Full checklist item CRUD with assignee and resolution tracking.
 
-#### Custom Fields
-- `custom-field list` — at list, folder, space, or workspace level
-- `custom-field set`, `custom-field remove`
+- **Time Tracking** — Create, update, delete time entries. Start/stop timers. View running timer. Full date range filtering.
 
-#### Tags
-- `tag list`, `tag create`, `tag update`, `tag delete`
-- `tag add` (to task), `tag remove` (from task)
+- **Views** — CRUD views at workspace, space, folder, and list levels. Retrieve tasks from any view.
 
-#### Checklists
-- `checklist create`, `checklist update`, `checklist delete`
-- `checklist-item create`, `checklist-item update`, `checklist-item delete`
+- **Goals** — Create and track goals with key results.
 
-#### Time Tracking
-- `time-entry list`, `time-entry get`, `time-entry create`, `time-entry update`, `time-entry delete`
-- `time-entry start`, `time-entry stop`, `time-entry current`
+- **Webhooks** — Create, update, delete webhooks for event-driven integrations.
 
-#### Views
-- `view list`, `view get`, `view create`, `view update`, `view delete`, `view tasks`
+- **Members, Groups & Guests** — Manage workspace members, user groups, and guest access.
 
-#### Goals
-- `goal list`, `goal get`, `goal create`, `goal update`, `goal delete`
+### Agent-Optimized Design
 
-#### Webhooks
-- `webhook list`, `webhook create`, `webhook update`, `webhook delete`
+- **JSON-first output** — Every command outputs valid JSON by default. Errors are structured: `{"error": "message", "code": "ERROR_CODE"}`
+- **Comprehensive flags** — Every ClickUp API parameter is exposed as a CLI flag. No capability loss vs. the raw API.
+- **Config persistence** — Token and default workspace saved to `~/.clickup-cli.yaml`
+- **Predictable structure** — `clickup <resource> <verb> [flags]` pattern across all commands
 
-#### Members, Groups & Guests
-- `member list` (task and list level)
-- `group list`, `group create`, `group update`, `group delete`
-- `guest get`, `guest invite`, `guest update`, `guest remove`
+### Developer Experience
+
+- CI with GitHub Actions (Go 1.22 + 1.23, golangci-lint)
+- Cross-platform binaries (Linux, macOS, Windows — amd64 + arm64)
+- Table-driven tests with httptest mocking
+- Conventional commits, issue templates, PR template
 
 [1.0.0]: https://github.com/blockful/clickup-cli/releases/tag/v1.0.0

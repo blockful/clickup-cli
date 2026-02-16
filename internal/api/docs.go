@@ -10,7 +10,7 @@ import (
 type Doc struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name,omitempty"`
-	WorkspaceID string      `json:"workspace_id,omitempty"`
+	WorkspaceID json.Number `json:"workspace_id,omitempty"`
 	Parent      interface{} `json:"parent,omitempty"`
 	Creator     interface{} `json:"creator,omitempty"`
 	DateCreated json.Number `json:"date_created,omitempty"`

@@ -292,7 +292,7 @@ var taskDeleteCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteTask(ctx, id); err != nil {
+		if err := client.DeleteTask(ctx, id, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"message": "task deleted", "id": id})
@@ -388,7 +388,7 @@ var taskTimeInStatusCmd = &cobra.Command{
 			return nil
 		}
 
-		resp, err := client.GetTimeInStatus(ctx, taskID)
+		resp, err := client.GetTimeInStatus(ctx, taskID, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -411,7 +411,7 @@ var taskAddToListCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.AddTaskToList(ctx, listID, taskID); err != nil {
+		if err := client.AddTaskToList(ctx, listID, taskID, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -433,7 +433,7 @@ var taskRemoveFromListCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.RemoveTaskFromList(ctx, listID, taskID); err != nil {
+		if err := client.RemoveTaskFromList(ctx, listID, taskID, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -523,6 +523,7 @@ func init() {
 
 	// task delete
 	taskDeleteCmd.Flags().String("id", "", "Task ID")
+	addTaskScopedFlags(taskDeleteCmd)
 
 	// task search
 	taskSearchCmd.Flags().String("workspace", "", "Workspace/Team ID")
@@ -553,18 +554,22 @@ func init() {
 	// task merge
 	taskMergeCmd.Flags().String("id", "", "Task ID (required)")
 	taskMergeCmd.Flags().StringSlice("merge-with", nil, "Task IDs to merge with (required)")
+	addTaskScopedFlags(taskMergeCmd)
 
 	// task time-in-status
 	taskTimeInStatusCmd.Flags().String("id", "", "Task ID")
 	taskTimeInStatusCmd.Flags().StringSlice("task-ids", nil, "Task IDs for bulk query")
+	addTaskScopedFlags(taskTimeInStatusCmd)
 
 	// task add-to-list
 	taskAddToListCmd.Flags().String("list", "", "List ID (required)")
 	taskAddToListCmd.Flags().String("id", "", "Task ID (required)")
+	addTaskScopedFlags(taskAddToListCmd)
 
 	// task remove-from-list
 	taskRemoveFromListCmd.Flags().String("list", "", "List ID (required)")
 	taskRemoveFromListCmd.Flags().String("id", "", "Task ID (required)")
+	addTaskScopedFlags(taskRemoveFromListCmd)
 
 	taskCmd.AddCommand(taskListCmd)
 	taskCmd.AddCommand(taskGetCmd)

@@ -299,7 +299,7 @@ var guestAddToTaskCmd = &cobra.Command{
 		}
 		includeShared, _ := cmd.Flags().GetBool("include-shared")
 		req := &api.GuestPermissionRequest{PermissionLevel: permLevel}
-		resp, err := client.AddGuestToTask(ctx, taskID, guestID, req, includeShared)
+		resp, err := client.AddGuestToTask(ctx, taskID, guestID, req, includeShared, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -325,7 +325,7 @@ var guestRemoveFromTaskCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 		includeShared, _ := cmd.Flags().GetBool("include-shared")
-		if err := client.RemoveGuestFromTask(ctx, taskID, guestID, includeShared); err != nil {
+		if err := client.RemoveGuestFromTask(ctx, taskID, guestID, includeShared, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -484,9 +484,11 @@ func init() {
 	guestAddToTaskCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
 	guestAddToTaskCmd.Flags().String("permission-level", "read", "Permission level")
 	guestAddToTaskCmd.Flags().Bool("include-shared", false, "Include shared items in response")
+	addTaskScopedFlags(guestAddToTaskCmd)
 	guestRemoveFromTaskCmd.Flags().String("task", "", "Task ID (required)")
 	guestRemoveFromTaskCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
 	guestRemoveFromTaskCmd.Flags().Bool("include-shared", false, "Include shared items in response")
+	addTaskScopedFlags(guestRemoveFromTaskCmd)
 
 	guestAddToListCmd.Flags().String("list", "", "List ID (required)")
 	guestAddToListCmd.Flags().Int("guest-id", 0, "Guest ID (required)")

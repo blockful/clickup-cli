@@ -346,8 +346,10 @@ func (c *Client) UpdateTask(ctx context.Context, taskID string, req *UpdateTaskR
 	return &resp, nil
 }
 
-func (c *Client) DeleteTask(ctx context.Context, taskID string) error {
-	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s", taskID), nil, nil)
+func (c *Client) DeleteTask(ctx context.Context, taskID string, opts ...*TaskScopedOptions) error {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s", taskID)+taskScopedQuery(o), nil, nil)
 }
 
 // SearchTasks searches tasks across a workspace (GET /v2/team/{team_id}/task).
@@ -537,10 +539,14 @@ func (c *Client) GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*Bu
 	return &resp, nil
 }
 
-func (c *Client) AddTaskToList(ctx context.Context, listID, taskID string) error {
-	return c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/task/%s", listID, taskID), nil, nil)
+func (c *Client) AddTaskToList(ctx context.Context, listID, taskID string, opts ...*TaskScopedOptions) error {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	return c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/task/%s", listID, taskID)+taskScopedQuery(o), nil, nil)
 }
 
-func (c *Client) RemoveTaskFromList(ctx context.Context, listID, taskID string) error {
-	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/list/%s/task/%s", listID, taskID), nil, nil)
+func (c *Client) RemoveTaskFromList(ctx context.Context, listID, taskID string, opts ...*TaskScopedOptions) error {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/list/%s/task/%s", listID, taskID)+taskScopedQuery(o), nil, nil)
 }

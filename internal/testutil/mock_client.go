@@ -268,7 +268,7 @@ func (m *MockClient) CreateTask(ctx context.Context, lid string, req *api.Create
 func (m *MockClient) UpdateTask(ctx context.Context, id string, req *api.UpdateTaskRequest, opts ...api.UpdateTaskOptions) (*api.Task, error) {
 	return m.UpdateTaskFn(ctx, id, req, opts...)
 }
-func (m *MockClient) DeleteTask(ctx context.Context, id string) error {
+func (m *MockClient) DeleteTask(ctx context.Context, id string, opts ...*api.TaskScopedOptions) error {
 	return m.DeleteTaskFn(ctx, id)
 }
 func (m *MockClient) SearchTasks(ctx context.Context, teamID string, opts *api.SearchTasksOptions) (*api.TasksResponse, error) {
@@ -647,10 +647,10 @@ func (m *MockClient) GetTimeInStatus(ctx context.Context, taskID string, opts ..
 func (m *MockClient) GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*api.BulkTimeInStatusResponse, error) {
 	return m.GetBulkTimeInStatusFn(ctx, taskIDs)
 }
-func (m *MockClient) AddTaskToList(ctx context.Context, listID, taskID string) error {
+func (m *MockClient) AddTaskToList(ctx context.Context, listID, taskID string, opts ...*api.TaskScopedOptions) error {
 	return m.AddTaskToListFn(ctx, listID, taskID)
 }
-func (m *MockClient) RemoveTaskFromList(ctx context.Context, listID, taskID string) error {
+func (m *MockClient) RemoveTaskFromList(ctx context.Context, listID, taskID string, opts ...*api.TaskScopedOptions) error {
 	return m.RemoveTaskFromListFn(ctx, listID, taskID)
 }
 

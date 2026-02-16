@@ -56,7 +56,7 @@ type ClientInterface interface {
 	GetTask(ctx context.Context, taskID string, opts ...GetTaskOptions) (*Task, error)
 	CreateTask(ctx context.Context, listID string, req *CreateTaskRequest) (*Task, error)
 	UpdateTask(ctx context.Context, taskID string, req *UpdateTaskRequest, opts ...UpdateTaskOptions) (*Task, error)
-	DeleteTask(ctx context.Context, taskID string) error
+	DeleteTask(ctx context.Context, taskID string, opts ...*TaskScopedOptions) error
 	SearchTasks(ctx context.Context, teamID string, opts *SearchTasksOptions) (*TasksResponse, error)
 
 	// Comments
@@ -171,8 +171,8 @@ type ClientInterface interface {
 	MergeTasks(ctx context.Context, taskID string, req *MergeTasksRequest, opts ...*TaskScopedOptions) error
 	GetTimeInStatus(ctx context.Context, taskID string, opts ...*TaskScopedOptions) (*TimeInStatusResponse, error)
 	GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*BulkTimeInStatusResponse, error)
-	AddTaskToList(ctx context.Context, listID, taskID string) error
-	RemoveTaskFromList(ctx context.Context, listID, taskID string) error
+	AddTaskToList(ctx context.Context, listID, taskID string, opts ...*TaskScopedOptions) error
+	RemoveTaskFromList(ctx context.Context, listID, taskID string, opts ...*TaskScopedOptions) error
 
 	// Attachments
 	CreateTaskAttachment(ctx context.Context, taskID, filePath string, opts ...*TaskScopedOptions) (*Attachment, error)

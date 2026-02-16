@@ -1,6 +1,17 @@
 # clickup-cli
 
-A command-line interface for ClickUp, optimized for AI agents. All output is JSON by default.
+A production-quality command-line interface for the **complete ClickUp API** — 135+ endpoints, every parameter exposed as a CLI flag. Designed for AI agents and automation. All output is JSON by default.
+
+[![Go](https://github.com/blockful/clickup-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/blockful/clickup-cli/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+## Features
+
+- **Full API coverage** — 135+ commands spanning 27 resource groups
+- **JSON-first output** — every command outputs valid JSON; errors are structured `{"error":"...","code":"..."}`
+- **AI-agent optimized** — no interactive prompts, deterministic output, `--dry-run` on destructive ops
+- **Every flag documented** — see [docs/api.md](docs/api.md) for complete flag→API parameter mapping
+- **v3 Docs API** — full support for ClickUp Docs with page CRUD
 
 ## Installation
 
@@ -19,155 +30,145 @@ go build -o clickup ./
 ## Quick Start
 
 ```bash
-# 1. Authenticate with your ClickUp API token
+# Authenticate
 clickup auth login --token pk_YOUR_TOKEN
 
-# 2. List your workspaces
+# Explore your workspace
 clickup workspace list
-
-# 3. List spaces in a workspace
 clickup space list --workspace 1234567
-
-# 4. List tasks in a list
 clickup task list --list 900100200300
+
+# Create a task
+clickup task create --list 900100200300 --name "Ship feature" --priority 2 --status "in progress"
+
+# Search across workspace
+clickup task search --workspace 1234567 --assignee 12345 --include-closed
+
+# Track time
+clickup time-entry start --workspace 1234567 --task abc123 --description "Working on feature"
+clickup time-entry stop --workspace 1234567
+
+# Upload a file
+clickup attachment create --task-id abc123 --file ./screenshot.png
 ```
 
 ## Command Reference
 
-For **complete flag documentation** with types, defaults, and API parameter mappings, see **[docs/api.md](docs/api.md)**.
+27 top-level command groups, 135+ total commands. For **complete flag documentation** with types, defaults, and API parameter mappings, see **[docs/api.md](docs/api.md)**.
 
-| Command | Description |
-|---------|-------------|
-| **Auth** | |
-| `clickup auth login` | Authenticate with API token |
-| `clickup auth whoami` | Show current user |
-| **Workspaces** | |
-| `clickup workspace list` | List workspaces |
-| **Spaces** | |
-| `clickup space list` | List spaces |
-| `clickup space get` | Get space details |
-| `clickup space create` | Create a space |
-| `clickup space update` | Update a space |
-| `clickup space delete` | Delete a space |
-| **Folders** | |
-| `clickup folder list` | List folders |
-| `clickup folder get` | Get folder details |
-| `clickup folder create` | Create a folder |
-| `clickup folder update` | Update a folder |
-| `clickup folder delete` | Delete a folder |
-| **Lists** | |
-| `clickup list list` | List lists |
-| `clickup list get` | Get list details |
-| `clickup list create` | Create a list |
-| `clickup list update` | Update a list |
-| `clickup list delete` | Delete a list |
-| **Tasks** | |
-| `clickup task list` | List tasks (with filters) |
-| `clickup task get` | Get task details |
-| `clickup task create` | Create a task |
-| `clickup task update` | Update a task |
-| `clickup task delete` | Delete a task |
-| `clickup task search` | Search tasks across workspace |
-| **Comments** | |
-| `clickup comment list` | List comments |
-| `clickup comment create` | Add a comment |
-| `clickup comment update` | Update a comment |
-| `clickup comment delete` | Delete a comment |
-| **Docs (v3)** | |
-| `clickup doc list` | List/search docs |
-| `clickup doc get` | Get a doc |
-| `clickup doc create` | Create a doc |
-| `clickup doc page-list` | List pages in a doc |
-| `clickup doc page-get` | Get a page |
-| `clickup doc page-create` | Create a page |
-| `clickup doc page-update` | Update a page |
-| **Custom Fields** | |
-| `clickup custom-field list` | List custom fields |
-| `clickup custom-field set` | Set a custom field value |
-| `clickup custom-field remove` | Remove a custom field value |
-| **Tags** | |
-| `clickup tag list` | List space tags |
-| `clickup tag create` | Create a tag |
-| `clickup tag update` | Update a tag |
-| `clickup tag delete` | Delete a tag |
-| `clickup tag add` | Add tag to task |
-| `clickup tag remove` | Remove tag from task |
-| **Checklists** | |
-| `clickup checklist create` | Create a checklist |
-| `clickup checklist update` | Update a checklist |
-| `clickup checklist delete` | Delete a checklist |
-| `clickup checklist-item create` | Create a checklist item |
-| `clickup checklist-item update` | Update a checklist item |
-| `clickup checklist-item delete` | Delete a checklist item |
-| **Time Tracking** | |
-| `clickup time-entry list` | List time entries |
-| `clickup time-entry get` | Get a time entry |
-| `clickup time-entry create` | Create a time entry |
-| `clickup time-entry update` | Update a time entry |
-| `clickup time-entry delete` | Delete a time entry |
-| `clickup time-entry start` | Start a timer |
-| `clickup time-entry stop` | Stop running timer |
-| `clickup time-entry current` | Get running timer |
-| **Webhooks** | |
-| `clickup webhook list` | List webhooks |
-| `clickup webhook create` | Create a webhook |
-| `clickup webhook update` | Update a webhook |
-| `clickup webhook delete` | Delete a webhook |
-| **Views** | |
-| `clickup view list` | List views |
-| `clickup view get` | Get a view |
-| `clickup view create` | Create a view |
-| `clickup view update` | Update a view |
-| `clickup view delete` | Delete a view |
-| `clickup view tasks` | Get tasks in a view |
-| **Goals** | |
-| `clickup goal list` | List goals |
-| `clickup goal get` | Get a goal |
-| `clickup goal create` | Create a goal |
-| `clickup goal update` | Update a goal |
-| `clickup goal delete` | Delete a goal |
-| **Members & Groups** | |
-| `clickup member list` | List members (list/task) |
-| `clickup group list` | List user groups |
-| `clickup group create` | Create a user group |
-| `clickup group delete` | Delete a user group |
-| **Guests** | |
-| `clickup guest invite` | Invite a guest |
-| `clickup guest get` | Get guest details |
-| `clickup guest remove` | Remove a guest |
+### Core Hierarchy
+
+| Command | Subcommands | Description |
+|---------|-------------|-------------|
+| `workspace` | `list`, `plan`, `seats` | List workspaces, get plan & seat info |
+| `space` | `list`, `get`, `create`, `update`, `delete` | Manage spaces |
+| `folder` | `list`, `get`, `create`, `update`, `delete` | Manage folders |
+| `list` | `list`, `get`, `create`, `update`, `delete` | Manage lists |
+
+### Tasks
+
+| Command | Subcommands | Description |
+|---------|-------------|-------------|
+| `task` | `list`, `get`, `create`, `update`, `delete`, `search` | Full task CRUD + workspace search |
+| `task` | `add-to-list`, `remove-from-list`, `merge`, `time-in-status` | Multi-list, merge, status timing |
+| `task dependency` | `add`, `remove` | Task dependency management |
+| `task link` | `add`, `remove` | Task link management |
+
+### Content & Collaboration
+
+| Command | Subcommands | Description |
+|---------|-------------|-------------|
+| `comment` | `list`, `create`, `update`, `delete` | Task/list/view comments |
+| `comment reply` | `list`, `create` | Threaded comment replies |
+| `doc` | `list`, `get`, `create` | ClickUp Docs (v3 API) |
+| `doc` | `page-list`, `page-get`, `page-create`, `page-update` | Doc page CRUD |
+| `checklist` | `create`, `update`, `delete` | Task checklists |
+| `checklist-item` | `create`, `update`, `delete` | Checklist items |
+| `attachment` | `create` | File uploads to tasks |
+
+### Custom Fields & Tags
+
+| Command | Subcommands | Description |
+|---------|-------------|-------------|
+| `custom-field` | `list`, `set`, `remove` | Custom field values |
+| `tag` | `list`, `create`, `update`, `delete`, `add`, `remove` | Space tags & task tagging |
+| `custom-task-type` | `list` | List custom task types |
+
+### Time Tracking
+
+| Command | Subcommands | Description |
+|---------|-------------|-------------|
+| `time-entry` | `list`, `get`, `create`, `update`, `delete` | Time entry CRUD |
+| `time-entry` | `start`, `stop`, `current` | Timer controls |
+| `time-entry` | `history` | Time entry change history |
+| `time-entry legacy` | `list`, `create`, `update`, `delete` | Task-level time tracking (legacy) |
+| `time-entry tag` | `add`, `remove`, `update` | Time entry tag management |
+
+### Views & Goals
+
+| Command | Subcommands | Description |
+|---------|-------------|-------------|
+| `view` | `list`, `get`, `create`, `update`, `delete`, `tasks` | View CRUD + task retrieval |
+| `goal` | `list`, `get`, `create`, `update`, `delete` | Goal management |
+| `goal key-result` | `create`, `update`, `delete` | Key result CRUD |
+
+### People & Access
+
+| Command | Subcommands | Description |
+|---------|-------------|-------------|
+| `user` | `invite`, `get`, `update`, `remove` | Workspace user management |
+| `member` | `list` | List members of list/task |
+| `group` | `list`, `create`, `update`, `delete` | User group management |
+| `guest` | `invite`, `get`, `edit`, `remove` | Guest workspace access |
+| `guest` | `add-to-task`, `add-to-list`, `add-to-folder` | Grant guest access to resources |
+| `guest` | `remove-from-task`, `remove-from-list`, `remove-from-folder` | Revoke guest resource access |
+| `role` | `list` | List custom roles |
+
+### Infrastructure
+
+| Command | Subcommands | Description |
+|---------|-------------|-------------|
+| `webhook` | `list`, `create`, `update`, `delete` | Webhook management |
+| `template` | `list`, `create-task`, `create-list`, `create-folder` | Template management |
+| `shared` | `list` | Shared hierarchy |
+| `auth` | `login`, `whoami` | Authentication |
 
 ## Global Flags
 
-- `--token` — API token (overrides config file)
-- `--workspace` — Default workspace ID
-- `--format` — Output format: `json` (default) or `text`
-- `--verbose` — Enable verbose output
+| Flag | Description |
+|------|-------------|
+| `--token` | API token (overrides config file and `CLICKUP_TOKEN` env) |
+| `--workspace` | Default workspace ID (overrides config) |
+| `--format` | Output format: `json` (default) or `text` |
+| `--verbose` | Enable verbose output (to stderr) |
 
 ## Configuration
 
-Config is stored in `~/.clickup-cli.yaml`:
+Config stored in `~/.clickup-cli.yaml`:
 
 ```yaml
 token: pk_12345...
 workspace: "1234567"
 ```
 
+Precedence: CLI flags > environment variables (`CLICKUP_TOKEN`) > config file.
+
 ## Output Format
 
-All commands output valid JSON. Errors are formatted as:
+All commands output valid JSON. Errors:
 
 ```json
-{
-  "error": "description of what went wrong",
-  "code": "ERROR_CODE"
-}
+{"error": "description of what went wrong", "code": "ERROR_CODE", "status": 400}
 ```
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
-- [API Mapping](docs/api.md)
-- [Decision Records](docs/decisions/)
+- **[API Reference](docs/api.md)** — Every command, every flag, every API mapping
+- **[Architecture](docs/architecture.md)** — Codebase structure and design
+- **[Business Rules](docs/business-rules.md)** — Invariants and conventions
+- **[Decision Records](docs/decisions/)** — ADRs for key decisions
+- **[Contributing](CONTRIBUTING.md)** — How to contribute
+- **[Agents Guide](AGENTS.md)** — For AI agents using this CLI
 
 ## License
 

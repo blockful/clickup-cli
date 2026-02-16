@@ -2,42 +2,49 @@
 
 ## [1.0.0] - 2026-02-16
 
-First release of `clickup-cli` — a full-featured CLI for the ClickUp API, optimized for AI agents.
+First release of `clickup-cli` — a production-quality CLI covering the **complete ClickUp API** (135+ commands), optimized for AI agents.
 
-### Features
+### Command Groups (27 resource groups)
 
-**53 commands** covering the complete ClickUp API surface:
-
-- **Tasks** — Create, read, update, delete, and search tasks across your workspace. Full filter support: status, assignee, tags, due dates, custom fields, date ranges, and more. Subtask and dependency management included.
-
-- **Docs (v3 API)** — Create and manage ClickUp Docs (wiki). Full page CRUD: create, read, update pages within docs. Search docs across your workspace.
-
-- **Spaces, Folders & Lists** — Complete hierarchy management. Create, update, delete at every level. Folderless list support for flat structures.
-
-- **Comments** — Task and list-level comments with threading support. Create, update, delete, and list threaded replies.
-
-- **Custom Fields** — List custom fields at any level (workspace, space, folder, list). Set and remove values on tasks.
-
-- **Tags** — Full tag lifecycle: create, update, delete space tags. Add and remove tags from tasks.
-
-- **Checklists** — Create and manage checklists on tasks. Full checklist item CRUD with assignee and resolution tracking.
-
-- **Time Tracking** — Create, update, delete time entries. Start/stop timers. View running timer. Full date range filtering.
-
-- **Views** — CRUD views at workspace, space, folder, and list levels. Retrieve tasks from any view.
-
-- **Goals** — Create and track goals with key results.
-
-- **Webhooks** — Create, update, delete webhooks for event-driven integrations.
-
-- **Members, Groups & Guests** — Manage workspace members, user groups, and guest access.
+- **Auth** — `login`, `whoami`
+- **Workspaces** — `list`, `plan`, `seats`
+- **Spaces** — full CRUD (list, get, create, update, delete)
+- **Folders** — full CRUD
+- **Lists** — full CRUD (folder and folderless)
+- **Tasks** — full CRUD + `search`, `add-to-list`, `remove-from-list`, `merge`, `time-in-status`
+- **Task Dependencies** — `add`, `remove`
+- **Task Links** — `add`, `remove`
+- **Comments** — full CRUD on tasks, lists, views
+- **Comment Replies** — threaded reply `list` and `create`
+- **Docs (v3 API)** — doc CRUD + page CRUD (list, get, create, update)
+- **Custom Fields** — `list` (workspace/space/folder/list scope), `set`, `remove`
+- **Tags** — full CRUD + task `add`/`remove`
+- **Checklists** — `create`, `update`, `delete`
+- **Checklist Items** — `create`, `update`, `delete`
+- **Time Entries** — full CRUD + `start`, `stop`, `current`, `history`
+- **Time Entry Legacy** — task-level `list`, `create`, `update`, `delete`
+- **Time Entry Tags** — `add`, `remove`, `update`
+- **Views** — full CRUD + `tasks`
+- **Goals** — full CRUD
+- **Goal Key Results** — `create`, `update`, `delete`
+- **Webhooks** — full CRUD
+- **Members** — `list` (task/list)
+- **User Groups** — `list`, `create`, `update`, `delete`
+- **Users** — `invite`, `get`, `update`, `remove`
+- **Guests** — `invite`, `get`, `edit`, `remove` + `add-to-task/list/folder`, `remove-from-task/list/folder`
+- **Roles** — `list` custom roles
+- **Custom Task Types** — `list`
+- **Shared Hierarchy** — `list`
+- **Templates** — `list`, `create-task`, `create-list`, `create-folder`
+- **Attachments** — `create` (file upload)
 
 ### Agent-Optimized Design
 
-- **JSON-first output** — Every command outputs valid JSON by default. Errors are structured: `{"error": "message", "code": "ERROR_CODE"}`
-- **Comprehensive flags** — Every ClickUp API parameter is exposed as a CLI flag. No capability loss vs. the raw API.
-- **Config persistence** — Token and default workspace saved to `~/.clickup-cli.yaml`
-- **Predictable structure** — `clickup <resource> <verb> [flags]` pattern across all commands
+- **JSON-first output** — every command outputs valid JSON. Errors: `{"error":"message","code":"ERROR_CODE"}`
+- **Every API parameter exposed** — no capability loss vs. the raw API
+- **No interactive prompts** — fully flag-driven for agent/automation use
+- **Config persistence** — token and default workspace in `~/.clickup-cli.yaml`
+- **Consistent patterns** — `clickup <resource> <verb> [flags]` everywhere
 
 ### Developer Experience
 

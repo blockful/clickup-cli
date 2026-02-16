@@ -1,4 +1,4 @@
-# ClickUp CLI — Complete Command & Flag Reference
+# ClickUp CLI — Complete Command & Flag Reference (135+ commands)
 
 > **Base URL:** `https://api.clickup.com/api`
 > Docs API (v3) uses `https://api.clickup.com/api/v3/workspaces/`.
@@ -48,6 +48,26 @@ List all workspaces (teams) the authenticated user belongs to.
 **API:** `GET /v2/team`
 
 *No command-specific flags.*
+
+### `clickup workspace plan`
+
+Get workspace plan details.
+
+**API:** `GET /v2/team/{team_id}/plan`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+
+### `clickup workspace seats`
+
+Get workspace seat usage.
+
+**API:** `GET /v2/team/{team_id}/seats`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
 
 ---
 

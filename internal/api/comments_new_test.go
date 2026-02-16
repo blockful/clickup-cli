@@ -19,7 +19,7 @@ func TestListListComments(t *testing.T) {
 	defer srv.Close()
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.ListListComments(ctx, "l1")
+	_, err := c.ListListComments(ctx, "l1", "")
 	if err != nil {
 		t.Fatal(err)
 	}

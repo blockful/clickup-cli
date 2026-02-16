@@ -53,7 +53,7 @@ func TestGetGroups(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetGroups(ctx, "123")
+	resp, err := c.GetGroups(ctx, "123", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

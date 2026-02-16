@@ -15,7 +15,8 @@ type TaskTemplatesResponse struct {
 }
 
 type CreateFromTemplateRequest struct {
-	Name string `json:"name"`
+	Name    string      `json:"name"`
+	Options interface{} `json:"options,omitempty"`
 }
 
 type CreateFromTemplateResponse struct {

@@ -48,7 +48,7 @@ func TestListComments(t *testing.T) {
 			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.ListComments(ctx, tt.taskID)
+			resp, err := client.ListComments(ctx, tt.taskID, "")
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")

@@ -101,6 +101,14 @@ var spaceUpdateCmd = &cobra.Command{
 			v, _ := cmd.Flags().GetBool("multiple-assignees")
 			req.MultipleAssignees = api.BoolPtr(v)
 		}
+		if cmd.Flags().Changed("private") {
+			v, _ := cmd.Flags().GetBool("private")
+			req.Private = api.BoolPtr(v)
+		}
+		if cmd.Flags().Changed("admin-can-manage") {
+			v, _ := cmd.Flags().GetBool("admin-can-manage")
+			req.AdminCanManage = api.BoolPtr(v)
+		}
 		featuresStr, _ := cmd.Flags().GetString("features")
 		if featuresStr != "" {
 			var features map[string]interface{}
@@ -151,6 +159,8 @@ func init() {
 	spaceUpdateCmd.Flags().String("id", "", "Space ID")
 	spaceUpdateCmd.Flags().String("name", "", "Space name")
 	spaceUpdateCmd.Flags().Bool("multiple-assignees", false, "Enable multiple assignees")
+	spaceUpdateCmd.Flags().Bool("private", false, "Make space private")
+	spaceUpdateCmd.Flags().Bool("admin-can-manage", false, "Allow admins to manage")
 	spaceUpdateCmd.Flags().String("features", "", "Space features (JSON object)")
 
 	spaceDeleteCmd.Flags().String("id", "", "Space ID")

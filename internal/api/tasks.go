@@ -259,23 +259,26 @@ type CustomFieldValue struct {
 }
 
 type CreateTaskRequest struct {
-	Name                string             `json:"name"`
-	Description         string             `json:"description,omitempty"`
-	MarkdownDescription string             `json:"markdown_description,omitempty"`
-	Assignees           []int              `json:"assignees,omitempty"`
-	Tags                []string           `json:"tags,omitempty"`
-	Status              string             `json:"status,omitempty"`
-	Priority            *int               `json:"priority,omitempty"`
-	DueDate             *int64             `json:"due_date,omitempty"`
-	DueDateTime         *bool              `json:"due_date_time,omitempty"`
-	StartDate           *int64             `json:"start_date,omitempty"`
-	StartDateTime       *bool              `json:"start_date_time,omitempty"`
-	TimeEstimate        *int64             `json:"time_estimate,omitempty"`
-	NotifyAll           bool               `json:"notify_all,omitempty"`
-	Parent              string             `json:"parent,omitempty"`
-	LinksTo             string             `json:"links_to,omitempty"`
-	CustomFields        []CustomFieldValue `json:"custom_fields,omitempty"`
-	CustomItemID        *int               `json:"custom_item_id,omitempty"`
+	Name                      string             `json:"name"`
+	Description               string             `json:"description,omitempty"`
+	MarkdownDescription       string             `json:"markdown_description,omitempty"`
+	Assignees                 []int              `json:"assignees,omitempty"`
+	GroupAssignees            []string           `json:"group_assignees,omitempty"`
+	Tags                      []string           `json:"tags,omitempty"`
+	Status                    string             `json:"status,omitempty"`
+	Priority                  *int               `json:"priority,omitempty"`
+	DueDate                   *int64             `json:"due_date,omitempty"`
+	DueDateTime               *bool              `json:"due_date_time,omitempty"`
+	StartDate                 *int64             `json:"start_date,omitempty"`
+	StartDateTime             *bool              `json:"start_date_time,omitempty"`
+	TimeEstimate              *int64             `json:"time_estimate,omitempty"`
+	Points                    *float64           `json:"points,omitempty"`
+	NotifyAll                 bool               `json:"notify_all,omitempty"`
+	Parent                    string             `json:"parent,omitempty"`
+	LinksTo                   string             `json:"links_to,omitempty"`
+	CustomFields              []CustomFieldValue `json:"custom_fields,omitempty"`
+	CustomItemID              *int               `json:"custom_item_id,omitempty"`
+	CheckRequiredCustomFields *bool              `json:"check_required_custom_fields,omitempty"`
 }
 
 func (c *Client) CreateTask(ctx context.Context, listID string, req *CreateTaskRequest) (*Task, error) {
@@ -291,20 +294,28 @@ type UpdateTaskAssignees struct {
 	Rem []int `json:"rem,omitempty"`
 }
 
+type UpdateTaskGroupAssignees struct {
+	Add []string `json:"add,omitempty"`
+	Rem []string `json:"rem,omitempty"`
+}
+
 type UpdateTaskRequest struct {
-	Name                *string              `json:"name,omitempty"`
-	Description         *string              `json:"description,omitempty"`
-	MarkdownDescription *string              `json:"markdown_description,omitempty"`
-	Status              *string              `json:"status,omitempty"`
-	Priority            *int                 `json:"priority,omitempty"`
-	Assignees           *UpdateTaskAssignees `json:"assignees,omitempty"`
-	DueDate             *int64               `json:"due_date,omitempty"`
-	DueDateTime         *bool                `json:"due_date_time,omitempty"`
-	StartDate           *int64               `json:"start_date,omitempty"`
-	StartDateTime       *bool                `json:"start_date_time,omitempty"`
-	TimeEstimate        *int64               `json:"time_estimate,omitempty"`
-	Archived            *bool                `json:"archived,omitempty"`
-	Parent              *string              `json:"parent,omitempty"`
+	Name                *string                   `json:"name,omitempty"`
+	Description         *string                   `json:"description,omitempty"`
+	MarkdownDescription *string                   `json:"markdown_description,omitempty"`
+	Status              *string                   `json:"status,omitempty"`
+	Priority            *int                      `json:"priority,omitempty"`
+	Assignees           *UpdateTaskAssignees       `json:"assignees,omitempty"`
+	GroupAssignees      *UpdateTaskGroupAssignees  `json:"group_assignees,omitempty"`
+	DueDate             *int64                     `json:"due_date,omitempty"`
+	DueDateTime         *bool                      `json:"due_date_time,omitempty"`
+	StartDate           *int64                     `json:"start_date,omitempty"`
+	StartDateTime       *bool                      `json:"start_date_time,omitempty"`
+	TimeEstimate        *int64                     `json:"time_estimate,omitempty"`
+	Points              *float64                   `json:"points,omitempty"`
+	Archived            *bool                      `json:"archived,omitempty"`
+	Parent              *string                    `json:"parent,omitempty"`
+	CustomItemID        *int                       `json:"custom_item_id,omitempty"`
 }
 
 type UpdateTaskOptions struct {
@@ -474,13 +485,41 @@ type TimeInStatusResponse struct {
 // BulkTimeInStatusResponse is the response for bulk time in status.
 type BulkTimeInStatusResponse map[string]interface{}
 
-func (c *Client) MergeTasks(ctx context.Context, taskID string, req *MergeTasksRequest) error {
-	return c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/merge", taskID), req, nil)
+// TaskScopedOptions holds custom_task_ids and team_id query params for task-scoped endpoints.
+type TaskScopedOptions struct {
+	CustomTaskIDs bool
+	TeamID        string
 }
 
-func (c *Client) GetTimeInStatus(ctx context.Context, taskID string) (*TimeInStatusResponse, error) {
+func taskScopedQuery(opts *TaskScopedOptions) string {
+	if opts == nil {
+		return ""
+	}
+	params := url.Values{}
+	if opts.CustomTaskIDs {
+		params.Set("custom_task_ids", "true")
+	}
+	if opts.TeamID != "" {
+		params.Set("team_id", opts.TeamID)
+	}
+	q := params.Encode()
+	if q != "" {
+		return "?" + q
+	}
+	return ""
+}
+
+func (c *Client) MergeTasks(ctx context.Context, taskID string, req *MergeTasksRequest, opts ...*TaskScopedOptions) error {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	return c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/merge", taskID)+taskScopedQuery(o), req, nil)
+}
+
+func (c *Client) GetTimeInStatus(ctx context.Context, taskID string, opts ...*TaskScopedOptions) (*TimeInStatusResponse, error) {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
 	var resp TimeInStatusResponse
-	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/task/%s/time_in_status", taskID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/task/%s/time_in_status", taskID)+taskScopedQuery(o), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil

@@ -94,6 +94,11 @@ var listCreateCmd = &cobra.Command{
 			v, _ := cmd.Flags().GetInt("assignee")
 			req.Assignee = api.IntPtr(v)
 		}
+		req.MarkdownContent, _ = cmd.Flags().GetString("markdown-content")
+		if cmd.Flags().Changed("due-date-time") {
+			v, _ := cmd.Flags().GetBool("due-date-time")
+			req.DueDateTime = api.BoolPtr(v)
+		}
 
 		if spaceID != "" {
 			resp, err := client.CreateFolderlessList(ctx, spaceID, req)
@@ -145,6 +150,13 @@ var listUpdateCmd = &cobra.Command{
 			v, _ := cmd.Flags().GetInt("assignee")
 			req.Assignee = api.IntPtr(v)
 		}
+		if cmd.Flags().Changed("markdown-content") {
+			req.MarkdownContent, _ = cmd.Flags().GetString("markdown-content")
+		}
+		if cmd.Flags().Changed("due-date-time") {
+			v, _ := cmd.Flags().GetBool("due-date-time")
+			req.DueDateTime = api.BoolPtr(v)
+		}
 		req.UnsetStatus, _ = cmd.Flags().GetBool("unset-status")
 
 		resp, err := client.UpdateList(ctx, id, req)
@@ -189,6 +201,8 @@ func init() {
 	listCreateCmd.Flags().Int("priority", 0, "Priority (1=urgent, 2=high, 3=normal, 4=low)")
 	listCreateCmd.Flags().Int("assignee", 0, "Assignee user ID")
 	listCreateCmd.Flags().String("status", "", "List status")
+	listCreateCmd.Flags().String("markdown-content", "", "Markdown content")
+	listCreateCmd.Flags().Bool("due-date-time", false, "Include time in due date")
 
 	listUpdateCmd.Flags().String("id", "", "List ID")
 	listUpdateCmd.Flags().String("name", "", "List name")
@@ -198,6 +212,8 @@ func init() {
 	listUpdateCmd.Flags().Int("assignee", 0, "Assignee user ID")
 	listUpdateCmd.Flags().String("status", "", "List status")
 	listUpdateCmd.Flags().Bool("unset-status", false, "Remove list status")
+	listUpdateCmd.Flags().String("markdown-content", "", "Markdown content")
+	listUpdateCmd.Flags().Bool("due-date-time", false, "Include time in due date")
 
 	listDeleteCmd.Flags().String("id", "", "List ID")
 

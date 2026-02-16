@@ -76,7 +76,7 @@ func TestGetTeamUser(t *testing.T) {
 	client := NewClient("pk_test")
 	client.MaxRetries = 0
 	client.BaseURL = server.URL
-	_, err := client.GetTeamUser(ctx, "t1", "u1")
+	_, err := client.GetTeamUser(ctx, "t1", "u1", false)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

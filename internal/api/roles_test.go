@@ -42,7 +42,7 @@ func TestGetCustomRoles(t *testing.T) {
 			client := NewClient("pk_test")
 			client.MaxRetries = 0
 			client.BaseURL = server.URL
-			resp, err := client.GetCustomRoles(ctx, "t1")
+			resp, err := client.GetCustomRoles(ctx, "t1", false)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")

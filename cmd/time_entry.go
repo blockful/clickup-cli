@@ -31,6 +31,12 @@ var timeEntryListCmd = &cobra.Command{
 		opts.TaskID, _ = cmd.Flags().GetString("task")
 		opts.IncludeTaskTags, _ = cmd.Flags().GetBool("include-task-tags")
 		opts.IncludeLocationNames, _ = cmd.Flags().GetBool("include-location-names")
+		opts.IncludeApprovalHistory, _ = cmd.Flags().GetBool("include-approval-history")
+		opts.IncludeApprovalDetails, _ = cmd.Flags().GetBool("include-approval-details")
+		if cmd.Flags().Changed("is-billable") {
+			v, _ := cmd.Flags().GetBool("is-billable")
+			opts.IsBillable = &v
+		}
 
 		resp, err := client.GetTimeEntries(ctx, wid, opts)
 		if err != nil {
@@ -53,7 +59,10 @@ var timeEntryGetCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetTimeEntry(ctx, wid, id)
+		opts := &api.GetTimeEntryOptions{}
+		opts.IncludeApprovalHistory, _ = cmd.Flags().GetBool("include-approval-history")
+		opts.IncludeApprovalDetails, _ = cmd.Flags().GetBool("include-approval-details")
+		resp, err := client.GetTimeEntry(ctx, wid, id, opts)
 		if err != nil {
 			return handleError(err)
 		}
@@ -74,7 +83,11 @@ var timeEntryCreateCmd = &cobra.Command{
 		duration, _ := cmd.Flags().GetInt64("duration")
 		description, _ := cmd.Flags().GetString("description")
 		tid, _ := cmd.Flags().GetString("task")
+		if t, _ := cmd.Flags().GetString("tid"); t != "" && tid == "" {
+			tid = t
+		}
 		billable, _ := cmd.Flags().GetBool("billable")
+		stop, _ := cmd.Flags().GetInt64("stop")
 
 		if start == 0 || duration == 0 {
 			output.PrintError("VALIDATION_ERROR", "--start and --duration are required")
@@ -87,6 +100,9 @@ var timeEntryCreateCmd = &cobra.Command{
 			Description: description,
 			Tid:         tid,
 			Billable:    billable,
+		}
+		if stop > 0 {
+			req.Stop = &stop
 		}
 
 		resp, err := client.CreateTimeEntry(ctx, wid, req)
@@ -117,6 +133,9 @@ var timeEntryUpdateCmd = &cobra.Command{
 		}
 		if cmd.Flags().Changed("task") {
 			req.Tid, _ = cmd.Flags().GetString("task")
+		}
+		if cmd.Flags().Changed("tid") {
+			req.Tid, _ = cmd.Flags().GetString("tid")
 		}
 		if cmd.Flags().Changed("tag-action") {
 			req.TagAction, _ = cmd.Flags().GetString("tag-action")
@@ -158,6 +177,9 @@ var timeEntryStartCmd = &cobra.Command{
 		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		tid, _ := cmd.Flags().GetString("task")
+		if t, _ := cmd.Flags().GetString("tid"); t != "" && tid == "" {
+			tid = t
+		}
 		description, _ := cmd.Flags().GetString("description")
 		billable, _ := cmd.Flags().GetBool("billable")
 
@@ -222,23 +244,32 @@ func init() {
 	timeEntryListCmd.Flags().String("task", "", "Task ID filter")
 	timeEntryListCmd.Flags().Bool("include-task-tags", false, "Include task tags")
 	timeEntryListCmd.Flags().Bool("include-location-names", false, "Include location names")
+	timeEntryListCmd.Flags().Bool("include-approval-history", false, "Include approval history")
+	timeEntryListCmd.Flags().Bool("include-approval-details", false, "Include approval details")
+	timeEntryListCmd.Flags().Bool("is-billable", false, "Filter by billable")
 
 	timeEntryGetCmd.Flags().String("id", "", "Time entry ID (required)")
+	timeEntryGetCmd.Flags().Bool("include-approval-history", false, "Include approval history")
+	timeEntryGetCmd.Flags().Bool("include-approval-details", false, "Include approval details")
 
 	timeEntryCreateCmd.Flags().Int64("start", 0, "Start time (unix ms, required)")
 	timeEntryCreateCmd.Flags().Int64("duration", 0, "Duration (ms, required)")
 	timeEntryCreateCmd.Flags().String("description", "", "Description")
 	timeEntryCreateCmd.Flags().String("task", "", "Task ID")
+	timeEntryCreateCmd.Flags().String("tid", "", "Task ID (alias for --task)")
+	timeEntryCreateCmd.Flags().Int64("stop", 0, "Stop time (unix ms)")
 	timeEntryCreateCmd.Flags().Bool("billable", false, "Billable")
 
 	timeEntryUpdateCmd.Flags().String("id", "", "Time entry ID (required)")
 	timeEntryUpdateCmd.Flags().String("description", "", "Description")
 	timeEntryUpdateCmd.Flags().String("task", "", "Task ID")
+	timeEntryUpdateCmd.Flags().String("tid", "", "Task ID (alias for --task)")
 	timeEntryUpdateCmd.Flags().String("tag-action", "", "Tag action (add/replace)")
 
 	timeEntryDeleteCmd.Flags().String("id", "", "Time entry ID (required)")
 
 	timeEntryStartCmd.Flags().String("task", "", "Task ID")
+	timeEntryStartCmd.Flags().String("tid", "", "Task ID (alias for --task)")
 	timeEntryStartCmd.Flags().String("description", "", "Description")
 	timeEntryStartCmd.Flags().Bool("billable", false, "Billable")
 

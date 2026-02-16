@@ -23,7 +23,7 @@ type Attachment struct {
 	URL            string `json:"url"`
 }
 
-func (c *Client) CreateTaskAttachment(ctx context.Context, taskID, filePath string) (*Attachment, error) {
+func (c *Client) CreateTaskAttachment(ctx context.Context, taskID, filePath string, opts ...*TaskScopedOptions) (*Attachment, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, &ClientError{Code: "FILE_ERROR", Message: fmt.Sprintf("failed to open file: %v", err)}
@@ -41,7 +41,9 @@ func (c *Client) CreateTaskAttachment(ctx context.Context, taskID, filePath stri
 	}
 	writer.Close()
 
-	url := c.BaseURL + fmt.Sprintf("/v2/task/%s/attachment", taskID)
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	url := c.BaseURL + fmt.Sprintf("/v2/task/%s/attachment", taskID) + taskScopedQuery(o)
 	req, err := http.NewRequestWithContext(ctx, "POST", url, &buf)
 	if err != nil {
 		return nil, &ClientError{Code: "REQUEST_ERROR", Message: fmt.Sprintf("failed to create request: %v", err)}

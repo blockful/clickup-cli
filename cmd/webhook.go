@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
@@ -45,6 +46,24 @@ var webhookCreateCmd = &cobra.Command{
 		}
 
 		req := &api.CreateWebhookRequest{Endpoint: endpoint, Events: events}
+		if s, _ := cmd.Flags().GetString("space-id"); s != "" {
+			if v, err := strconv.Atoi(s); err == nil {
+				req.SpaceID = &v
+			}
+		}
+		if s, _ := cmd.Flags().GetString("folder-id"); s != "" {
+			if v, err := strconv.Atoi(s); err == nil {
+				req.FolderID = &v
+			}
+		}
+		if s, _ := cmd.Flags().GetString("list-id"); s != "" {
+			if v, err := strconv.Atoi(s); err == nil {
+				req.ListID = &v
+			}
+		}
+		if s, _ := cmd.Flags().GetString("task-id"); s != "" {
+			req.TaskID = &s
+		}
 		resp, err := client.CreateWebhook(ctx, wid, req)
 		if err != nil {
 			return handleError(err)
@@ -105,6 +124,10 @@ func init() {
 
 	webhookCreateCmd.Flags().String("endpoint", "", "Webhook URL (required)")
 	webhookCreateCmd.Flags().StringSlice("events", nil, "Events to subscribe to (required)")
+	webhookCreateCmd.Flags().String("space-id", "", "Space ID to scope webhook")
+	webhookCreateCmd.Flags().String("folder-id", "", "Folder ID to scope webhook")
+	webhookCreateCmd.Flags().String("list-id", "", "List ID to scope webhook")
+	webhookCreateCmd.Flags().String("task-id", "", "Task ID to scope webhook")
 
 	webhookUpdateCmd.Flags().String("id", "", "Webhook ID (required)")
 	webhookUpdateCmd.Flags().String("endpoint", "", "Webhook URL")

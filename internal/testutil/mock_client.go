@@ -33,8 +33,8 @@ type MockClient struct {
 	UpdateTaskFn           func(context.Context, string, *api.UpdateTaskRequest, ...api.UpdateTaskOptions) (*api.Task, error)
 	DeleteTaskFn           func(context.Context, string) error
 	SearchTasksFn          func(context.Context, string, *api.SearchTasksOptions) (*api.TasksResponse, error)
-	ListCommentsFn         func(context.Context, string) (*api.CommentsResponse, error)
-	ListListCommentsFn     func(context.Context, string) (*api.CommentsResponse, error)
+	ListCommentsFn         func(context.Context, string, string) (*api.CommentsResponse, error)
+	ListListCommentsFn         func(context.Context, string, string) (*api.CommentsResponse, error)
 	CreateCommentFn        func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
 	CreateListCommentFn    func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
 	UpdateCommentFn        func(context.Context, string, *api.UpdateCommentRequest) error
@@ -119,13 +119,15 @@ type MockClient struct {
 	UpdateGoalFn      func(context.Context, string, *api.UpdateGoalRequest) (*api.GoalResponse, error)
 	DeleteGoalFn      func(context.Context, string) error
 	CreateKeyResultFn func(context.Context, string, *api.CreateKeyResultRequest) (*api.KeyResultResponse, error)
+	UpdateKeyResultFn func(context.Context, string, *api.UpdateKeyResultRequest) (*api.KeyResultResponse, error)
+	DeleteKeyResultFn func(context.Context, string) error
 
 	// Members
 	GetListMembersFn func(context.Context, string) (*api.MembersResponse, error)
 	GetTaskMembersFn func(context.Context, string) (*api.MembersResponse, error)
 
 	// Groups
-	GetGroupsFn   func(context.Context, string) (*api.GroupsResponse, error)
+	GetGroupsFn   func(context.Context, string, []string) (*api.GroupsResponse, error)
 	CreateGroupFn func(context.Context, string, *api.CreateGroupRequest) (*api.Group, error)
 	UpdateGroupFn func(context.Context, string, *api.UpdateGroupRequest) (*api.Group, error)
 	DeleteGroupFn func(context.Context, string) error
@@ -141,25 +143,25 @@ type MockClient struct {
 	CreateThreadedCommentFn func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
 
 	// View Comments
-	ListViewCommentsFn  func(context.Context, string) (*api.CommentsResponse, error)
+	ListViewCommentsFn  func(context.Context, string, string) (*api.CommentsResponse, error)
 	CreateViewCommentFn func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
 
 	// Guest Assignments
-	AddGuestToTaskFn       func(context.Context, string, int, *api.GuestPermissionRequest) (*api.GuestResponse, error)
-	RemoveGuestFromTaskFn  func(context.Context, string, int) error
-	AddGuestToListFn       func(context.Context, string, int, *api.GuestPermissionRequest) (*api.GuestResponse, error)
-	RemoveGuestFromListFn  func(context.Context, string, int) error
-	AddGuestToFolderFn     func(context.Context, string, int, *api.GuestPermissionRequest) (*api.GuestResponse, error)
-	RemoveGuestFromFolderFn func(context.Context, string, int) error
+	AddGuestToTaskFn       func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
+	RemoveGuestFromTaskFn  func(context.Context, string, int, bool) error
+	AddGuestToListFn       func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
+	RemoveGuestFromListFn  func(context.Context, string, int, bool) error
+	AddGuestToFolderFn     func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
+	RemoveGuestFromFolderFn func(context.Context, string, int, bool) error
 
 	// Users
 	InviteUserFn  func(context.Context, string, *api.InviteUserRequest) (*api.TeamUserResponse, error)
-	GetTeamUserFn func(context.Context, string, string) (*api.TeamUserResponse, error)
+	GetTeamUserFn func(context.Context, string, string, bool) (*api.TeamUserResponse, error)
 	EditUserFn    func(context.Context, string, string, *api.EditUserRequest) (*api.TeamUserResponse, error)
 	RemoveUserFn  func(context.Context, string, string) error
 
 	// Roles
-	GetCustomRolesFn func(context.Context, string) (*api.CustomRolesResponse, error)
+	GetCustomRolesFn func(context.Context, string, bool) (*api.CustomRolesResponse, error)
 
 	// Custom Task Types
 	GetCustomTaskTypesFn func(context.Context, string) (*api.CustomTaskTypesResponse, error)
@@ -272,13 +274,13 @@ func (m *MockClient) DeleteTask(ctx context.Context, id string) error {
 func (m *MockClient) SearchTasks(ctx context.Context, teamID string, opts *api.SearchTasksOptions) (*api.TasksResponse, error) {
 	return m.SearchTasksFn(ctx, teamID, opts)
 }
-func (m *MockClient) ListComments(ctx context.Context, id string) (*api.CommentsResponse, error) {
-	return m.ListCommentsFn(ctx, id)
+func (m *MockClient) ListComments(ctx context.Context, id string, startID string, opts ...*api.TaskScopedOptions) (*api.CommentsResponse, error) {
+	return m.ListCommentsFn(ctx, id, startID)
 }
-func (m *MockClient) ListListComments(ctx context.Context, id string) (*api.CommentsResponse, error) {
-	return m.ListListCommentsFn(ctx, id)
+func (m *MockClient) ListListComments(ctx context.Context, id string, startID string) (*api.CommentsResponse, error) {
+	return m.ListListCommentsFn(ctx, id, startID)
 }
-func (m *MockClient) CreateComment(ctx context.Context, tid string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
+func (m *MockClient) CreateComment(ctx context.Context, tid string, req *api.CreateCommentRequest, opts ...*api.TaskScopedOptions) (*api.CreateCommentResponse, error) {
 	return m.CreateCommentFn(ctx, tid, req)
 }
 func (m *MockClient) CreateListComment(ctx context.Context, lid string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
@@ -304,10 +306,10 @@ func (m *MockClient) GetSpaceCustomFields(ctx context.Context, id string) (*api.
 func (m *MockClient) GetWorkspaceCustomFields(ctx context.Context, id string) (*api.CustomFieldsResponse, error) {
 	return m.GetWorkspaceCustomFieldsFn(ctx, id)
 }
-func (m *MockClient) SetCustomFieldValue(ctx context.Context, taskID, fieldID string, req *api.SetCustomFieldRequest) error {
+func (m *MockClient) SetCustomFieldValue(ctx context.Context, taskID, fieldID string, req *api.SetCustomFieldRequest, opts ...*api.TaskScopedOptions) error {
 	return m.SetCustomFieldValueFn(ctx, taskID, fieldID, req)
 }
-func (m *MockClient) RemoveCustomFieldValue(ctx context.Context, taskID, fieldID string) error {
+func (m *MockClient) RemoveCustomFieldValue(ctx context.Context, taskID, fieldID string, opts ...*api.TaskScopedOptions) error {
 	return m.RemoveCustomFieldValueFn(ctx, taskID, fieldID)
 }
 
@@ -324,15 +326,15 @@ func (m *MockClient) UpdateSpaceTag(ctx context.Context, id, name string, req *a
 func (m *MockClient) DeleteSpaceTag(ctx context.Context, id, name string) error {
 	return m.DeleteSpaceTagFn(ctx, id, name)
 }
-func (m *MockClient) AddTagToTask(ctx context.Context, taskID, tagName string) error {
+func (m *MockClient) AddTagToTask(ctx context.Context, taskID, tagName string, opts ...*api.TaskScopedOptions) error {
 	return m.AddTagToTaskFn(ctx, taskID, tagName)
 }
-func (m *MockClient) RemoveTagFromTask(ctx context.Context, taskID, tagName string) error {
+func (m *MockClient) RemoveTagFromTask(ctx context.Context, taskID, tagName string, opts ...*api.TaskScopedOptions) error {
 	return m.RemoveTagFromTaskFn(ctx, taskID, tagName)
 }
 
 // Checklists
-func (m *MockClient) CreateChecklist(ctx context.Context, taskID string, req *api.CreateChecklistRequest) (*api.ChecklistResponse, error) {
+func (m *MockClient) CreateChecklist(ctx context.Context, taskID string, req *api.CreateChecklistRequest, opts ...*api.TaskScopedOptions) (*api.ChecklistResponse, error) {
 	return m.CreateChecklistFn(ctx, taskID, req)
 }
 func (m *MockClient) EditChecklist(ctx context.Context, id string, req *api.EditChecklistRequest) error {
@@ -381,7 +383,7 @@ func (m *MockClient) GetTimeEntries(ctx context.Context, teamID string, opts *ap
 func (m *MockClient) CreateTimeEntry(ctx context.Context, teamID string, req *api.CreateTimeEntryRequest) (*api.TimeEntry, error) {
 	return m.CreateTimeEntryFn(ctx, teamID, req)
 }
-func (m *MockClient) GetTimeEntry(ctx context.Context, teamID, timerID string) (*api.SingleTimeEntryResponse, error) {
+func (m *MockClient) GetTimeEntry(ctx context.Context, teamID, timerID string, opts *api.GetTimeEntryOptions) (*api.SingleTimeEntryResponse, error) {
 	return m.GetTimeEntryFn(ctx, teamID, timerID)
 }
 func (m *MockClient) UpdateTimeEntry(ctx context.Context, teamID, timerID string, req *api.UpdateTimeEntryRequest) error {
@@ -414,16 +416,16 @@ func (m *MockClient) RemoveTagsFromTimeEntries(ctx context.Context, teamID strin
 func (m *MockClient) ChangeTagNames(ctx context.Context, teamID string, req *api.ChangeTagNameRequest) error {
 	return m.ChangeTagNamesFn(ctx, teamID, req)
 }
-func (m *MockClient) GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string) (*api.LegacyTimeResponse, error) {
+func (m *MockClient) GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string, opts ...*api.TaskScopedOptions) (*api.LegacyTimeResponse, error) {
 	return m.GetLegacyTrackedTimeFn(ctx, taskID, subcategoryID)
 }
-func (m *MockClient) TrackLegacyTime(ctx context.Context, taskID string, req *api.LegacyTrackTimeRequest) (*api.LegacyTimeResponse, error) {
+func (m *MockClient) TrackLegacyTime(ctx context.Context, taskID string, req *api.LegacyTrackTimeRequest, opts ...*api.TaskScopedOptions) (*api.LegacyTimeResponse, error) {
 	return m.TrackLegacyTimeFn(ctx, taskID, req)
 }
-func (m *MockClient) EditLegacyTime(ctx context.Context, taskID, intervalID string, req *api.LegacyEditTimeRequest) error {
+func (m *MockClient) EditLegacyTime(ctx context.Context, taskID, intervalID string, req *api.LegacyEditTimeRequest, opts ...*api.TaskScopedOptions) error {
 	return m.EditLegacyTimeFn(ctx, taskID, intervalID, req)
 }
-func (m *MockClient) DeleteLegacyTime(ctx context.Context, taskID, intervalID string) error {
+func (m *MockClient) DeleteLegacyTime(ctx context.Context, taskID, intervalID string, opts ...*api.TaskScopedOptions) error {
 	return m.DeleteLegacyTimeFn(ctx, taskID, intervalID)
 }
 
@@ -498,6 +500,12 @@ func (m *MockClient) DeleteGoal(ctx context.Context, id string) error {
 func (m *MockClient) CreateKeyResult(ctx context.Context, goalID string, req *api.CreateKeyResultRequest) (*api.KeyResultResponse, error) {
 	return m.CreateKeyResultFn(ctx, goalID, req)
 }
+func (m *MockClient) UpdateKeyResult(ctx context.Context, keyResultID string, req *api.UpdateKeyResultRequest) (*api.KeyResultResponse, error) {
+	return m.UpdateKeyResultFn(ctx, keyResultID, req)
+}
+func (m *MockClient) DeleteKeyResult(ctx context.Context, keyResultID string) error {
+	return m.DeleteKeyResultFn(ctx, keyResultID)
+}
 
 // Members
 func (m *MockClient) GetListMembers(ctx context.Context, id string) (*api.MembersResponse, error) {
@@ -508,8 +516,8 @@ func (m *MockClient) GetTaskMembers(ctx context.Context, id string) (*api.Member
 }
 
 // Groups
-func (m *MockClient) GetGroups(ctx context.Context, teamID string) (*api.GroupsResponse, error) {
-	return m.GetGroupsFn(ctx, teamID)
+func (m *MockClient) GetGroups(ctx context.Context, teamID string, groupIDs []string) (*api.GroupsResponse, error) {
+	return m.GetGroupsFn(ctx, teamID, groupIDs)
 }
 func (m *MockClient) CreateGroup(ctx context.Context, teamID string, req *api.CreateGroupRequest) (*api.Group, error) {
 	return m.CreateGroupFn(ctx, teamID, req)
@@ -544,31 +552,31 @@ func (m *MockClient) CreateThreadedComment(ctx context.Context, commentID string
 }
 
 // View Comments
-func (m *MockClient) ListViewComments(ctx context.Context, viewID string) (*api.CommentsResponse, error) {
-	return m.ListViewCommentsFn(ctx, viewID)
+func (m *MockClient) ListViewComments(ctx context.Context, viewID string, startID string) (*api.CommentsResponse, error) {
+	return m.ListViewCommentsFn(ctx, viewID, startID)
 }
 func (m *MockClient) CreateViewComment(ctx context.Context, viewID string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
 	return m.CreateViewCommentFn(ctx, viewID, req)
 }
 
 // Guest Assignments
-func (m *MockClient) AddGuestToTask(ctx context.Context, taskID string, guestID int, req *api.GuestPermissionRequest) (*api.GuestResponse, error) {
-	return m.AddGuestToTaskFn(ctx, taskID, guestID, req)
+func (m *MockClient) AddGuestToTask(ctx context.Context, taskID string, guestID int, req *api.GuestPermissionRequest, includeShared bool, opts ...*api.TaskScopedOptions) (*api.GuestResponse, error) {
+	return m.AddGuestToTaskFn(ctx, taskID, guestID, req, includeShared)
 }
-func (m *MockClient) RemoveGuestFromTask(ctx context.Context, taskID string, guestID int) error {
-	return m.RemoveGuestFromTaskFn(ctx, taskID, guestID)
+func (m *MockClient) RemoveGuestFromTask(ctx context.Context, taskID string, guestID int, includeShared bool, opts ...*api.TaskScopedOptions) error {
+	return m.RemoveGuestFromTaskFn(ctx, taskID, guestID, includeShared)
 }
-func (m *MockClient) AddGuestToList(ctx context.Context, listID string, guestID int, req *api.GuestPermissionRequest) (*api.GuestResponse, error) {
-	return m.AddGuestToListFn(ctx, listID, guestID, req)
+func (m *MockClient) AddGuestToList(ctx context.Context, listID string, guestID int, req *api.GuestPermissionRequest, includeShared bool) (*api.GuestResponse, error) {
+	return m.AddGuestToListFn(ctx, listID, guestID, req, includeShared)
 }
-func (m *MockClient) RemoveGuestFromList(ctx context.Context, listID string, guestID int) error {
-	return m.RemoveGuestFromListFn(ctx, listID, guestID)
+func (m *MockClient) RemoveGuestFromList(ctx context.Context, listID string, guestID int, includeShared bool) error {
+	return m.RemoveGuestFromListFn(ctx, listID, guestID, includeShared)
 }
-func (m *MockClient) AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *api.GuestPermissionRequest) (*api.GuestResponse, error) {
-	return m.AddGuestToFolderFn(ctx, folderID, guestID, req)
+func (m *MockClient) AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *api.GuestPermissionRequest, includeShared bool) (*api.GuestResponse, error) {
+	return m.AddGuestToFolderFn(ctx, folderID, guestID, req, includeShared)
 }
-func (m *MockClient) RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int) error {
-	return m.RemoveGuestFromFolderFn(ctx, folderID, guestID)
+func (m *MockClient) RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int, includeShared bool) error {
+	return m.RemoveGuestFromFolderFn(ctx, folderID, guestID, includeShared)
 }
 
 // Templates
@@ -590,8 +598,8 @@ func (m *MockClient) CreateListFromSpaceTemplate(ctx context.Context, spaceID, t
 func (m *MockClient) InviteUser(ctx context.Context, teamID string, req *api.InviteUserRequest) (*api.TeamUserResponse, error) {
 	return m.InviteUserFn(ctx, teamID, req)
 }
-func (m *MockClient) GetTeamUser(ctx context.Context, teamID, userID string) (*api.TeamUserResponse, error) {
-	return m.GetTeamUserFn(ctx, teamID, userID)
+func (m *MockClient) GetTeamUser(ctx context.Context, teamID, userID string, includeShared bool) (*api.TeamUserResponse, error) {
+	return m.GetTeamUserFn(ctx, teamID, userID, includeShared)
 }
 func (m *MockClient) EditUser(ctx context.Context, teamID, userID string, req *api.EditUserRequest) (*api.TeamUserResponse, error) {
 	return m.EditUserFn(ctx, teamID, userID, req)
@@ -599,8 +607,8 @@ func (m *MockClient) EditUser(ctx context.Context, teamID, userID string, req *a
 func (m *MockClient) RemoveUser(ctx context.Context, teamID, userID string) error {
 	return m.RemoveUserFn(ctx, teamID, userID)
 }
-func (m *MockClient) GetCustomRoles(ctx context.Context, teamID string) (*api.CustomRolesResponse, error) {
-	return m.GetCustomRolesFn(ctx, teamID)
+func (m *MockClient) GetCustomRoles(ctx context.Context, teamID string, includeMembers bool) (*api.CustomRolesResponse, error) {
+	return m.GetCustomRolesFn(ctx, teamID, includeMembers)
 }
 func (m *MockClient) GetCustomTaskTypes(ctx context.Context, teamID string) (*api.CustomTaskTypesResponse, error) {
 	return m.GetCustomTaskTypesFn(ctx, teamID)
@@ -616,24 +624,24 @@ func (m *MockClient) GetWorkspacePlan(ctx context.Context, teamID string) (*api.
 }
 
 // Relationships
-func (m *MockClient) AddDependency(ctx context.Context, taskID string, req *api.AddDependencyRequest) (*api.DependencyResponse, error) {
+func (m *MockClient) AddDependency(ctx context.Context, taskID string, req *api.AddDependencyRequest, opts ...*api.TaskScopedOptions) (*api.DependencyResponse, error) {
 	return m.AddDependencyFn(ctx, taskID, req)
 }
-func (m *MockClient) DeleteDependency(ctx context.Context, taskID, dependsOn, dependencyOf string) error {
+func (m *MockClient) DeleteDependency(ctx context.Context, taskID, dependsOn, dependencyOf string, opts ...*api.TaskScopedOptions) error {
 	return m.DeleteDependencyFn(ctx, taskID, dependsOn, dependencyOf)
 }
-func (m *MockClient) AddTaskLink(ctx context.Context, taskID, linksTo string) (*api.TaskLinkResponse, error) {
+func (m *MockClient) AddTaskLink(ctx context.Context, taskID, linksTo string, opts ...*api.TaskScopedOptions) (*api.TaskLinkResponse, error) {
 	return m.AddTaskLinkFn(ctx, taskID, linksTo)
 }
-func (m *MockClient) DeleteTaskLink(ctx context.Context, taskID, linksTo string) error {
+func (m *MockClient) DeleteTaskLink(ctx context.Context, taskID, linksTo string, opts ...*api.TaskScopedOptions) error {
 	return m.DeleteTaskLinkFn(ctx, taskID, linksTo)
 }
 
 // Task Extras
-func (m *MockClient) MergeTasks(ctx context.Context, taskID string, req *api.MergeTasksRequest) error {
+func (m *MockClient) MergeTasks(ctx context.Context, taskID string, req *api.MergeTasksRequest, opts ...*api.TaskScopedOptions) error {
 	return m.MergeTasksFn(ctx, taskID, req)
 }
-func (m *MockClient) GetTimeInStatus(ctx context.Context, taskID string) (*api.TimeInStatusResponse, error) {
+func (m *MockClient) GetTimeInStatus(ctx context.Context, taskID string, opts ...*api.TaskScopedOptions) (*api.TimeInStatusResponse, error) {
 	return m.GetTimeInStatusFn(ctx, taskID)
 }
 func (m *MockClient) GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*api.BulkTimeInStatusResponse, error) {
@@ -647,6 +655,6 @@ func (m *MockClient) RemoveTaskFromList(ctx context.Context, listID, taskID stri
 }
 
 // Attachments
-func (m *MockClient) CreateTaskAttachment(ctx context.Context, taskID, filePath string) (*api.Attachment, error) {
+func (m *MockClient) CreateTaskAttachment(ctx context.Context, taskID, filePath string, opts ...*api.TaskScopedOptions) (*api.Attachment, error) {
 	return m.CreateTaskAttachmentFn(ctx, taskID, filePath)
 }

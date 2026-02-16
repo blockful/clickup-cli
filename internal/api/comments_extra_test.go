@@ -149,7 +149,7 @@ func TestListViewComments(t *testing.T) {
 	client.MaxRetries = 0
 	client.BaseURL = server.URL
 
-	resp, err := client.ListViewComments(ctx, "v1")
+	resp, err := client.ListViewComments(ctx, "v1", "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

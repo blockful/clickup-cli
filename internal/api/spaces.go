@@ -54,6 +54,8 @@ func (c *Client) CreateSpace(ctx context.Context, workspaceID string, req *Creat
 type UpdateSpaceRequest struct {
 	Name              string                 `json:"name,omitempty"`
 	MultipleAssignees *bool                  `json:"multiple_assignees,omitempty"`
+	Private           *bool                  `json:"private,omitempty"`
+	AdminCanManage    *bool                  `json:"admin_can_manage,omitempty"`
 	Features          map[string]interface{} `json:"features,omitempty"`
 }
 

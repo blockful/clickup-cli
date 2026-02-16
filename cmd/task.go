@@ -104,6 +104,9 @@ var taskCreateCmd = &cobra.Command{
 		req := &api.CreateTaskRequest{Name: name}
 		req.Description, _ = cmd.Flags().GetString("description")
 		req.MarkdownDescription, _ = cmd.Flags().GetString("markdown-description")
+		if req.MarkdownDescription == "" {
+			req.MarkdownDescription, _ = cmd.Flags().GetString("markdown-content")
+		}
 		req.Status, _ = cmd.Flags().GetString("status")
 		req.Parent, _ = cmd.Flags().GetString("parent")
 		req.LinksTo, _ = cmd.Flags().GetString("links-to")
@@ -118,9 +121,27 @@ var taskCreateCmd = &cobra.Command{
 			req.Assignees = assignees
 		}
 
+		groupAssignees, _ := cmd.Flags().GetStringSlice("group-assignees")
+		if len(groupAssignees) > 0 {
+			req.GroupAssignees = groupAssignees
+		}
+
 		priority, _ := cmd.Flags().GetInt("priority")
 		if priority > 0 {
 			req.Priority = &priority
+		}
+
+		if cmd.Flags().Changed("points") {
+			v, _ := cmd.Flags().GetFloat64("points")
+			req.Points = api.Float64Ptr(v)
+		}
+		if cmd.Flags().Changed("custom-item-id") {
+			v, _ := cmd.Flags().GetInt("custom-item-id")
+			req.CustomItemID = &v
+		}
+		if cmd.Flags().Changed("check-required-custom-fields") {
+			v, _ := cmd.Flags().GetBool("check-required-custom-fields")
+			req.CheckRequiredCustomFields = api.BoolPtr(v)
 		}
 
 		if cmd.Flags().Changed("due-date") {
@@ -222,10 +243,29 @@ var taskUpdateCmd = &cobra.Command{
 			req.Parent = api.StringPtr(v)
 		}
 
+		if cmd.Flags().Changed("markdown-description") {
+			v, _ := cmd.Flags().GetString("markdown-description")
+			req.MarkdownDescription = api.StringPtr(v)
+		}
+		if cmd.Flags().Changed("points") {
+			v, _ := cmd.Flags().GetFloat64("points")
+			req.Points = api.Float64Ptr(v)
+		}
+		if cmd.Flags().Changed("custom-item-id") {
+			v, _ := cmd.Flags().GetInt("custom-item-id")
+			req.CustomItemID = api.IntPtr(v)
+		}
+
 		addAssignees, _ := cmd.Flags().GetIntSlice("assignees-add")
 		remAssignees, _ := cmd.Flags().GetIntSlice("assignees-rem")
 		if len(addAssignees) > 0 || len(remAssignees) > 0 {
 			req.Assignees = &api.UpdateTaskAssignees{Add: addAssignees, Rem: remAssignees}
+		}
+
+		addGroups, _ := cmd.Flags().GetStringSlice("group-assignees-add")
+		remGroups, _ := cmd.Flags().GetStringSlice("group-assignees-rem")
+		if len(addGroups) > 0 || len(remGroups) > 0 {
+			req.GroupAssignees = &api.UpdateTaskGroupAssignees{Add: addGroups, Rem: remGroups}
 		}
 
 		updateOpts := api.UpdateTaskOptions{}
@@ -452,6 +492,11 @@ func init() {
 	taskCreateCmd.Flags().String("parent", "", "Parent task ID (for subtasks)")
 	taskCreateCmd.Flags().String("links-to", "", "Task ID to link to")
 	taskCreateCmd.Flags().String("custom-fields", "", "Custom fields (JSON array)")
+	taskCreateCmd.Flags().StringSlice("group-assignees", nil, "Group assignee IDs (team/group UUIDs)")
+	taskCreateCmd.Flags().Float64("points", 0, "Sprint points")
+	taskCreateCmd.Flags().Int("custom-item-id", 0, "Custom task type ID")
+	taskCreateCmd.Flags().Bool("check-required-custom-fields", false, "Validate required custom fields")
+	taskCreateCmd.Flags().String("markdown-content", "", "Alias for --markdown-description")
 
 	// task update
 	taskUpdateCmd.Flags().String("id", "", "Task ID")
@@ -468,6 +513,11 @@ func init() {
 	taskUpdateCmd.Flags().Int64("time-estimate", 0, "Time estimate (ms)")
 	taskUpdateCmd.Flags().Bool("archived", false, "Archive task")
 	taskUpdateCmd.Flags().String("parent", "", "Parent task ID")
+	taskUpdateCmd.Flags().String("markdown-description", "", "Task description in markdown")
+	taskUpdateCmd.Flags().Float64("points", 0, "Sprint points")
+	taskUpdateCmd.Flags().Int("custom-item-id", 0, "Custom task type ID")
+	taskUpdateCmd.Flags().StringSlice("group-assignees-add", nil, "Group assignee IDs to add")
+	taskUpdateCmd.Flags().StringSlice("group-assignees-rem", nil, "Group assignee IDs to remove")
 	taskUpdateCmd.Flags().Bool("custom-task-ids", false, "Use custom task IDs")
 	taskUpdateCmd.Flags().String("team-id", "", "Team ID (required when custom-task-ids=true)")
 

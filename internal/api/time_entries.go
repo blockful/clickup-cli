@@ -32,24 +32,27 @@ type SingleTimeEntryResponse struct {
 }
 
 type ListTimeEntriesOptions struct {
-	StartDate            string
-	EndDate              string
-	Assignee             string
-	IncludeTaskTags      bool
-	IncludeLocationNames bool
-	SpaceID              string
-	FolderID             string
-	ListID               string
-	TaskID               string
-	CustomTaskIDs        bool
-	TeamID               string
-	IsBillable           *bool
+	StartDate              string
+	EndDate                string
+	Assignee               string
+	IncludeTaskTags        bool
+	IncludeLocationNames   bool
+	IncludeApprovalHistory bool
+	IncludeApprovalDetails bool
+	SpaceID                string
+	FolderID               string
+	ListID                 string
+	TaskID                 string
+	CustomTaskIDs          bool
+	TeamID                 string
+	IsBillable             *bool
 }
 
 type CreateTimeEntryRequest struct {
 	Description string `json:"description,omitempty"`
 	Tags        []Tag  `json:"tags,omitempty"`
 	Start       int64  `json:"start"`
+	Stop        *int64 `json:"stop,omitempty"`
 	Billable    bool   `json:"billable,omitempty"`
 	Duration    int64  `json:"duration"`
 	Assignee    *int   `json:"assignee,omitempty"`
@@ -104,6 +107,14 @@ func (c *Client) GetTimeEntries(ctx context.Context, teamID string, opts *ListTi
 			q += sep + "include_location_names=true"
 			sep = "&"
 		}
+		if opts.IncludeApprovalHistory {
+			q += sep + "include_approval_history=true"
+			sep = "&"
+		}
+		if opts.IncludeApprovalDetails {
+			q += sep + "include_approval_details=true"
+			sep = "&"
+		}
 		if opts.IsBillable != nil {
 			if *opts.IsBillable {
 				q += sep + "is_billable=true"
@@ -128,9 +139,25 @@ func (c *Client) CreateTimeEntry(ctx context.Context, teamID string, req *Create
 	return &resp, nil
 }
 
-func (c *Client) GetTimeEntry(ctx context.Context, teamID, timerID string) (*SingleTimeEntryResponse, error) {
+type GetTimeEntryOptions struct {
+	IncludeApprovalHistory bool
+	IncludeApprovalDetails bool
+}
+
+func (c *Client) GetTimeEntry(ctx context.Context, teamID, timerID string, opts *GetTimeEntryOptions) (*SingleTimeEntryResponse, error) {
+	path := fmt.Sprintf("/v2/team/%s/time_entries/%s", teamID, timerID)
+	if opts != nil {
+		sep := "?"
+		if opts.IncludeApprovalHistory {
+			path += sep + "include_approval_history=true"
+			sep = "&"
+		}
+		if opts.IncludeApprovalDetails {
+			path += sep + "include_approval_details=true"
+		}
+	}
 	var resp SingleTimeEntryResponse
-	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/team/%s/time_entries/%s", teamID, timerID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil

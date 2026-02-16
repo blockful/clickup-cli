@@ -19,7 +19,8 @@ var roleListCmd = &cobra.Command{
 		client := getClient()
 		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
-		resp, err := client.GetCustomRoles(ctx, wid)
+		includeMembers, _ := cmd.Flags().GetBool("include-members")
+		resp, err := client.GetCustomRoles(ctx, wid, includeMembers)
 		if err != nil {
 			return handleError(err)
 		}
@@ -31,4 +32,5 @@ var roleListCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(roleCmd)
 	roleCmd.AddCommand(roleListCmd)
+	roleListCmd.Flags().Bool("include-members", false, "Include members in response")
 }

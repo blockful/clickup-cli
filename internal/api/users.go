@@ -36,9 +36,13 @@ func (c *Client) InviteUser(ctx context.Context, teamID string, req *InviteUserR
 	return &resp, nil
 }
 
-func (c *Client) GetTeamUser(ctx context.Context, teamID, userID string) (*TeamUserResponse, error) {
+func (c *Client) GetTeamUser(ctx context.Context, teamID, userID string, includeShared bool) (*TeamUserResponse, error) {
+	path := fmt.Sprintf("/v2/team/%s/user/%s", teamID, userID)
+	if includeShared {
+		path += "?include_shared=true"
+	}
 	var resp TeamUserResponse
-	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/team/%s/user/%s", teamID, userID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil

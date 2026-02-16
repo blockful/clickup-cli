@@ -31,7 +31,7 @@ func TestAddGuestToTask(t *testing.T) {
 			client := NewClient("pk_test")
 			client.MaxRetries = 0
 			client.BaseURL = server.URL
-			_, err := client.AddGuestToTask(ctx, "t1", 123, &GuestPermissionRequest{PermissionLevel: "read"})
+			_, err := client.AddGuestToTask(ctx, "t1", 123, &GuestPermissionRequest{PermissionLevel: "read"}, false)
 			if tt.wantErr && err == nil {
 				t.Fatal("expected error")
 			}
@@ -54,7 +54,7 @@ func TestRemoveGuestFromTask(t *testing.T) {
 	client := NewClient("pk_test")
 	client.MaxRetries = 0
 	client.BaseURL = server.URL
-	if err := client.RemoveGuestFromTask(ctx, "t1", 123); err != nil {
+	if err := client.RemoveGuestFromTask(ctx, "t1", 123, false); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -69,7 +69,7 @@ func TestAddGuestToList(t *testing.T) {
 	client := NewClient("pk_test")
 	client.MaxRetries = 0
 	client.BaseURL = server.URL
-	_, err := client.AddGuestToList(ctx, "l1", 123, &GuestPermissionRequest{PermissionLevel: "read"})
+	_, err := client.AddGuestToList(ctx, "l1", 123, &GuestPermissionRequest{PermissionLevel: "read"}, false)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -87,7 +87,7 @@ func TestRemoveGuestFromFolder(t *testing.T) {
 	client := NewClient("pk_test")
 	client.MaxRetries = 0
 	client.BaseURL = server.URL
-	if err := client.RemoveGuestFromFolder(ctx, "f1", 456); err != nil {
+	if err := client.RemoveGuestFromFolder(ctx, "f1", 456, false); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }

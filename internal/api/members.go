@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type Member struct {
@@ -93,10 +94,16 @@ func (c *Client) GetTaskMembers(ctx context.Context, taskID string) (*MembersRes
 	return &resp, nil
 }
 
-func (c *Client) GetGroups(ctx context.Context, teamID string) (*GroupsResponse, error) {
+func (c *Client) GetGroups(ctx context.Context, teamID string, groupIDs []string) (*GroupsResponse, error) {
 	path := "/v2/group"
+	sep := "?"
 	if teamID != "" {
-		path += "?team_id=" + teamID
+		path += sep + "team_id=" + teamID
+		sep = "&"
+	}
+	for _, gid := range groupIDs {
+		path += sep + "group_ids=" + gid
+		sep = "&"
 	}
 	var resp GroupsResponse
 	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
@@ -155,38 +162,65 @@ type GuestPermissionRequest struct {
 	PermissionLevel string `json:"permission_level"`
 }
 
-func (c *Client) AddGuestToTask(ctx context.Context, taskID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error) {
+func includeSharedQuery(includeShared bool) string {
+	if includeShared {
+		return "?include_shared=true"
+	}
+	return ""
+}
+
+func (c *Client) AddGuestToTask(ctx context.Context, taskID string, guestID int, req *GuestPermissionRequest, includeShared bool, opts ...*TaskScopedOptions) (*GuestResponse, error) {
+	params := url.Values{}
+	if includeShared {
+		params.Set("include_shared", "true")
+	}
+	if len(opts) > 0 && opts[0] != nil {
+		if opts[0].CustomTaskIDs { params.Set("custom_task_ids", "true") }
+		if opts[0].TeamID != "" { params.Set("team_id", opts[0].TeamID) }
+	}
+	path := fmt.Sprintf("/v2/task/%s/guest/%d", taskID, guestID)
+	if q := params.Encode(); q != "" { path += "?" + q }
 	var resp GuestResponse
-	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/guest/%d", taskID, guestID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", path, req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) RemoveGuestFromTask(ctx context.Context, taskID string, guestID int) error {
-	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s/guest/%d", taskID, guestID), nil, nil)
+func (c *Client) RemoveGuestFromTask(ctx context.Context, taskID string, guestID int, includeShared bool, opts ...*TaskScopedOptions) error {
+	params := url.Values{}
+	if includeShared {
+		params.Set("include_shared", "true")
+	}
+	if len(opts) > 0 && opts[0] != nil {
+		if opts[0].CustomTaskIDs { params.Set("custom_task_ids", "true") }
+		if opts[0].TeamID != "" { params.Set("team_id", opts[0].TeamID) }
+	}
+	path := fmt.Sprintf("/v2/task/%s/guest/%d", taskID, guestID)
+	if q := params.Encode(); q != "" { path += "?" + q }
+	return c.Do(ctx, "DELETE", path, nil, nil)
 }
 
-func (c *Client) AddGuestToList(ctx context.Context, listID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error) {
+func (c *Client) AddGuestToList(ctx context.Context, listID string, guestID int, req *GuestPermissionRequest, includeShared bool) (*GuestResponse, error) {
 	var resp GuestResponse
-	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/guest/%d", listID, guestID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/guest/%d%s", listID, guestID, includeSharedQuery(includeShared)), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) RemoveGuestFromList(ctx context.Context, listID string, guestID int) error {
-	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/list/%s/guest/%d", listID, guestID), nil, nil)
+func (c *Client) RemoveGuestFromList(ctx context.Context, listID string, guestID int, includeShared bool) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/list/%s/guest/%d%s", listID, guestID, includeSharedQuery(includeShared)), nil, nil)
 }
 
-func (c *Client) AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error) {
+func (c *Client) AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *GuestPermissionRequest, includeShared bool) (*GuestResponse, error) {
 	var resp GuestResponse
-	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/folder/%s/guest/%d", folderID, guestID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/folder/%s/guest/%d%s", folderID, guestID, includeSharedQuery(includeShared)), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int) error {
-	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/folder/%s/guest/%d", folderID, guestID), nil, nil)
+func (c *Client) RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int, includeShared bool) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/folder/%s/guest/%d%s", folderID, guestID, includeSharedQuery(includeShared)), nil, nil)
 }

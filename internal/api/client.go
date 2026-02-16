@@ -60,9 +60,9 @@ type ClientInterface interface {
 	SearchTasks(ctx context.Context, teamID string, opts *SearchTasksOptions) (*TasksResponse, error)
 
 	// Comments
-	ListComments(ctx context.Context, taskID string) (*CommentsResponse, error)
-	ListListComments(ctx context.Context, listID string) (*CommentsResponse, error)
-	CreateComment(ctx context.Context, taskID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
+	ListComments(ctx context.Context, taskID string, startID string, opts ...*TaskScopedOptions) (*CommentsResponse, error)
+	ListListComments(ctx context.Context, listID string, startID string) (*CommentsResponse, error)
+	CreateComment(ctx context.Context, taskID string, req *CreateCommentRequest, opts ...*TaskScopedOptions) (*CreateCommentResponse, error)
 	CreateListComment(ctx context.Context, listID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
 	UpdateComment(ctx context.Context, commentID string, req *UpdateCommentRequest) error
 	DeleteComment(ctx context.Context, commentID string) error
@@ -72,19 +72,19 @@ type ClientInterface interface {
 	GetFolderCustomFields(ctx context.Context, folderID string) (*CustomFieldsResponse, error)
 	GetSpaceCustomFields(ctx context.Context, spaceID string) (*CustomFieldsResponse, error)
 	GetWorkspaceCustomFields(ctx context.Context, teamID string) (*CustomFieldsResponse, error)
-	SetCustomFieldValue(ctx context.Context, taskID, fieldID string, req *SetCustomFieldRequest) error
-	RemoveCustomFieldValue(ctx context.Context, taskID, fieldID string) error
+	SetCustomFieldValue(ctx context.Context, taskID, fieldID string, req *SetCustomFieldRequest, opts ...*TaskScopedOptions) error
+	RemoveCustomFieldValue(ctx context.Context, taskID, fieldID string, opts ...*TaskScopedOptions) error
 
 	// Tags
 	GetSpaceTags(ctx context.Context, spaceID string) (*TagsResponse, error)
 	CreateSpaceTag(ctx context.Context, spaceID string, req *CreateTagRequest) error
 	UpdateSpaceTag(ctx context.Context, spaceID, tagName string, req *UpdateTagRequest) error
 	DeleteSpaceTag(ctx context.Context, spaceID, tagName string) error
-	AddTagToTask(ctx context.Context, taskID, tagName string) error
-	RemoveTagFromTask(ctx context.Context, taskID, tagName string) error
+	AddTagToTask(ctx context.Context, taskID, tagName string, opts ...*TaskScopedOptions) error
+	RemoveTagFromTask(ctx context.Context, taskID, tagName string, opts ...*TaskScopedOptions) error
 
 	// Checklists
-	CreateChecklist(ctx context.Context, taskID string, req *CreateChecklistRequest) (*ChecklistResponse, error)
+	CreateChecklist(ctx context.Context, taskID string, req *CreateChecklistRequest, opts ...*TaskScopedOptions) (*ChecklistResponse, error)
 	EditChecklist(ctx context.Context, checklistID string, req *EditChecklistRequest) error
 	DeleteChecklist(ctx context.Context, checklistID string) error
 	CreateChecklistItem(ctx context.Context, checklistID string, req *CreateChecklistItemRequest) (*ChecklistResponse, error)
@@ -103,7 +103,7 @@ type ClientInterface interface {
 	// Time Tracking
 	GetTimeEntries(ctx context.Context, teamID string, opts *ListTimeEntriesOptions) (*TimeEntriesResponse, error)
 	CreateTimeEntry(ctx context.Context, teamID string, req *CreateTimeEntryRequest) (*TimeEntry, error)
-	GetTimeEntry(ctx context.Context, teamID, timerID string) (*SingleTimeEntryResponse, error)
+	GetTimeEntry(ctx context.Context, teamID, timerID string, opts *GetTimeEntryOptions) (*SingleTimeEntryResponse, error)
 	UpdateTimeEntry(ctx context.Context, teamID, timerID string, req *UpdateTimeEntryRequest) error
 	DeleteTimeEntry(ctx context.Context, teamID, timerID string) error
 	StartTimer(ctx context.Context, teamID string, req *StartTimerRequest) (*SingleTimeEntryResponse, error)
@@ -116,10 +116,10 @@ type ClientInterface interface {
 	ChangeTagNames(ctx context.Context, teamID string, req *ChangeTagNameRequest) error
 
 	// Time Tracking Legacy (task-level)
-	GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string) (*LegacyTimeResponse, error)
-	TrackLegacyTime(ctx context.Context, taskID string, req *LegacyTrackTimeRequest) (*LegacyTimeResponse, error)
-	EditLegacyTime(ctx context.Context, taskID, intervalID string, req *LegacyEditTimeRequest) error
-	DeleteLegacyTime(ctx context.Context, taskID, intervalID string) error
+	GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string, opts ...*TaskScopedOptions) (*LegacyTimeResponse, error)
+	TrackLegacyTime(ctx context.Context, taskID string, req *LegacyTrackTimeRequest, opts ...*TaskScopedOptions) (*LegacyTimeResponse, error)
+	EditLegacyTime(ctx context.Context, taskID, intervalID string, req *LegacyEditTimeRequest, opts ...*TaskScopedOptions) error
+	DeleteLegacyTime(ctx context.Context, taskID, intervalID string, opts ...*TaskScopedOptions) error
 
 	// Webhooks
 	GetWebhooks(ctx context.Context, teamID string) (*WebhooksResponse, error)
@@ -148,32 +148,34 @@ type ClientInterface interface {
 	UpdateGoal(ctx context.Context, goalID string, req *UpdateGoalRequest) (*GoalResponse, error)
 	DeleteGoal(ctx context.Context, goalID string) error
 	CreateKeyResult(ctx context.Context, goalID string, req *CreateKeyResultRequest) (*KeyResultResponse, error)
+	UpdateKeyResult(ctx context.Context, keyResultID string, req *UpdateKeyResultRequest) (*KeyResultResponse, error)
+	DeleteKeyResult(ctx context.Context, keyResultID string) error
 
 	// Members
 	GetListMembers(ctx context.Context, listID string) (*MembersResponse, error)
 	GetTaskMembers(ctx context.Context, taskID string) (*MembersResponse, error)
 
 	// Groups
-	GetGroups(ctx context.Context, teamID string) (*GroupsResponse, error)
+	GetGroups(ctx context.Context, teamID string, groupIDs []string) (*GroupsResponse, error)
 	CreateGroup(ctx context.Context, teamID string, req *CreateGroupRequest) (*Group, error)
 	UpdateGroup(ctx context.Context, groupID string, req *UpdateGroupRequest) (*Group, error)
 	DeleteGroup(ctx context.Context, groupID string) error
 
 	// Relationships
-	AddDependency(ctx context.Context, taskID string, req *AddDependencyRequest) (*DependencyResponse, error)
-	DeleteDependency(ctx context.Context, taskID, dependsOn, dependencyOf string) error
-	AddTaskLink(ctx context.Context, taskID, linksTo string) (*TaskLinkResponse, error)
-	DeleteTaskLink(ctx context.Context, taskID, linksTo string) error
+	AddDependency(ctx context.Context, taskID string, req *AddDependencyRequest, opts ...*TaskScopedOptions) (*DependencyResponse, error)
+	DeleteDependency(ctx context.Context, taskID, dependsOn, dependencyOf string, opts ...*TaskScopedOptions) error
+	AddTaskLink(ctx context.Context, taskID, linksTo string, opts ...*TaskScopedOptions) (*TaskLinkResponse, error)
+	DeleteTaskLink(ctx context.Context, taskID, linksTo string, opts ...*TaskScopedOptions) error
 
 	// Task Extras
-	MergeTasks(ctx context.Context, taskID string, req *MergeTasksRequest) error
-	GetTimeInStatus(ctx context.Context, taskID string) (*TimeInStatusResponse, error)
+	MergeTasks(ctx context.Context, taskID string, req *MergeTasksRequest, opts ...*TaskScopedOptions) error
+	GetTimeInStatus(ctx context.Context, taskID string, opts ...*TaskScopedOptions) (*TimeInStatusResponse, error)
 	GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*BulkTimeInStatusResponse, error)
 	AddTaskToList(ctx context.Context, listID, taskID string) error
 	RemoveTaskFromList(ctx context.Context, listID, taskID string) error
 
 	// Attachments
-	CreateTaskAttachment(ctx context.Context, taskID, filePath string) (*Attachment, error)
+	CreateTaskAttachment(ctx context.Context, taskID, filePath string, opts ...*TaskScopedOptions) (*Attachment, error)
 
 	// Guests
 	InviteGuest(ctx context.Context, teamID string, req *InviteGuestRequest) error
@@ -183,12 +185,12 @@ type ClientInterface interface {
 
 	// Users
 	InviteUser(ctx context.Context, teamID string, req *InviteUserRequest) (*TeamUserResponse, error)
-	GetTeamUser(ctx context.Context, teamID, userID string) (*TeamUserResponse, error)
+	GetTeamUser(ctx context.Context, teamID, userID string, includeShared bool) (*TeamUserResponse, error)
 	EditUser(ctx context.Context, teamID, userID string, req *EditUserRequest) (*TeamUserResponse, error)
 	RemoveUser(ctx context.Context, teamID, userID string) error
 
 	// Roles
-	GetCustomRoles(ctx context.Context, teamID string) (*CustomRolesResponse, error)
+	GetCustomRoles(ctx context.Context, teamID string, includeMembers bool) (*CustomRolesResponse, error)
 
 	// Custom Task Types
 	GetCustomTaskTypes(ctx context.Context, teamID string) (*CustomTaskTypesResponse, error)
@@ -205,16 +207,16 @@ type ClientInterface interface {
 	CreateThreadedComment(ctx context.Context, commentID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
 
 	// View Comments
-	ListViewComments(ctx context.Context, viewID string) (*CommentsResponse, error)
+	ListViewComments(ctx context.Context, viewID string, startID string) (*CommentsResponse, error)
 	CreateViewComment(ctx context.Context, viewID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
 
 	// Guest Assignments
-	AddGuestToTask(ctx context.Context, taskID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error)
-	RemoveGuestFromTask(ctx context.Context, taskID string, guestID int) error
-	AddGuestToList(ctx context.Context, listID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error)
-	RemoveGuestFromList(ctx context.Context, listID string, guestID int) error
-	AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error)
-	RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int) error
+	AddGuestToTask(ctx context.Context, taskID string, guestID int, req *GuestPermissionRequest, includeShared bool, opts ...*TaskScopedOptions) (*GuestResponse, error)
+	RemoveGuestFromTask(ctx context.Context, taskID string, guestID int, includeShared bool, opts ...*TaskScopedOptions) error
+	AddGuestToList(ctx context.Context, listID string, guestID int, req *GuestPermissionRequest, includeShared bool) (*GuestResponse, error)
+	RemoveGuestFromList(ctx context.Context, listID string, guestID int, includeShared bool) error
+	AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *GuestPermissionRequest, includeShared bool) (*GuestResponse, error)
+	RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int, includeShared bool) error
 
 	// Templates
 	GetTaskTemplates(ctx context.Context, teamID string, page int) (*TaskTemplatesResponse, error)

@@ -26,8 +26,9 @@ var commentListCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--task, --list, or --view-id is required")
 			return &exitError{code: 1}
 		}
+		startID, _ := cmd.Flags().GetString("start-id")
 		if viewID != "" {
-			resp, err := client.ListViewComments(ctx, viewID)
+			resp, err := client.ListViewComments(ctx, viewID, startID)
 			if err != nil {
 				return handleError(err)
 			}
@@ -35,14 +36,14 @@ var commentListCmd = &cobra.Command{
 			return nil
 		}
 		if listID != "" {
-			resp, err := client.ListListComments(ctx, listID)
+			resp, err := client.ListListComments(ctx, listID, startID)
 			if err != nil {
 				return handleError(err)
 			}
 			output.JSON(resp)
 			return nil
 		}
-		resp, err := client.ListComments(ctx, taskID)
+		resp, err := client.ListComments(ctx, taskID, startID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -73,6 +74,10 @@ var commentCreateCmd = &cobra.Command{
 		if cmd.Flags().Changed("assignee") {
 			v, _ := cmd.Flags().GetInt("assignee")
 			req.Assignee = api.IntPtr(v)
+		}
+		if cmd.Flags().Changed("group-assignee") {
+			v, _ := cmd.Flags().GetInt("group-assignee")
+			req.GroupAssignee = api.IntPtr(v)
 		}
 		req.NotifyAll, _ = cmd.Flags().GetBool("notify-all")
 
@@ -121,6 +126,10 @@ var commentUpdateCmd = &cobra.Command{
 		if cmd.Flags().Changed("assignee") {
 			v, _ := cmd.Flags().GetInt("assignee")
 			req.Assignee = api.IntPtr(v)
+		}
+		if cmd.Flags().Changed("group-assignee") {
+			v, _ := cmd.Flags().GetInt("group-assignee")
+			req.GroupAssignee = api.IntPtr(v)
 		}
 		if cmd.Flags().Changed("resolved") {
 			v, _ := cmd.Flags().GetBool("resolved")
@@ -213,17 +222,20 @@ func init() {
 	commentListCmd.Flags().String("task", "", "Task ID")
 	commentListCmd.Flags().String("list", "", "List ID")
 	commentListCmd.Flags().String("view-id", "", "View ID (chat view comments)")
+	commentListCmd.Flags().String("start-id", "", "Start comment ID for pagination")
 
 	commentCreateCmd.Flags().String("task", "", "Task ID")
 	commentCreateCmd.Flags().String("list", "", "List ID")
 	commentCreateCmd.Flags().String("view-id", "", "View ID (chat view comment)")
 	commentCreateCmd.Flags().String("text", "", "Comment text")
 	commentCreateCmd.Flags().Int("assignee", 0, "Assignee user ID")
+	commentCreateCmd.Flags().Int("group-assignee", 0, "Group assignee ID")
 	commentCreateCmd.Flags().Bool("notify-all", false, "Notify all")
 
 	commentUpdateCmd.Flags().String("id", "", "Comment ID")
 	commentUpdateCmd.Flags().String("text", "", "Comment text")
 	commentUpdateCmd.Flags().Int("assignee", 0, "Assignee user ID")
+	commentUpdateCmd.Flags().Int("group-assignee", 0, "Group assignee ID")
 	commentUpdateCmd.Flags().Bool("resolved", false, "Mark as resolved")
 
 	commentDeleteCmd.Flags().String("id", "", "Comment ID")

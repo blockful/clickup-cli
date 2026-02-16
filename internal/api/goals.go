@@ -130,3 +130,20 @@ func (c *Client) CreateKeyResult(ctx context.Context, goalID string, req *Create
 	}
 	return &resp, nil
 }
+
+type UpdateKeyResultRequest struct {
+	StepsCurrent *int    `json:"steps_current,omitempty"`
+	Note         string  `json:"note,omitempty"`
+}
+
+func (c *Client) UpdateKeyResult(ctx context.Context, keyResultID string, req *UpdateKeyResultRequest) (*KeyResultResponse, error) {
+	var resp KeyResultResponse
+	if err := c.Do(ctx, "PUT", fmt.Sprintf("/v2/key_result/%s", keyResultID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) DeleteKeyResult(ctx context.Context, keyResultID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/key_result/%s", keyResultID), nil, nil)
+}

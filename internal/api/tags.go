@@ -43,10 +43,14 @@ func (c *Client) DeleteSpaceTag(ctx context.Context, spaceID, tagName string) er
 	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/space/%s/tag/%s", spaceID, tagName), nil, nil)
 }
 
-func (c *Client) AddTagToTask(ctx context.Context, taskID, tagName string) error {
-	return c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/tag/%s", taskID, tagName), nil, nil)
+func (c *Client) AddTagToTask(ctx context.Context, taskID, tagName string, opts ...*TaskScopedOptions) error {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	return c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/tag/%s", taskID, tagName)+taskScopedQuery(o), nil, nil)
 }
 
-func (c *Client) RemoveTagFromTask(ctx context.Context, taskID, tagName string) error {
-	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s/tag/%s", taskID, tagName), nil, nil)
+func (c *Client) RemoveTagFromTask(ctx context.Context, taskID, tagName string, opts ...*TaskScopedOptions) error {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s/tag/%s", taskID, tagName)+taskScopedQuery(o), nil, nil)
 }

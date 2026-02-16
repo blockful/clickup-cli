@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
@@ -53,8 +54,12 @@ var groupListCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
 		ctx := context.Background()
-		wid := getWorkspaceID(cmd)
-		resp, err := client.GetGroups(ctx, wid)
+		teamID, _ := cmd.Flags().GetString("team-id")
+		if teamID == "" {
+			teamID = getWorkspaceID(cmd)
+		}
+		groupIDs, _ := cmd.Flags().GetStringSlice("group-ids")
+		resp, err := client.GetGroups(ctx, teamID, groupIDs)
 		if err != nil {
 			return handleError(err)
 		}
@@ -78,8 +83,51 @@ var groupCreateCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		req := &api.CreateGroupRequest{Name: name, Handle: handle}
+		members, _ := cmd.Flags().GetIntSlice("members")
+		req := &api.CreateGroupRequest{Name: name, Handle: handle, Members: members}
 		resp, err := client.CreateGroup(ctx, wid, req)
+		if err != nil {
+			return handleError(err)
+		}
+		output.JSON(resp)
+		return nil
+	},
+}
+
+var groupUpdateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update a group",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		id, _ := cmd.Flags().GetString("id")
+		if id == "" {
+			output.PrintError("VALIDATION_ERROR", "--id is required")
+			return &exitError{code: 1}
+		}
+		req := &api.UpdateGroupRequest{}
+		if cmd.Flags().Changed("name") {
+			req.Name, _ = cmd.Flags().GetString("name")
+		}
+		if cmd.Flags().Changed("handle") {
+			req.Handle, _ = cmd.Flags().GetString("handle")
+		}
+		if cmd.Flags().Changed("members") {
+			membersJSON, _ := cmd.Flags().GetString("members")
+			var m struct {
+				Add []int `json:"add"`
+				Rem []int `json:"rem"`
+			}
+			if err := json.Unmarshal([]byte(membersJSON), &m); err != nil {
+				output.PrintError("VALIDATION_ERROR", "invalid --members JSON: "+err.Error())
+				return &exitError{code: 1}
+			}
+			req.Members = &struct {
+				Add []int `json:"add,omitempty"`
+				Rem []int `json:"rem,omitempty"`
+			}{Add: m.Add, Rem: m.Rem}
+		}
+		resp, err := client.UpdateGroup(ctx, id, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -125,6 +173,24 @@ var guestInviteCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 		req := &api.InviteGuestRequest{Email: email}
+		if cmd.Flags().Changed("can-edit-tags") {
+			v, _ := cmd.Flags().GetBool("can-edit-tags"); req.CanEditTags = &v
+		}
+		if cmd.Flags().Changed("can-see-time-spent") {
+			v, _ := cmd.Flags().GetBool("can-see-time-spent"); req.CanSeeTimeSpent = &v
+		}
+		if cmd.Flags().Changed("can-see-time-estimated") {
+			v, _ := cmd.Flags().GetBool("can-see-time-estimated"); req.CanSeeTimeEstimated = &v
+		}
+		if cmd.Flags().Changed("can-create-views") {
+			v, _ := cmd.Flags().GetBool("can-create-views"); req.CanCreateViews = &v
+		}
+		if cmd.Flags().Changed("can-see-points-estimated") {
+			v, _ := cmd.Flags().GetBool("can-see-points-estimated"); req.CanSeePointsEstimated = &v
+		}
+		if cmd.Flags().Changed("custom-role-id") {
+			v, _ := cmd.Flags().GetInt("custom-role-id"); req.CustomRoleID = &v
+		}
 		if err := client.InviteGuest(ctx, wid, req); err != nil {
 			return handleError(err)
 		}
@@ -174,6 +240,46 @@ var guestRemoveCmd = &cobra.Command{
 	},
 }
 
+var guestEditCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "Edit a guest",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		wid := getWorkspaceID(cmd)
+		id, _ := cmd.Flags().GetString("id")
+		if id == "" {
+			output.PrintError("VALIDATION_ERROR", "--id is required")
+			return &exitError{code: 1}
+		}
+		req := &api.EditGuestRequest{}
+		if cmd.Flags().Changed("can-edit-tags") {
+			v, _ := cmd.Flags().GetBool("can-edit-tags"); req.CanEditTags = &v
+		}
+		if cmd.Flags().Changed("can-see-time-spent") {
+			v, _ := cmd.Flags().GetBool("can-see-time-spent"); req.CanSeeTimeSpent = &v
+		}
+		if cmd.Flags().Changed("can-see-time-estimated") {
+			v, _ := cmd.Flags().GetBool("can-see-time-estimated"); req.CanSeeTimeEstimated = &v
+		}
+		if cmd.Flags().Changed("can-create-views") {
+			v, _ := cmd.Flags().GetBool("can-create-views"); req.CanCreateViews = &v
+		}
+		if cmd.Flags().Changed("can-see-points-estimated") {
+			v, _ := cmd.Flags().GetBool("can-see-points-estimated"); req.CanSeePointsEstimated = &v
+		}
+		if cmd.Flags().Changed("custom-role-id") {
+			v, _ := cmd.Flags().GetInt("custom-role-id"); req.CustomRoleID = &v
+		}
+		resp, err := client.EditGuest(ctx, wid, id, req)
+		if err != nil {
+			return handleError(err)
+		}
+		output.JSON(resp)
+		return nil
+	},
+}
+
 var guestAddToTaskCmd = &cobra.Command{
 	Use:   "add-to-task",
 	Short: "Add a guest to a task",
@@ -191,8 +297,9 @@ var guestAddToTaskCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
 			return &exitError{code: 1}
 		}
+		includeShared, _ := cmd.Flags().GetBool("include-shared")
 		req := &api.GuestPermissionRequest{PermissionLevel: permLevel}
-		resp, err := client.AddGuestToTask(ctx, taskID, guestID, req)
+		resp, err := client.AddGuestToTask(ctx, taskID, guestID, req, includeShared)
 		if err != nil {
 			return handleError(err)
 		}
@@ -217,7 +324,8 @@ var guestRemoveFromTaskCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.RemoveGuestFromTask(ctx, taskID, guestID); err != nil {
+		includeShared, _ := cmd.Flags().GetBool("include-shared")
+		if err := client.RemoveGuestFromTask(ctx, taskID, guestID, includeShared); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -242,8 +350,9 @@ var guestAddToListCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
 			return &exitError{code: 1}
 		}
+		includeShared, _ := cmd.Flags().GetBool("include-shared")
 		req := &api.GuestPermissionRequest{PermissionLevel: permLevel}
-		resp, err := client.AddGuestToList(ctx, listID, guestID, req)
+		resp, err := client.AddGuestToList(ctx, listID, guestID, req, includeShared)
 		if err != nil {
 			return handleError(err)
 		}
@@ -268,7 +377,8 @@ var guestRemoveFromListCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.RemoveGuestFromList(ctx, listID, guestID); err != nil {
+		includeShared, _ := cmd.Flags().GetBool("include-shared")
+		if err := client.RemoveGuestFromList(ctx, listID, guestID, includeShared); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -293,8 +403,9 @@ var guestAddToFolderCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
 			return &exitError{code: 1}
 		}
+		includeShared, _ := cmd.Flags().GetBool("include-shared")
 		req := &api.GuestPermissionRequest{PermissionLevel: permLevel}
-		resp, err := client.AddGuestToFolder(ctx, folderID, guestID, req)
+		resp, err := client.AddGuestToFolder(ctx, folderID, guestID, req, includeShared)
 		if err != nil {
 			return handleError(err)
 		}
@@ -319,7 +430,8 @@ var guestRemoveFromFolderCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.RemoveGuestFromFolder(ctx, folderID, guestID); err != nil {
+		includeShared, _ := cmd.Flags().GetBool("include-shared")
+		if err := client.RemoveGuestFromFolder(ctx, folderID, guestID, includeShared); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -334,34 +446,61 @@ func init() {
 	memberListCmd.Flags().String("list", "", "List ID")
 	memberListCmd.Flags().String("task", "", "Task ID")
 
-	groupCmd.AddCommand(groupListCmd, groupCreateCmd, groupDeleteCmd)
+	groupCmd.AddCommand(groupListCmd, groupCreateCmd, groupUpdateCmd, groupDeleteCmd)
+	groupListCmd.Flags().String("team-id", "", "Team ID (overrides workspace)")
+	groupListCmd.Flags().StringSlice("group-ids", nil, "Filter by group IDs")
 	groupCreateCmd.Flags().String("name", "", "Group name (required)")
 	groupCreateCmd.Flags().String("handle", "", "Group handle")
+	groupCreateCmd.Flags().IntSlice("members", nil, "Member user IDs")
+	groupUpdateCmd.Flags().String("id", "", "Group ID (required)")
+	groupUpdateCmd.Flags().String("name", "", "New group name")
+	groupUpdateCmd.Flags().String("handle", "", "New group handle")
+	groupUpdateCmd.Flags().String("members", "", "Members JSON: {\"add\":[id,...],\"rem\":[id,...]}")
 	groupDeleteCmd.Flags().String("id", "", "Group ID (required)")
 
-	guestCmd.AddCommand(guestInviteCmd, guestGetCmd, guestRemoveCmd)
+	guestCmd.AddCommand(guestInviteCmd, guestGetCmd, guestEditCmd, guestRemoveCmd)
 	guestCmd.AddCommand(guestAddToTaskCmd, guestRemoveFromTaskCmd)
 	guestCmd.AddCommand(guestAddToListCmd, guestRemoveFromListCmd)
 	guestCmd.AddCommand(guestAddToFolderCmd, guestRemoveFromFolderCmd)
 	guestInviteCmd.Flags().String("email", "", "Guest email (required)")
+	guestInviteCmd.Flags().Bool("can-edit-tags", false, "Can edit tags")
+	guestInviteCmd.Flags().Bool("can-see-time-spent", false, "Can see time spent")
+	guestInviteCmd.Flags().Bool("can-see-time-estimated", false, "Can see time estimated")
+	guestInviteCmd.Flags().Bool("can-create-views", false, "Can create views")
+	guestInviteCmd.Flags().Bool("can-see-points-estimated", false, "Can see points estimated")
+	guestInviteCmd.Flags().Int("custom-role-id", 0, "Custom role ID")
+
+	guestEditCmd.Flags().String("id", "", "Guest ID (required)")
+	guestEditCmd.Flags().Bool("can-edit-tags", false, "Can edit tags")
+	guestEditCmd.Flags().Bool("can-see-time-spent", false, "Can see time spent")
+	guestEditCmd.Flags().Bool("can-see-time-estimated", false, "Can see time estimated")
+	guestEditCmd.Flags().Bool("can-create-views", false, "Can create views")
+	guestEditCmd.Flags().Bool("can-see-points-estimated", false, "Can see points estimated")
+	guestEditCmd.Flags().Int("custom-role-id", 0, "Custom role ID")
 	guestGetCmd.Flags().String("id", "", "Guest ID (required)")
 	guestRemoveCmd.Flags().String("id", "", "Guest ID (required)")
 
 	guestAddToTaskCmd.Flags().String("task", "", "Task ID (required)")
 	guestAddToTaskCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
 	guestAddToTaskCmd.Flags().String("permission-level", "read", "Permission level")
+	guestAddToTaskCmd.Flags().Bool("include-shared", false, "Include shared items in response")
 	guestRemoveFromTaskCmd.Flags().String("task", "", "Task ID (required)")
 	guestRemoveFromTaskCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
+	guestRemoveFromTaskCmd.Flags().Bool("include-shared", false, "Include shared items in response")
 
 	guestAddToListCmd.Flags().String("list", "", "List ID (required)")
 	guestAddToListCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
 	guestAddToListCmd.Flags().String("permission-level", "read", "Permission level")
+	guestAddToListCmd.Flags().Bool("include-shared", false, "Include shared items in response")
 	guestRemoveFromListCmd.Flags().String("list", "", "List ID (required)")
 	guestRemoveFromListCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
+	guestRemoveFromListCmd.Flags().Bool("include-shared", false, "Include shared items in response")
 
 	guestAddToFolderCmd.Flags().String("folder", "", "Folder ID (required)")
 	guestAddToFolderCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
 	guestAddToFolderCmd.Flags().String("permission-level", "read", "Permission level")
+	guestAddToFolderCmd.Flags().Bool("include-shared", false, "Include shared items in response")
 	guestRemoveFromFolderCmd.Flags().String("folder", "", "Folder ID (required)")
 	guestRemoveFromFolderCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
+	guestRemoveFromFolderCmd.Flags().Bool("include-shared", false, "Include shared items in response")
 }

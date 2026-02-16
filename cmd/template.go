@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
@@ -81,7 +82,14 @@ var templateCreateFolderCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--name is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.CreateFolderFromTemplate(ctx, spaceID, templateID, &api.CreateFromTemplateRequest{Name: name})
+		req := &api.CreateFromTemplateRequest{Name: name}
+		if optStr, _ := cmd.Flags().GetString("options"); optStr != "" {
+			var v interface{}
+			if err := json.Unmarshal([]byte(optStr), &v); err == nil {
+				req.Options = v
+			}
+		}
+		resp, err := client.CreateFolderFromTemplate(ctx, spaceID, templateID, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -113,6 +121,12 @@ var templateCreateListCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 		req := &api.CreateFromTemplateRequest{Name: name}
+		if optStr, _ := cmd.Flags().GetString("options"); optStr != "" {
+			var v interface{}
+			if err := json.Unmarshal([]byte(optStr), &v); err == nil {
+				req.Options = v
+			}
+		}
 		if folderID != "" {
 			resp, err := client.CreateListFromFolderTemplate(ctx, folderID, templateID, req)
 			if err != nil {
@@ -140,11 +154,13 @@ func init() {
 	templateCreateFolderCmd.Flags().String("space", "", "Space ID (required)")
 	templateCreateFolderCmd.Flags().String("template-id", "", "Template ID (required)")
 	templateCreateFolderCmd.Flags().String("name", "", "Folder name (required)")
+	templateCreateFolderCmd.Flags().String("options", "", "Template options (JSON)")
 
 	templateCreateListCmd.Flags().String("folder", "", "Folder ID")
 	templateCreateListCmd.Flags().String("space", "", "Space ID")
 	templateCreateListCmd.Flags().String("template-id", "", "Template ID (required)")
 	templateCreateListCmd.Flags().String("name", "", "List name (required)")
+	templateCreateListCmd.Flags().String("options", "", "Template options (JSON)")
 
 	templateCmd.AddCommand(templateListCmd)
 	templateCmd.AddCommand(templateCreateTaskCmd)

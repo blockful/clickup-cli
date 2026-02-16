@@ -75,7 +75,7 @@ func TestGetTimeEntry(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetTimeEntry(ctx, "123", "te1")
+	resp, err := c.GetTimeEntry(ctx, "123", "te1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

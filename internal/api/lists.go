@@ -61,12 +61,14 @@ func (c *Client) GetList(ctx context.Context, listID string) (*List, error) {
 }
 
 type CreateListRequest struct {
-	Name     string `json:"name"`
-	Content  string `json:"content,omitempty"`
-	DueDate  *int64 `json:"due_date,omitempty"`
-	Priority *int   `json:"priority,omitempty"`
-	Assignee *int   `json:"assignee,omitempty"`
-	Status   string `json:"status,omitempty"`
+	Name            string `json:"name"`
+	Content         string `json:"content,omitempty"`
+	MarkdownContent string `json:"markdown_content,omitempty"`
+	DueDate         *int64 `json:"due_date,omitempty"`
+	DueDateTime     *bool  `json:"due_date_time,omitempty"`
+	Priority        *int   `json:"priority,omitempty"`
+	Assignee        *int   `json:"assignee,omitempty"`
+	Status          string `json:"status,omitempty"`
 }
 
 func (c *Client) CreateList(ctx context.Context, folderID string, req *CreateListRequest) (*List, error) {
@@ -86,13 +88,15 @@ func (c *Client) CreateFolderlessList(ctx context.Context, spaceID string, req *
 }
 
 type UpdateListRequest struct {
-	Name        string `json:"name,omitempty"`
-	Content     string `json:"content,omitempty"`
-	DueDate     *int64 `json:"due_date,omitempty"`
-	Priority    *int   `json:"priority,omitempty"`
-	Assignee    *int   `json:"assignee,omitempty"`
-	Status      string `json:"status,omitempty"`
-	UnsetStatus bool   `json:"unset_status,omitempty"`
+	Name            string `json:"name,omitempty"`
+	Content         string `json:"content,omitempty"`
+	MarkdownContent string `json:"markdown_content,omitempty"`
+	DueDate         *int64 `json:"due_date,omitempty"`
+	DueDateTime     *bool  `json:"due_date_time,omitempty"`
+	Priority        *int   `json:"priority,omitempty"`
+	Assignee        *int   `json:"assignee,omitempty"`
+	Status          string `json:"status,omitempty"`
+	UnsetStatus     bool   `json:"unset_status,omitempty"`
 }
 
 func (c *Client) UpdateList(ctx context.Context, listID string, req *UpdateListRequest) (*List, error) {

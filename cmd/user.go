@@ -59,7 +59,8 @@ var userGetCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetTeamUser(ctx, wid, id)
+		includeShared, _ := cmd.Flags().GetBool("include-shared")
+		resp, err := client.GetTeamUser(ctx, wid, id, includeShared)
 		if err != nil {
 			return handleError(err)
 		}
@@ -131,6 +132,7 @@ func init() {
 	userInviteCmd.Flags().IntSlice("member-groups", nil, "Member group IDs")
 
 	userGetCmd.Flags().String("id", "", "User ID (required)")
+	userGetCmd.Flags().Bool("include-shared", false, "Include shared resources")
 
 	userUpdateCmd.Flags().String("id", "", "User ID (required)")
 	userUpdateCmd.Flags().String("username", "", "New username")

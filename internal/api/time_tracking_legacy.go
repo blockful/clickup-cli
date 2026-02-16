@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type LegacyTimeInterval struct {
@@ -36,10 +37,22 @@ type LegacyEditTimeRequest struct {
 	Tags      []Tag  `json:"tags,omitempty"`
 }
 
-func (c *Client) GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string) (*LegacyTimeResponse, error) {
-	path := fmt.Sprintf("/v2/task/%s/time", taskID)
+func (c *Client) GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string, opts ...*TaskScopedOptions) (*LegacyTimeResponse, error) {
+	params := url.Values{}
 	if subcategoryID != "" {
-		path += "?subcategory_id=" + subcategoryID
+		params.Set("subcategory_id", subcategoryID)
+	}
+	if len(opts) > 0 && opts[0] != nil {
+		if opts[0].CustomTaskIDs {
+			params.Set("custom_task_ids", "true")
+		}
+		if opts[0].TeamID != "" {
+			params.Set("team_id", opts[0].TeamID)
+		}
+	}
+	path := fmt.Sprintf("/v2/task/%s/time", taskID)
+	if q := params.Encode(); q != "" {
+		path += "?" + q
 	}
 	var resp LegacyTimeResponse
 	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
@@ -48,18 +61,24 @@ func (c *Client) GetLegacyTrackedTime(ctx context.Context, taskID string, subcat
 	return &resp, nil
 }
 
-func (c *Client) TrackLegacyTime(ctx context.Context, taskID string, req *LegacyTrackTimeRequest) (*LegacyTimeResponse, error) {
+func (c *Client) TrackLegacyTime(ctx context.Context, taskID string, req *LegacyTrackTimeRequest, opts ...*TaskScopedOptions) (*LegacyTimeResponse, error) {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
 	var resp LegacyTimeResponse
-	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/time", taskID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/time", taskID)+taskScopedQuery(o), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) EditLegacyTime(ctx context.Context, taskID, intervalID string, req *LegacyEditTimeRequest) error {
-	return c.Do(ctx, "PUT", fmt.Sprintf("/v2/task/%s/time/%s", taskID, intervalID), req, nil)
+func (c *Client) EditLegacyTime(ctx context.Context, taskID, intervalID string, req *LegacyEditTimeRequest, opts ...*TaskScopedOptions) error {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	return c.Do(ctx, "PUT", fmt.Sprintf("/v2/task/%s/time/%s", taskID, intervalID)+taskScopedQuery(o), req, nil)
 }
 
-func (c *Client) DeleteLegacyTime(ctx context.Context, taskID, intervalID string) error {
-	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s/time/%s", taskID, intervalID), nil, nil)
+func (c *Client) DeleteLegacyTime(ctx context.Context, taskID, intervalID string, opts ...*TaskScopedOptions) error {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s/time/%s", taskID, intervalID)+taskScopedQuery(o), nil, nil)
 }

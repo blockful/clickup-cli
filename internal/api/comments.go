@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 type Comment struct {
@@ -21,26 +22,47 @@ type CommentsResponse struct {
 	Comments []Comment `json:"comments"`
 }
 
-func (c *Client) ListComments(ctx context.Context, taskID string) (*CommentsResponse, error) {
+func (c *Client) ListComments(ctx context.Context, taskID string, startID string, opts ...*TaskScopedOptions) (*CommentsResponse, error) {
+	params := url.Values{}
+	if startID != "" {
+		params.Set("start_id", startID)
+	}
+	if len(opts) > 0 && opts[0] != nil {
+		if opts[0].CustomTaskIDs {
+			params.Set("custom_task_ids", "true")
+		}
+		if opts[0].TeamID != "" {
+			params.Set("team_id", opts[0].TeamID)
+		}
+	}
+	path := fmt.Sprintf("/v2/task/%s/comment", taskID)
+	if q := params.Encode(); q != "" {
+		path += "?" + q
+	}
 	var resp CommentsResponse
-	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/task/%s/comment", taskID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) ListListComments(ctx context.Context, listID string) (*CommentsResponse, error) {
+func (c *Client) ListListComments(ctx context.Context, listID string, startID string) (*CommentsResponse, error) {
+	path := fmt.Sprintf("/v2/list/%s/comment", listID)
+	if startID != "" {
+		path += "?start_id=" + startID
+	}
 	var resp CommentsResponse
-	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/list/%s/comment", listID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
 type CreateCommentRequest struct {
-	CommentText string `json:"comment_text"`
-	Assignee    *int   `json:"assignee,omitempty"`
-	NotifyAll   bool   `json:"notify_all,omitempty"`
+	CommentText   string `json:"comment_text"`
+	Assignee      *int   `json:"assignee,omitempty"`
+	GroupAssignee *int   `json:"group_assignee,omitempty"`
+	NotifyAll     bool   `json:"notify_all,omitempty"`
 }
 
 type CreateCommentResponse struct {
@@ -49,9 +71,11 @@ type CreateCommentResponse struct {
 	Date   int64  `json:"date"`
 }
 
-func (c *Client) CreateComment(ctx context.Context, taskID string, req *CreateCommentRequest) (*CreateCommentResponse, error) {
+func (c *Client) CreateComment(ctx context.Context, taskID string, req *CreateCommentRequest, opts ...*TaskScopedOptions) (*CreateCommentResponse, error) {
+	var o *TaskScopedOptions
+	if len(opts) > 0 { o = opts[0] }
 	var resp CreateCommentResponse
-	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/comment", taskID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/comment", taskID)+taskScopedQuery(o), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -66,9 +90,10 @@ func (c *Client) CreateListComment(ctx context.Context, listID string, req *Crea
 }
 
 type UpdateCommentRequest struct {
-	CommentText string `json:"comment_text"`
-	Assignee    *int   `json:"assignee,omitempty"`
-	Resolved    *bool  `json:"resolved,omitempty"`
+	CommentText   string `json:"comment_text"`
+	Assignee      *int   `json:"assignee,omitempty"`
+	GroupAssignee *int   `json:"group_assignee,omitempty"`
+	Resolved      *bool  `json:"resolved,omitempty"`
 }
 
 func (c *Client) UpdateComment(ctx context.Context, commentID string, req *UpdateCommentRequest) error {
@@ -99,9 +124,13 @@ func (c *Client) CreateThreadedComment(ctx context.Context, commentID string, re
 
 // Chat View Comments
 
-func (c *Client) ListViewComments(ctx context.Context, viewID string) (*CommentsResponse, error) {
+func (c *Client) ListViewComments(ctx context.Context, viewID string, startID string) (*CommentsResponse, error) {
+	path := fmt.Sprintf("/v2/view/%s/comment", viewID)
+	if startID != "" {
+		path += "?start_id=" + startID
+	}
 	var resp CommentsResponse
-	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/view/%s/comment", viewID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil

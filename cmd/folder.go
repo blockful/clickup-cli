@@ -73,14 +73,61 @@ var folderCreateCmd = &cobra.Command{
 	},
 }
 
+var folderUpdateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update a folder",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		id, _ := cmd.Flags().GetString("id")
+		if id == "" {
+			output.PrintError("VALIDATION_ERROR", "--id is required")
+			return &exitError{code: 1}
+		}
+		name, _ := cmd.Flags().GetString("name")
+		if name == "" {
+			output.PrintError("VALIDATION_ERROR", "--name is required")
+			return &exitError{code: 1}
+		}
+		resp, err := client.UpdateFolder(id, &api.UpdateFolderRequest{Name: name})
+		if err != nil {
+			return handleError(err)
+		}
+		output.JSON(resp)
+		return nil
+	},
+}
+
+var folderDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete a folder",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		id, _ := cmd.Flags().GetString("id")
+		if id == "" {
+			output.PrintError("VALIDATION_ERROR", "--id is required")
+			return &exitError{code: 1}
+		}
+		if err := client.DeleteFolder(id); err != nil {
+			return handleError(err)
+		}
+		output.JSON(map[string]string{"message": "folder deleted", "id": id})
+		return nil
+	},
+}
+
 func init() {
 	folderListCmd.Flags().String("space", "", "Space ID")
 	folderGetCmd.Flags().String("id", "", "Folder ID")
 	folderCreateCmd.Flags().String("space", "", "Space ID")
 	folderCreateCmd.Flags().String("name", "", "Folder name")
+	folderUpdateCmd.Flags().String("id", "", "Folder ID")
+	folderUpdateCmd.Flags().String("name", "", "Folder name")
+	folderDeleteCmd.Flags().String("id", "", "Folder ID")
 
 	folderCmd.AddCommand(folderListCmd)
 	folderCmd.AddCommand(folderGetCmd)
 	folderCmd.AddCommand(folderCreateCmd)
+	folderCmd.AddCommand(folderUpdateCmd)
+	folderCmd.AddCommand(folderDeleteCmd)
 	rootCmd.AddCommand(folderCmd)
 }

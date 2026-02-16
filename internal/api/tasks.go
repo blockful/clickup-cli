@@ -1,32 +1,88 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
 )
 
-type Task struct {
+type CustomField struct {
+	ID             string      `json:"id"`
+	Name           string      `json:"name"`
+	Type           string      `json:"type"`
+	TypeConfig     interface{} `json:"type_config,omitempty"`
+	DateCreated    string      `json:"date_created,omitempty"`
+	HideFromGuests bool        `json:"hide_from_guests,omitempty"`
+	Value          interface{} `json:"value,omitempty"`
+	Required       bool        `json:"required,omitempty"`
+}
+
+type Checklist struct {
 	ID          string      `json:"id"`
-	CustomID    string      `json:"custom_id,omitempty"`
+	TaskID      string      `json:"task_id"`
 	Name        string      `json:"name"`
-	Description string      `json:"description,omitempty"`
-	Status      TaskStatus  `json:"status"`
-	OrderIndex  string      `json:"orderindex"`
-	DateCreated string      `json:"date_created"`
-	DateUpdated string      `json:"date_updated,omitempty"`
-	DateClosed  string      `json:"date_closed,omitempty"`
-	Creator     User        `json:"creator"`
-	Assignees   []User      `json:"assignees"`
-	Tags        []TaskTag   `json:"tags"`
-	Parent      interface{} `json:"parent"`
-	Priority    *TaskPriority `json:"priority"`
-	DueDate     string      `json:"due_date,omitempty"`
-	StartDate   string      `json:"start_date,omitempty"`
-	Points      interface{} `json:"points"`
-	TimeEstimate interface{} `json:"time_estimate"`
-	URL         string      `json:"url"`
-	List        struct {
+	OrderIndex  int         `json:"orderindex"`
+	Resolved    int         `json:"resolved"`
+	Unresolved  int         `json:"unresolved"`
+	Items       interface{} `json:"items,omitempty"`
+}
+
+type LinkedTask struct {
+	TaskID     string `json:"task_id"`
+	LinkID     string `json:"link_id"`
+	DateCreated string `json:"date_created"`
+	Userid     string `json:"userid"`
+}
+
+type Dependency struct {
+	TaskID      string `json:"task_id"`
+	DependsOn   string `json:"depends_on"`
+	Type        int    `json:"type"`
+	DateCreated string `json:"date_created"`
+	Userid      string `json:"userid"`
+}
+
+type Attachment struct {
+	ID             string `json:"id"`
+	Version        string `json:"version"`
+	Date           string `json:"date"`
+	Title          string `json:"title"`
+	Extension      string `json:"extension"`
+	ThumbnailSmall string `json:"thumbnail_small"`
+	ThumbnailLarge string `json:"thumbnail_large"`
+	URL            string `json:"url"`
+}
+
+type Task struct {
+	ID                   string          `json:"id"`
+	CustomID             string          `json:"custom_id,omitempty"`
+	Name                 string          `json:"name"`
+	Description          string          `json:"description,omitempty"`
+	MarkdownDescription  string          `json:"markdown_description,omitempty"`
+	Status               TaskStatus      `json:"status"`
+	OrderIndex           string          `json:"orderindex"`
+	DateCreated          string          `json:"date_created"`
+	DateUpdated          string          `json:"date_updated,omitempty"`
+	DateClosed           string          `json:"date_closed,omitempty"`
+	Creator              User            `json:"creator"`
+	Assignees            []User          `json:"assignees"`
+	Watchers             []User          `json:"watchers,omitempty"`
+	Tags                 []TaskTag       `json:"tags"`
+	Parent               interface{}     `json:"parent"`
+	Priority             *TaskPriority   `json:"priority"`
+	DueDate              string          `json:"due_date,omitempty"`
+	StartDate            string          `json:"start_date,omitempty"`
+	Points               interface{}     `json:"points"`
+	TimeEstimate         interface{}     `json:"time_estimate"`
+	TimeSpent            interface{}     `json:"time_spent,omitempty"`
+	CustomFields         []CustomField   `json:"custom_fields,omitempty"`
+	Checklists           []Checklist     `json:"checklists,omitempty"`
+	LinkedTasks          []LinkedTask    `json:"linked_tasks,omitempty"`
+	Dependencies         []Dependency    `json:"dependencies,omitempty"`
+	Attachments          []Attachment    `json:"attachments,omitempty"`
+	URL                  string          `json:"url"`
+	List                 struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
 	} `json:"list"`
@@ -63,33 +119,44 @@ type TasksResponse struct {
 }
 
 type ListTasksOptions struct {
-	Statuses     []string
-	Assignees    []string
-	Tags         []string
-	Page         int
-	OrderBy      string
-	Reverse      bool
-	Subtasks     bool
-	IncludeClosed bool
+	Statuses        []string
+	Assignees       []string
+	Tags            []string
+	Watchers        []string
+	Page            int
+	OrderBy         string
+	Reverse         bool
+	Subtasks        bool
+	IncludeClosed   bool
+	Archived        bool
+	IncludeMarkdown bool
+	IncludeTiml     bool
+	DueDateGt       int64
+	DueDateLt       int64
+	DateCreatedGt   int64
+	DateCreatedLt   int64
+	DateUpdatedGt   int64
+	DateUpdatedLt   int64
+	DateDoneGt      int64
+	DateDoneLt      int64
+	CustomFields    string
+	CustomItems     []int
 }
 
 func (c *Client) ListTasks(listID string, opts *ListTasksOptions) (*TasksResponse, error) {
 	params := url.Values{}
 	if opts != nil {
-		if len(opts.Statuses) > 0 {
-			for _, s := range opts.Statuses {
-				params.Add("statuses[]", s)
-			}
+		for _, s := range opts.Statuses {
+			params.Add("statuses[]", s)
 		}
-		if len(opts.Assignees) > 0 {
-			for _, a := range opts.Assignees {
-				params.Add("assignees[]", a)
-			}
+		for _, a := range opts.Assignees {
+			params.Add("assignees[]", a)
 		}
-		if len(opts.Tags) > 0 {
-			for _, t := range opts.Tags {
-				params.Add("tags[]", t)
-			}
+		for _, t := range opts.Tags {
+			params.Add("tags[]", t)
+		}
+		for _, w := range opts.Watchers {
+			params.Add("watchers[]", w)
 		}
 		if opts.Page > 0 {
 			params.Set("page", strconv.Itoa(opts.Page))
@@ -106,6 +173,45 @@ func (c *Client) ListTasks(listID string, opts *ListTasksOptions) (*TasksRespons
 		if opts.IncludeClosed {
 			params.Set("include_closed", "true")
 		}
+		if opts.Archived {
+			params.Set("archived", "true")
+		}
+		if opts.IncludeMarkdown {
+			params.Set("include_markdown_description", "true")
+		}
+		if opts.IncludeTiml {
+			params.Set("include_task_in_multiple_lists", "true")
+		}
+		if opts.DueDateGt > 0 {
+			params.Set("due_date_gt", strconv.FormatInt(opts.DueDateGt, 10))
+		}
+		if opts.DueDateLt > 0 {
+			params.Set("due_date_lt", strconv.FormatInt(opts.DueDateLt, 10))
+		}
+		if opts.DateCreatedGt > 0 {
+			params.Set("date_created_gt", strconv.FormatInt(opts.DateCreatedGt, 10))
+		}
+		if opts.DateCreatedLt > 0 {
+			params.Set("date_created_lt", strconv.FormatInt(opts.DateCreatedLt, 10))
+		}
+		if opts.DateUpdatedGt > 0 {
+			params.Set("date_updated_gt", strconv.FormatInt(opts.DateUpdatedGt, 10))
+		}
+		if opts.DateUpdatedLt > 0 {
+			params.Set("date_updated_lt", strconv.FormatInt(opts.DateUpdatedLt, 10))
+		}
+		if opts.DateDoneGt > 0 {
+			params.Set("date_done_gt", strconv.FormatInt(opts.DateDoneGt, 10))
+		}
+		if opts.DateDoneLt > 0 {
+			params.Set("date_done_lt", strconv.FormatInt(opts.DateDoneLt, 10))
+		}
+		if opts.CustomFields != "" {
+			params.Set("custom_fields", opts.CustomFields)
+		}
+		for _, ci := range opts.CustomItems {
+			params.Add("custom_items[]", strconv.Itoa(ci))
+		}
 	}
 
 	path := fmt.Sprintf("/v2/list/%s/task", listID)
@@ -121,23 +227,65 @@ func (c *Client) ListTasks(listID string, opts *ListTasksOptions) (*TasksRespons
 	return &resp, nil
 }
 
-func (c *Client) GetTask(taskID string) (*Task, error) {
+type GetTaskOptions struct {
+	CustomTaskIDs   bool
+	TeamID          string
+	IncludeSubtasks bool
+	IncludeMarkdown bool
+}
+
+func (c *Client) GetTask(taskID string, opts ...GetTaskOptions) (*Task, error) {
+	params := url.Values{}
+	if len(opts) > 0 {
+		o := opts[0]
+		if o.CustomTaskIDs {
+			params.Set("custom_task_ids", "true")
+		}
+		if o.TeamID != "" {
+			params.Set("team_id", o.TeamID)
+		}
+		if o.IncludeSubtasks {
+			params.Set("include_subtasks", "true")
+		}
+		if o.IncludeMarkdown {
+			params.Set("include_markdown_description", "true")
+		}
+	}
+	path := fmt.Sprintf("/v2/task/%s", taskID)
+	q := params.Encode()
+	if q != "" {
+		path += "?" + q
+	}
 	var resp Task
-	if err := c.Do("GET", fmt.Sprintf("/v2/task/%s", taskID), nil, &resp); err != nil {
+	if err := c.Do("GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
+type CustomFieldValue struct {
+	ID    string      `json:"id"`
+	Value interface{} `json:"value"`
+}
+
 type CreateTaskRequest struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description,omitempty"`
-	Assignees   []int    `json:"assignees,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
-	Status      string   `json:"status,omitempty"`
-	Priority    *int     `json:"priority,omitempty"`
-	DueDate     int64    `json:"due_date,omitempty"`
-	StartDate   int64    `json:"start_date,omitempty"`
+	Name                string             `json:"name"`
+	Description         string             `json:"description,omitempty"`
+	MarkdownDescription string             `json:"markdown_description,omitempty"`
+	Assignees           []int              `json:"assignees,omitempty"`
+	Tags                []string           `json:"tags,omitempty"`
+	Status              string             `json:"status,omitempty"`
+	Priority            *int               `json:"priority,omitempty"`
+	DueDate             *int64             `json:"due_date,omitempty"`
+	DueDateTime         *bool              `json:"due_date_time,omitempty"`
+	StartDate           *int64             `json:"start_date,omitempty"`
+	StartDateTime       *bool              `json:"start_date_time,omitempty"`
+	TimeEstimate        *int64             `json:"time_estimate,omitempty"`
+	NotifyAll           bool               `json:"notify_all,omitempty"`
+	Parent              string             `json:"parent,omitempty"`
+	LinksTo             string             `json:"links_to,omitempty"`
+	CustomFields        []CustomFieldValue `json:"custom_fields,omitempty"`
+	CustomItemID        *int               `json:"custom_item_id,omitempty"`
 }
 
 func (c *Client) CreateTask(listID string, req *CreateTaskRequest) (*Task, error) {
@@ -148,16 +296,50 @@ func (c *Client) CreateTask(listID string, req *CreateTaskRequest) (*Task, error
 	return &resp, nil
 }
 
-type UpdateTaskRequest struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Status      *string `json:"status,omitempty"`
-	Priority    *int    `json:"priority,omitempty"`
+type UpdateTaskAssignees struct {
+	Add []int `json:"add,omitempty"`
+	Rem []int `json:"rem,omitempty"`
 }
 
-func (c *Client) UpdateTask(taskID string, req *UpdateTaskRequest) (*Task, error) {
+type UpdateTaskRequest struct {
+	Name                *string              `json:"name,omitempty"`
+	Description         *string              `json:"description,omitempty"`
+	MarkdownDescription *string              `json:"markdown_description,omitempty"`
+	Status              *string              `json:"status,omitempty"`
+	Priority            *int                 `json:"priority,omitempty"`
+	Assignees           *UpdateTaskAssignees `json:"assignees,omitempty"`
+	DueDate             *int64               `json:"due_date,omitempty"`
+	DueDateTime         *bool                `json:"due_date_time,omitempty"`
+	StartDate           *int64               `json:"start_date,omitempty"`
+	StartDateTime       *bool                `json:"start_date_time,omitempty"`
+	TimeEstimate        *int64               `json:"time_estimate,omitempty"`
+	Archived            *bool                `json:"archived,omitempty"`
+	Parent              *string              `json:"parent,omitempty"`
+}
+
+type UpdateTaskOptions struct {
+	CustomTaskIDs bool
+	TeamID        string
+}
+
+func (c *Client) UpdateTask(taskID string, req *UpdateTaskRequest, opts ...UpdateTaskOptions) (*Task, error) {
+	params := url.Values{}
+	if len(opts) > 0 {
+		o := opts[0]
+		if o.CustomTaskIDs {
+			params.Set("custom_task_ids", "true")
+		}
+		if o.TeamID != "" {
+			params.Set("team_id", o.TeamID)
+		}
+	}
+	path := fmt.Sprintf("/v2/task/%s", taskID)
+	q := params.Encode()
+	if q != "" {
+		path += "?" + q
+	}
 	var resp Task
-	if err := c.Do("PUT", fmt.Sprintf("/v2/task/%s", taskID), req, &resp); err != nil {
+	if err := c.Do("PUT", path, req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -165,6 +347,118 @@ func (c *Client) UpdateTask(taskID string, req *UpdateTaskRequest) (*Task, error
 
 func (c *Client) DeleteTask(taskID string) error {
 	return c.Do("DELETE", fmt.Sprintf("/v2/task/%s", taskID), nil, nil)
+}
+
+// SearchTasks searches tasks across a workspace (GET /v2/team/{team_id}/task).
+type SearchTasksOptions struct {
+	Page            int
+	OrderBy         string
+	Reverse         bool
+	Subtasks        bool
+	Statuses        []string
+	Assignees       []string
+	Tags            []string
+	DueDateGt       int64
+	DueDateLt       int64
+	DateCreatedGt   int64
+	DateCreatedLt   int64
+	DateUpdatedGt   int64
+	DateUpdatedLt   int64
+	DateDoneGt      int64
+	DateDoneLt      int64
+	IncludeClosed   bool
+	CustomFields    string
+	CustomItems     []int
+	ListIDs         []string
+	ProjectIDs      []string
+	SpaceIDs        []string
+	FolderIDs       []string
+	IncludeMarkdown bool
+}
+
+func (c *Client) SearchTasks(teamID string, opts *SearchTasksOptions) (*TasksResponse, error) {
+	params := url.Values{}
+	if opts != nil {
+		if opts.Page > 0 {
+			params.Set("page", strconv.Itoa(opts.Page))
+		}
+		if opts.OrderBy != "" {
+			params.Set("order_by", opts.OrderBy)
+		}
+		if opts.Reverse {
+			params.Set("reverse", "true")
+		}
+		if opts.Subtasks {
+			params.Set("subtasks", "true")
+		}
+		if opts.IncludeClosed {
+			params.Set("include_closed", "true")
+		}
+		for _, s := range opts.Statuses {
+			params.Add("statuses[]", s)
+		}
+		for _, a := range opts.Assignees {
+			params.Add("assignees[]", a)
+		}
+		for _, t := range opts.Tags {
+			params.Add("tags[]", t)
+		}
+		if opts.DueDateGt > 0 {
+			params.Set("due_date_gt", strconv.FormatInt(opts.DueDateGt, 10))
+		}
+		if opts.DueDateLt > 0 {
+			params.Set("due_date_lt", strconv.FormatInt(opts.DueDateLt, 10))
+		}
+		if opts.DateCreatedGt > 0 {
+			params.Set("date_created_gt", strconv.FormatInt(opts.DateCreatedGt, 10))
+		}
+		if opts.DateCreatedLt > 0 {
+			params.Set("date_created_lt", strconv.FormatInt(opts.DateCreatedLt, 10))
+		}
+		if opts.DateUpdatedGt > 0 {
+			params.Set("date_updated_gt", strconv.FormatInt(opts.DateUpdatedGt, 10))
+		}
+		if opts.DateUpdatedLt > 0 {
+			params.Set("date_updated_lt", strconv.FormatInt(opts.DateUpdatedLt, 10))
+		}
+		if opts.DateDoneGt > 0 {
+			params.Set("date_done_gt", strconv.FormatInt(opts.DateDoneGt, 10))
+		}
+		if opts.DateDoneLt > 0 {
+			params.Set("date_done_lt", strconv.FormatInt(opts.DateDoneLt, 10))
+		}
+		if opts.CustomFields != "" {
+			params.Set("custom_fields", opts.CustomFields)
+		}
+		for _, ci := range opts.CustomItems {
+			params.Add("custom_items[]", strconv.Itoa(ci))
+		}
+		for _, id := range opts.ListIDs {
+			params.Add("list_ids[]", id)
+		}
+		for _, id := range opts.ProjectIDs {
+			params.Add("project_ids[]", id)
+		}
+		for _, id := range opts.SpaceIDs {
+			params.Add("space_ids[]", id)
+		}
+		for _, id := range opts.FolderIDs {
+			params.Add("folder_ids[]", id)
+		}
+		if opts.IncludeMarkdown {
+			params.Set("include_markdown_description", "true")
+		}
+	}
+	path := fmt.Sprintf("/v2/team/%s/task", teamID)
+	q := params.Encode()
+	if q != "" {
+		path += "?" + q
+	}
+	var resp TasksResponse
+	if err := c.Do("GET", path, nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
 }
 
 // StringPtr returns a pointer to the given string.
@@ -177,3 +471,21 @@ func IntPtr(i int) *int {
 	return &i
 }
 
+// Int64Ptr returns a pointer to the given int64.
+func Int64Ptr(i int64) *int64 {
+	return &i
+}
+
+// BoolPtr returns a pointer to the given bool.
+func BoolPtr(b bool) *bool {
+	return &b
+}
+
+// ParseCustomFields parses a JSON string into a slice of CustomFieldValue.
+func ParseCustomFields(s string) ([]CustomFieldValue, error) {
+	var fields []CustomFieldValue
+	if err := json.Unmarshal([]byte(s), &fields); err != nil {
+		return nil, fmt.Errorf("invalid custom-fields JSON: %v", err)
+	}
+	return fields, nil
+}

@@ -3,14 +3,14 @@ package api
 import "fmt"
 
 type Space struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Private  bool   `json:"private"`
+	ID       string                 `json:"id"`
+	Name     string                 `json:"name"`
+	Private  bool                   `json:"private"`
 	Status   struct {
 		Status string `json:"status"`
 		Color  string `json:"color"`
 	} `json:"status"`
-	Multiple bool `json:"multiple_assignees"`
+	Multiple bool                   `json:"multiple_assignees"`
 	Features map[string]interface{} `json:"features"`
 }
 
@@ -35,9 +35,9 @@ func (c *Client) GetSpace(spaceID string) (*Space, error) {
 }
 
 type CreateSpaceRequest struct {
-	Name             string `json:"name"`
-	MultipleAssignees bool   `json:"multiple_assignees"`
-	Features         map[string]interface{} `json:"features,omitempty"`
+	Name              string                 `json:"name"`
+	MultipleAssignees bool                   `json:"multiple_assignees"`
+	Features          map[string]interface{} `json:"features,omitempty"`
 }
 
 func (c *Client) CreateSpace(workspaceID string, req *CreateSpaceRequest) (*Space, error) {
@@ -46,4 +46,22 @@ func (c *Client) CreateSpace(workspaceID string, req *CreateSpaceRequest) (*Spac
 		return nil, err
 	}
 	return &resp, nil
+}
+
+type UpdateSpaceRequest struct {
+	Name              string                 `json:"name,omitempty"`
+	MultipleAssignees *bool                  `json:"multiple_assignees,omitempty"`
+	Features          map[string]interface{} `json:"features,omitempty"`
+}
+
+func (c *Client) UpdateSpace(spaceID string, req *UpdateSpaceRequest) (*Space, error) {
+	var resp Space
+	if err := c.Do("PUT", fmt.Sprintf("/v2/space/%s", spaceID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) DeleteSpace(spaceID string) error {
+	return c.Do("DELETE", fmt.Sprintf("/v2/space/%s", spaceID), nil, nil)
 }

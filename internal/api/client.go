@@ -12,7 +12,6 @@ import (
 const DefaultBaseURL = "https://api.clickup.com/api"
 
 // ClientInterface defines all ClickUp API operations.
-// Commands depend on this interface, enabling mock-based testing.
 type ClientInterface interface {
 	// Auth
 	GetUser() (*UserResponse, error)
@@ -24,27 +23,40 @@ type ClientInterface interface {
 	ListSpaces(workspaceID string) (*SpacesResponse, error)
 	GetSpace(spaceID string) (*Space, error)
 	CreateSpace(workspaceID string, req *CreateSpaceRequest) (*Space, error)
+	UpdateSpace(spaceID string, req *UpdateSpaceRequest) (*Space, error)
+	DeleteSpace(spaceID string) error
 
 	// Folders
 	ListFolders(spaceID string) (*FoldersResponse, error)
 	GetFolder(folderID string) (*Folder, error)
 	CreateFolder(spaceID string, req *CreateFolderRequest) (*Folder, error)
+	UpdateFolder(folderID string, req *UpdateFolderRequest) (*Folder, error)
+	DeleteFolder(folderID string) error
 
 	// Lists
 	ListLists(folderID string) (*ListsResponse, error)
+	ListFolderlessLists(spaceID string) (*ListsResponse, error)
 	GetList(listID string) (*List, error)
 	CreateList(folderID string, req *CreateListRequest) (*List, error)
+	CreateFolderlessList(spaceID string, req *CreateListRequest) (*List, error)
+	UpdateList(listID string, req *UpdateListRequest) (*List, error)
+	DeleteList(listID string) error
 
 	// Tasks
 	ListTasks(listID string, opts *ListTasksOptions) (*TasksResponse, error)
-	GetTask(taskID string) (*Task, error)
+	GetTask(taskID string, opts ...GetTaskOptions) (*Task, error)
 	CreateTask(listID string, req *CreateTaskRequest) (*Task, error)
-	UpdateTask(taskID string, req *UpdateTaskRequest) (*Task, error)
+	UpdateTask(taskID string, req *UpdateTaskRequest, opts ...UpdateTaskOptions) (*Task, error)
 	DeleteTask(taskID string) error
+	SearchTasks(teamID string, opts *SearchTasksOptions) (*TasksResponse, error)
 
 	// Comments
 	ListComments(taskID string) (*CommentsResponse, error)
+	ListListComments(listID string) (*CommentsResponse, error)
 	CreateComment(taskID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
+	CreateListComment(listID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
+	UpdateComment(commentID string, req *UpdateCommentRequest) error
+	DeleteComment(commentID string) error
 }
 
 // Client implements ClientInterface using HTTP requests to the ClickUp API.
@@ -54,7 +66,6 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
-// Ensure Client implements ClientInterface at compile time.
 var _ ClientInterface = (*Client)(nil)
 
 type APIError struct {

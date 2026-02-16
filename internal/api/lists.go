@@ -6,6 +6,7 @@ type List struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
 	OrderIndex int    `json:"orderindex"`
+	Content    string `json:"content,omitempty"`
 	Status     struct {
 		Status string `json:"status"`
 		Color  string `json:"color"`
@@ -15,6 +16,7 @@ type List struct {
 		Color    string `json:"color"`
 	} `json:"priority,omitempty"`
 	Assignee  interface{} `json:"assignee"`
+	DueDate   string      `json:"due_date,omitempty"`
 	TaskCount int         `json:"task_count"`
 	Folder    struct {
 		ID     string `json:"id"`
@@ -39,6 +41,14 @@ func (c *Client) ListLists(folderID string) (*ListsResponse, error) {
 	return &resp, nil
 }
 
+func (c *Client) ListFolderlessLists(spaceID string) (*ListsResponse, error) {
+	var resp ListsResponse
+	if err := c.Do("GET", fmt.Sprintf("/v2/space/%s/list?archived=false", spaceID), nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 func (c *Client) GetList(listID string) (*List, error) {
 	var resp List
 	if err := c.Do("GET", fmt.Sprintf("/v2/list/%s", listID), nil, &resp); err != nil {
@@ -48,7 +58,12 @@ func (c *Client) GetList(listID string) (*List, error) {
 }
 
 type CreateListRequest struct {
-	Name string `json:"name"`
+	Name     string `json:"name"`
+	Content  string `json:"content,omitempty"`
+	DueDate  *int64 `json:"due_date,omitempty"`
+	Priority *int   `json:"priority,omitempty"`
+	Assignee *int   `json:"assignee,omitempty"`
+	Status   string `json:"status,omitempty"`
 }
 
 func (c *Client) CreateList(folderID string, req *CreateListRequest) (*List, error) {
@@ -57,4 +72,34 @@ func (c *Client) CreateList(folderID string, req *CreateListRequest) (*List, err
 		return nil, err
 	}
 	return &resp, nil
+}
+
+func (c *Client) CreateFolderlessList(spaceID string, req *CreateListRequest) (*List, error) {
+	var resp List
+	if err := c.Do("POST", fmt.Sprintf("/v2/space/%s/list", spaceID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+type UpdateListRequest struct {
+	Name     string `json:"name,omitempty"`
+	Content  string `json:"content,omitempty"`
+	DueDate  *int64 `json:"due_date,omitempty"`
+	Priority *int   `json:"priority,omitempty"`
+	Assignee *int   `json:"assignee,omitempty"`
+	Status   string `json:"status,omitempty"`
+	UnsetStatus bool `json:"unset_status,omitempty"`
+}
+
+func (c *Client) UpdateList(listID string, req *UpdateListRequest) (*List, error) {
+	var resp List
+	if err := c.Do("PUT", fmt.Sprintf("/v2/list/%s", listID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) DeleteList(listID string) error {
+	return c.Do("DELETE", fmt.Sprintf("/v2/list/%s", listID), nil, nil)
 }

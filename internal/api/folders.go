@@ -47,3 +47,19 @@ func (c *Client) CreateFolder(spaceID string, req *CreateFolderRequest) (*Folder
 	}
 	return &resp, nil
 }
+
+type UpdateFolderRequest struct {
+	Name string `json:"name"`
+}
+
+func (c *Client) UpdateFolder(folderID string, req *UpdateFolderRequest) (*Folder, error) {
+	var resp Folder
+	if err := c.Do("PUT", fmt.Sprintf("/v2/folder/%s", folderID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) DeleteFolder(folderID string) error {
+	return c.Do("DELETE", fmt.Sprintf("/v2/folder/%s", folderID), nil, nil)
+}

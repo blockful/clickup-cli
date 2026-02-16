@@ -1161,6 +1161,46 @@ Delete a goal.
 |------|------|---------|-----------|-------------|
 | `--id` | string | *(required)* | `goal_id` (path) | Goal ID (UUID) |
 
+### `clickup goal key-result create`
+
+Create a key result for a goal.
+
+**API:** `POST /v2/goal/{goal_id}/key_result`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--goal-id` | string | *(required)* | `goal_id` (path) | Goal ID |
+| `--name` | string | *(required)* | `name` (body) | Key result name |
+| `--type` | string | `number` | `type` (body) | Type: number, percentage, automatic, boolean |
+| `--steps-start` | int | `0` | `steps_start` (body) | Starting value |
+| `--steps-end` | int | `0` | `steps_end` (body) | Target value |
+| `--unit` | string | — | `unit` (body) | Unit label |
+| `--owners` | int[] | — | `owners` (body) | Owner user IDs |
+| `--task-ids` | string[] | — | `task_ids` (body) | Task IDs (for automatic type) |
+| `--list-ids` | string[] | — | `list_ids` (body) | List IDs (for automatic type) |
+
+### `clickup goal key-result update`
+
+Update a key result.
+
+**API:** `PUT /v2/key_result/{key_result_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--id` | string | *(required)* | `key_result_id` (path) | Key Result ID |
+| `--steps-current` | int | — | `steps_current` (body) | Current value |
+| `--note` | string | — | `note` (body) | Note |
+
+### `clickup goal key-result delete`
+
+Delete a key result.
+
+**API:** `DELETE /v2/key_result/{key_result_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--id` | string | *(required)* | `key_result_id` (path) | Key Result ID |
+
 ---
 
 ## Members
@@ -1202,6 +1242,19 @@ Create a user group.
 | `--name` | string | *(required)* | `name` (body) | Group name |
 | `--handle` | string | — | `handle` (body) | Group handle/slug |
 
+### `clickup group update`
+
+Update a user group.
+
+**API:** `PUT /v2/group/{group_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--id` | string | *(required)* | `group_id` (path) | Group ID |
+| `--name` | string | — | `name` (body) | New group name |
+| `--handle` | string | — | `handle` (body) | New handle |
+| `--members` | string | — | `members` (body) | Members JSON: `{"add":[id,...],"rem":[id,...]}` |
+
 ### `clickup group delete`
 
 Delete a user group.
@@ -1226,6 +1279,12 @@ Invite a guest to a workspace.
 |------|------|---------|-----------|-------------|
 | `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
 | `--email` | string | *(required)* | `email` (body) | Guest email address |
+| `--can-edit-tags` | bool | — | `can_edit_tags` (body) | Can edit tags |
+| `--can-see-time-spent` | bool | — | `can_see_time_spent` (body) | Can see time spent |
+| `--can-see-time-estimated` | bool | — | `can_see_time_estimated` (body) | Can see time estimated |
+| `--can-see-points-estimated` | bool | — | `can_see_points_estimated` (body) | Can see points estimated |
+| `--can-create-views` | bool | — | `can_create_views` (body) | Can create views |
+| `--custom-role-id` | int | — | `custom_role_id` (body) | Custom role ID |
 
 ### `clickup guest get`
 
@@ -1238,6 +1297,23 @@ Get guest details.
 | `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
 | `--id` | string | *(required)* | `guest_id` (path) | Guest ID |
 
+### `clickup guest edit`
+
+Edit a guest's permissions.
+
+**API:** `PUT /v2/team/{team_id}/guest/{guest_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--id` | string | *(required)* | `guest_id` (path) | Guest ID |
+| `--can-edit-tags` | bool | — | `can_edit_tags` (body) | Can edit tags |
+| `--can-see-time-spent` | bool | — | `can_see_time_spent` (body) | Can see time spent |
+| `--can-see-time-estimated` | bool | — | `can_see_time_estimated` (body) | Can see time estimated |
+| `--can-see-points-estimated` | bool | — | `can_see_points_estimated` (body) | Can see points estimated |
+| `--can-create-views` | bool | — | `can_create_views` (body) | Can create views |
+| `--custom-role-id` | int | — | `custom_role_id` (body) | Custom role ID |
+
 ### `clickup guest remove`
 
 Remove a guest from a workspace.
@@ -1248,3 +1324,372 @@ Remove a guest from a workspace.
 |------|------|---------|-----------|-------------|
 | `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
 | `--id` | string | *(required)* | `guest_id` (path) | Guest ID |
+
+### `clickup guest add-to-task`
+
+Add a guest to a task.
+
+**API:** `POST /v2/task/{task_id}/guest/{guest_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task` | string | *(required)* | `task_id` (path) | Task ID |
+| `--guest-id` | int | *(required)* | `guest_id` (path) | Guest ID |
+| `--permission-level` | string | `read` | `permission_level` (body) | Permission level |
+| `--include-shared` | bool | `false` | `include_shared` (query) | Include shared items |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+### `clickup guest remove-from-task`
+
+Remove a guest from a task.
+
+**API:** `DELETE /v2/task/{task_id}/guest/{guest_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task` | string | *(required)* | `task_id` (path) | Task ID |
+| `--guest-id` | int | *(required)* | `guest_id` (path) | Guest ID |
+| `--include-shared` | bool | `false` | `include_shared` (query) | Include shared items |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+### `clickup guest add-to-list`
+
+Add a guest to a list.
+
+**API:** `POST /v2/list/{list_id}/guest/{guest_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--list` | string | *(required)* | `list_id` (path) | List ID |
+| `--guest-id` | int | *(required)* | `guest_id` (path) | Guest ID |
+| `--permission-level` | string | `read` | `permission_level` (body) | Permission level |
+| `--include-shared` | bool | `false` | `include_shared` (query) | Include shared items |
+
+### `clickup guest remove-from-list`
+
+Remove a guest from a list.
+
+**API:** `DELETE /v2/list/{list_id}/guest/{guest_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--list` | string | *(required)* | `list_id` (path) | List ID |
+| `--guest-id` | int | *(required)* | `guest_id` (path) | Guest ID |
+| `--include-shared` | bool | `false` | `include_shared` (query) | Include shared items |
+
+### `clickup guest add-to-folder`
+
+Add a guest to a folder.
+
+**API:** `POST /v2/folder/{folder_id}/guest/{guest_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--folder` | string | *(required)* | `folder_id` (path) | Folder ID |
+| `--guest-id` | int | *(required)* | `guest_id` (path) | Guest ID |
+| `--permission-level` | string | `read` | `permission_level` (body) | Permission level |
+| `--include-shared` | bool | `false` | `include_shared` (query) | Include shared items |
+
+### `clickup guest remove-from-folder`
+
+Remove a guest from a folder.
+
+**API:** `DELETE /v2/folder/{folder_id}/guest/{guest_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--folder` | string | *(required)* | `folder_id` (path) | Folder ID |
+| `--guest-id` | int | *(required)* | `guest_id` (path) | Guest ID |
+| `--include-shared` | bool | `false` | `include_shared` (query) | Include shared items |
+
+---
+
+## Users
+
+### `clickup user invite`
+
+Invite a user to a workspace.
+
+**API:** `POST /v2/team/{team_id}/user`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--email` | string | *(required)* | `email` (body) | User email |
+| `--admin` | bool | `false` | `admin` (body) | Make user admin |
+| `--custom-role-id` | int | — | `custom_role_id` (body) | Custom role ID |
+| `--member-groups` | int[] | — | `member_groups` (body) | Member group IDs |
+
+### `clickup user get`
+
+Get a user.
+
+**API:** `GET /v2/team/{team_id}/user/{user_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--id` | string | *(required)* | `user_id` (path) | User ID |
+| `--include-shared` | bool | `false` | `include_shared` (query) | Include shared resources |
+
+### `clickup user update`
+
+Edit a user.
+
+**API:** `PUT /v2/team/{team_id}/user/{user_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--id` | string | *(required)* | `user_id` (path) | User ID |
+| `--username` | string | — | `username` (body) | New username |
+| `--admin` | bool | — | `admin` (body) | Admin status |
+| `--custom-role-id` | int | — | `custom_role_id` (body) | Custom role ID |
+
+### `clickup user remove`
+
+Remove a user from a workspace.
+
+**API:** `DELETE /v2/team/{team_id}/user/{user_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--id` | string | *(required)* | `user_id` (path) | User ID |
+
+---
+
+## Roles
+
+### `clickup role list`
+
+List custom roles in a workspace.
+
+**API:** `GET /v2/team/{team_id}/customroles`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--include-members` | bool | `false` | `include_members` (query) | Include members in response |
+
+---
+
+## Custom Task Types
+
+### `clickup custom-task-type list`
+
+List custom task types in a workspace.
+
+**API:** `GET /v2/team/{team_id}/custom_item`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+
+---
+
+## Shared Hierarchy
+
+### `clickup shared list`
+
+List the shared hierarchy for the authenticated user.
+
+**API:** `GET /v2/team/{team_id}/shared`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+
+---
+
+## Templates
+
+### `clickup template list`
+
+List task templates in a workspace.
+
+**API:** `GET /v2/team/{team_id}/taskTemplate`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--page` | int | `0` | `page` (query) | Page number |
+
+### `clickup template create-task`
+
+Create a task from a template.
+
+**API:** `POST /v2/list/{list_id}/taskTemplate/{template_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--list` | string | *(required)* | `list_id` (path) | List ID |
+| `--template-id` | string | *(required)* | `template_id` (path) | Template ID |
+| `--name` | string | *(required)* | `name` (body) | Task name |
+
+### `clickup template create-list`
+
+Create a list from a template.
+
+**API:** `POST /v2/folder/{folder_id}/listTemplate/{template_id}` or `POST /v2/space/{space_id}/listTemplate/{template_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--folder` | string | — | `folder_id` (path) | Folder ID (use one of `--folder` or `--space`) |
+| `--space` | string | — | `space_id` (path) | Space ID (for folderless list) |
+| `--template-id` | string | *(required)* | `template_id` (path) | Template ID |
+| `--name` | string | *(required)* | `name` (body) | List name |
+| `--options` | string | — | `options` (body) | Template options (JSON) |
+
+### `clickup template create-folder`
+
+Create a folder from a template.
+
+**API:** `POST /v2/space/{space_id}/folderTemplate/{template_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--space` | string | *(required)* | `space_id` (path) | Space ID |
+| `--template-id` | string | *(required)* | `template_id` (path) | Template ID |
+| `--name` | string | *(required)* | `name` (body) | Folder name |
+| `--options` | string | — | `options` (body) | Template options (JSON) |
+
+---
+
+## Attachments
+
+### `clickup attachment create`
+
+Upload a file attachment to a task.
+
+**API:** `POST /v2/task/{task_id}/attachment`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task-id` | string | *(required)* | `task_id` (path) | Task ID |
+| `--file` | string | *(required)* | — | Path to file to upload |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID (required with custom-task-ids) |
+
+---
+
+## Time Entry Legacy (Task-Level)
+
+### `clickup time-entry legacy list`
+
+Get tracked time for a task.
+
+**API:** `GET /v2/task/{task_id}/time`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task-id` | string | *(required)* | `task_id` (path) | Task ID |
+| `--subcategory-id` | string | — | `subcategory_id` (query) | Subcategory ID filter |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+### `clickup time-entry legacy create`
+
+Track time on a task.
+
+**API:** `POST /v2/task/{task_id}/time`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task-id` | string | *(required)* | `task_id` (path) | Task ID |
+| `--time` | int | *(required)* | `time` (body) | Time in milliseconds |
+| `--start` | int64 | — | `start` (body) | Start date (Unix ms) |
+| `--end` | int64 | — | `end` (body) | End date (Unix ms) |
+| `--tags` | string | — | `tags` (body) | Comma-separated tag names |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+### `clickup time-entry legacy update`
+
+Edit tracked time on a task.
+
+**API:** `PUT /v2/task/{task_id}/time/{interval_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task-id` | string | *(required)* | `task_id` (path) | Task ID |
+| `--interval-id` | string | *(required)* | `interval_id` (path) | Interval ID |
+| `--time` | int | — | `time` (body) | Time in milliseconds |
+| `--start` | int64 | — | `start` (body) | Start date (Unix ms) |
+| `--end` | int64 | — | `end` (body) | End date (Unix ms) |
+| `--tags` | string | — | `tags` (body) | Comma-separated tag names |
+| `--tag-action` | string | — | `tag_action` (body) | Tag action: `add` or `replace` |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+### `clickup time-entry legacy delete`
+
+Delete tracked time on a task.
+
+**API:** `DELETE /v2/task/{task_id}/time/{interval_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task-id` | string | *(required)* | `task_id` (path) | Task ID |
+| `--interval-id` | string | *(required)* | `interval_id` (path) | Interval ID |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+---
+
+## Time Entry Tags
+
+### `clickup time-entry tag add`
+
+Add tags to time entries.
+
+**API:** `POST /v2/team/{team_id}/time_entries/tags`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--tags` | string | *(required)* | `tags` (body) | Comma-separated tag names |
+| `--time-entry-ids` | string | *(required)* | `time_entry_ids` (body) | Comma-separated time entry IDs |
+
+### `clickup time-entry tag remove`
+
+Remove tags from time entries.
+
+**API:** `DELETE /v2/team/{team_id}/time_entries/tags`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--tags` | string | *(required)* | `tags` (body) | Comma-separated tag names |
+| `--time-entry-ids` | string | *(required)* | `time_entry_ids` (body) | Comma-separated time entry IDs |
+
+### `clickup time-entry tag update`
+
+Change a tag name on time entries.
+
+**API:** `PUT /v2/team/{team_id}/time_entries/tags`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--name` | string | *(required)* | `name` (body) | Current tag name |
+| `--new-name` | string | *(required)* | `new_name` (body) | New tag name |
+| `--tag-bg` | string | — | `tag_bg` (body) | Background color |
+| `--tag-fg` | string | — | `tag_fg` (body) | Foreground color |
+
+---
+
+## Time Entry History
+
+### `clickup time-entry history`
+
+Get change history for a time entry.
+
+**API:** `GET /v2/team/{team_id}/time_entries/{timer_id}/history`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` (path) | Workspace ID |
+| `--id` | string | *(required)* | `timer_id` (path) | Time entry ID |

@@ -98,3 +98,39 @@
 
 - **BR-016a**: `webhook create` requires `--endpoint` (URL) and `--events` (comma-separated event types).
 - **BR-016b**: Webhook secrets are returned on create and MUST be displayed in output.
+
+## BR-017: Attachments
+
+- **BR-017a**: `attachment create` requires `--task-id` and `--file` (local path).
+- **BR-017b**: File upload uses multipart/form-data encoding.
+
+## BR-018: Guests
+
+- **BR-018a**: Guests can be scoped to task, list, or folder level via `add-to-*` / `remove-from-*` commands.
+- **BR-018b**: `--permission-level` defaults to `read`.
+- **BR-018c**: Guest invite requires `--email`.
+
+## BR-019: Users
+
+- **BR-019a**: `user invite` requires `--email`.
+- **BR-019b**: `user update` can change `--admin`, `--username`, and `--custom-role-id`.
+
+## BR-020: Templates
+
+- **BR-020a**: Templates can create tasks, lists, or folders from saved templates.
+- **BR-020b**: `template create-task` requires `--list`, `--template-id`, and `--name`.
+
+## BR-021: Time Entry Legacy
+
+- **BR-021a**: Legacy time tracking operates at the task level (different from workspace-level time entries).
+- **BR-021b**: Uses interval IDs for update/delete operations.
+
+## BR-022: Task Dependencies & Links
+
+- **BR-022a**: Dependencies use `--depends-on` or `--dependency-of` to specify direction.
+- **BR-022b**: Links are bidirectional between two tasks via `--links-to`.
+
+## BR-023: Goal Key Results
+
+- **BR-023a**: Key results are children of goals. Types: `number`, `percentage`, `automatic`, `boolean`.
+- **BR-023b**: `automatic` type requires `--task-ids` or `--list-ids`.

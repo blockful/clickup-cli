@@ -148,3 +148,45 @@ func (c *Client) EditGuest(ctx context.Context, teamID, guestID string, req *Edi
 func (c *Client) RemoveGuest(ctx context.Context, teamID, guestID string) error {
 	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/team/%s/guest/%s", teamID, guestID), nil, nil)
 }
+
+// Guest assignments to task/list/folder
+
+type GuestPermissionRequest struct {
+	PermissionLevel string `json:"permission_level"`
+}
+
+func (c *Client) AddGuestToTask(ctx context.Context, taskID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error) {
+	var resp GuestResponse
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/guest/%d", taskID, guestID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) RemoveGuestFromTask(ctx context.Context, taskID string, guestID int) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s/guest/%d", taskID, guestID), nil, nil)
+}
+
+func (c *Client) AddGuestToList(ctx context.Context, listID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error) {
+	var resp GuestResponse
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/guest/%d", listID, guestID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) RemoveGuestFromList(ctx context.Context, listID string, guestID int) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/list/%s/guest/%d", listID, guestID), nil, nil)
+}
+
+func (c *Client) AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error) {
+	var resp GuestResponse
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/folder/%s/guest/%d", folderID, guestID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/folder/%s/guest/%d", folderID, guestID), nil, nil)
+}

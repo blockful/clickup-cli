@@ -285,3 +285,96 @@ func TestListTasks(t *testing.T) {
 		})
 	}
 }
+
+func TestMergeTasks(t *testing.T) {
+	ctx := context.Background()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" || r.URL.Path != "/v2/task/t1/merge" {
+			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
+		}
+		var req MergeTasksRequest
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		if len(req.MergeWith) != 2 {
+			t.Errorf("merge_with len = %d", len(req.MergeWith))
+		}
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
+	err := c.MergeTasks(ctx, "t1", &MergeTasksRequest{MergeWith: []string{"t2", "t3"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGetTimeInStatus(t *testing.T) {
+	ctx := context.Background()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" || r.URL.Path != "/v2/task/t1/time_in_status" {
+			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(TimeInStatusResponse{CurrentStatus: map[string]string{"status": "open"}})
+	}))
+	defer srv.Close()
+	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
+	resp, err := c.GetTimeInStatus(ctx, "t1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp == nil {
+		t.Fatal("expected response")
+	}
+}
+
+func TestGetBulkTimeInStatus(t *testing.T) {
+	ctx := context.Background()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("method = %s", r.Method)
+		}
+		ids := r.URL.Query()["task_ids"]
+		if len(ids) != 2 {
+			t.Errorf("task_ids len = %d", len(ids))
+		}
+		_ = json.NewEncoder(w).Encode(BulkTimeInStatusResponse{"t1": "data", "t2": "data"})
+	}))
+	defer srv.Close()
+	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
+	resp, err := c.GetBulkTimeInStatus(ctx, []string{"t1", "t2"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp == nil {
+		t.Fatal("expected response")
+	}
+}
+
+func TestAddTaskToList(t *testing.T) {
+	ctx := context.Background()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" || r.URL.Path != "/v2/list/l1/task/t1" {
+			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
+		}
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
+	if err := c.AddTaskToList(ctx, "l1", "t1"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRemoveTaskFromList(t *testing.T) {
+	ctx := context.Background()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "DELETE" || r.URL.Path != "/v2/list/l1/task/t1" {
+			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
+		}
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
+	if err := c.RemoveTaskFromList(ctx, "l1", "t1"); err != nil {
+		t.Fatal(err)
+	}
+}

@@ -78,3 +78,39 @@ func (c *Client) UpdateComment(ctx context.Context, commentID string, req *Updat
 func (c *Client) DeleteComment(ctx context.Context, commentID string) error {
 	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/comment/%s", commentID), nil, nil)
 }
+
+// Threaded Comments
+
+func (c *Client) ListThreadedComments(ctx context.Context, commentID string) (*CommentsResponse, error) {
+	var resp CommentsResponse
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/comment/%s/reply", commentID), nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) CreateThreadedComment(ctx context.Context, commentID string, req *CreateCommentRequest) (*CreateCommentResponse, error) {
+	var resp CreateCommentResponse
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/comment/%s/reply", commentID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// Chat View Comments
+
+func (c *Client) ListViewComments(ctx context.Context, viewID string) (*CommentsResponse, error) {
+	var resp CommentsResponse
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/view/%s/comment", viewID), nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) CreateViewComment(ctx context.Context, viewID string, req *CreateCommentRequest) (*CreateCommentResponse, error) {
+	var resp CreateCommentResponse
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/view/%s/comment", viewID), req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}

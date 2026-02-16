@@ -174,6 +174,159 @@ var guestRemoveCmd = &cobra.Command{
 	},
 }
 
+var guestAddToTaskCmd = &cobra.Command{
+	Use:   "add-to-task",
+	Short: "Add a guest to a task",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		taskID, _ := cmd.Flags().GetString("task")
+		guestID, _ := cmd.Flags().GetInt("guest-id")
+		permLevel, _ := cmd.Flags().GetString("permission-level")
+		if taskID == "" {
+			output.PrintError("VALIDATION_ERROR", "--task is required")
+			return &exitError{code: 1}
+		}
+		if guestID == 0 {
+			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
+			return &exitError{code: 1}
+		}
+		req := &api.GuestPermissionRequest{PermissionLevel: permLevel}
+		resp, err := client.AddGuestToTask(ctx, taskID, guestID, req)
+		if err != nil {
+			return handleError(err)
+		}
+		output.JSON(resp)
+		return nil
+	},
+}
+
+var guestRemoveFromTaskCmd = &cobra.Command{
+	Use:   "remove-from-task",
+	Short: "Remove a guest from a task",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		taskID, _ := cmd.Flags().GetString("task")
+		guestID, _ := cmd.Flags().GetInt("guest-id")
+		if taskID == "" {
+			output.PrintError("VALIDATION_ERROR", "--task is required")
+			return &exitError{code: 1}
+		}
+		if guestID == 0 {
+			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
+			return &exitError{code: 1}
+		}
+		if err := client.RemoveGuestFromTask(ctx, taskID, guestID); err != nil {
+			return handleError(err)
+		}
+		output.JSON(map[string]string{"status": "ok"})
+		return nil
+	},
+}
+
+var guestAddToListCmd = &cobra.Command{
+	Use:   "add-to-list",
+	Short: "Add a guest to a list",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		listID, _ := cmd.Flags().GetString("list")
+		guestID, _ := cmd.Flags().GetInt("guest-id")
+		permLevel, _ := cmd.Flags().GetString("permission-level")
+		if listID == "" {
+			output.PrintError("VALIDATION_ERROR", "--list is required")
+			return &exitError{code: 1}
+		}
+		if guestID == 0 {
+			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
+			return &exitError{code: 1}
+		}
+		req := &api.GuestPermissionRequest{PermissionLevel: permLevel}
+		resp, err := client.AddGuestToList(ctx, listID, guestID, req)
+		if err != nil {
+			return handleError(err)
+		}
+		output.JSON(resp)
+		return nil
+	},
+}
+
+var guestRemoveFromListCmd = &cobra.Command{
+	Use:   "remove-from-list",
+	Short: "Remove a guest from a list",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		listID, _ := cmd.Flags().GetString("list")
+		guestID, _ := cmd.Flags().GetInt("guest-id")
+		if listID == "" {
+			output.PrintError("VALIDATION_ERROR", "--list is required")
+			return &exitError{code: 1}
+		}
+		if guestID == 0 {
+			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
+			return &exitError{code: 1}
+		}
+		if err := client.RemoveGuestFromList(ctx, listID, guestID); err != nil {
+			return handleError(err)
+		}
+		output.JSON(map[string]string{"status": "ok"})
+		return nil
+	},
+}
+
+var guestAddToFolderCmd = &cobra.Command{
+	Use:   "add-to-folder",
+	Short: "Add a guest to a folder",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		folderID, _ := cmd.Flags().GetString("folder")
+		guestID, _ := cmd.Flags().GetInt("guest-id")
+		permLevel, _ := cmd.Flags().GetString("permission-level")
+		if folderID == "" {
+			output.PrintError("VALIDATION_ERROR", "--folder is required")
+			return &exitError{code: 1}
+		}
+		if guestID == 0 {
+			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
+			return &exitError{code: 1}
+		}
+		req := &api.GuestPermissionRequest{PermissionLevel: permLevel}
+		resp, err := client.AddGuestToFolder(ctx, folderID, guestID, req)
+		if err != nil {
+			return handleError(err)
+		}
+		output.JSON(resp)
+		return nil
+	},
+}
+
+var guestRemoveFromFolderCmd = &cobra.Command{
+	Use:   "remove-from-folder",
+	Short: "Remove a guest from a folder",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		folderID, _ := cmd.Flags().GetString("folder")
+		guestID, _ := cmd.Flags().GetInt("guest-id")
+		if folderID == "" {
+			output.PrintError("VALIDATION_ERROR", "--folder is required")
+			return &exitError{code: 1}
+		}
+		if guestID == 0 {
+			output.PrintError("VALIDATION_ERROR", "--guest-id is required")
+			return &exitError{code: 1}
+		}
+		if err := client.RemoveGuestFromFolder(ctx, folderID, guestID); err != nil {
+			return handleError(err)
+		}
+		output.JSON(map[string]string{"status": "ok"})
+		return nil
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(memberCmd, groupCmd, guestCmd)
 
@@ -187,7 +340,28 @@ func init() {
 	groupDeleteCmd.Flags().String("id", "", "Group ID (required)")
 
 	guestCmd.AddCommand(guestInviteCmd, guestGetCmd, guestRemoveCmd)
+	guestCmd.AddCommand(guestAddToTaskCmd, guestRemoveFromTaskCmd)
+	guestCmd.AddCommand(guestAddToListCmd, guestRemoveFromListCmd)
+	guestCmd.AddCommand(guestAddToFolderCmd, guestRemoveFromFolderCmd)
 	guestInviteCmd.Flags().String("email", "", "Guest email (required)")
 	guestGetCmd.Flags().String("id", "", "Guest ID (required)")
 	guestRemoveCmd.Flags().String("id", "", "Guest ID (required)")
+
+	guestAddToTaskCmd.Flags().String("task", "", "Task ID (required)")
+	guestAddToTaskCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
+	guestAddToTaskCmd.Flags().String("permission-level", "read", "Permission level")
+	guestRemoveFromTaskCmd.Flags().String("task", "", "Task ID (required)")
+	guestRemoveFromTaskCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
+
+	guestAddToListCmd.Flags().String("list", "", "List ID (required)")
+	guestAddToListCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
+	guestAddToListCmd.Flags().String("permission-level", "read", "Permission level")
+	guestRemoveFromListCmd.Flags().String("list", "", "List ID (required)")
+	guestRemoveFromListCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
+
+	guestAddToFolderCmd.Flags().String("folder", "", "Folder ID (required)")
+	guestAddToFolderCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
+	guestAddToFolderCmd.Flags().String("permission-level", "read", "Permission level")
+	guestRemoveFromFolderCmd.Flags().String("folder", "", "Folder ID (required)")
+	guestRemoveFromFolderCmd.Flags().Int("guest-id", 0, "Guest ID (required)")
 }

@@ -172,6 +172,47 @@ func (c *Client) GetRunningTimer(ctx context.Context, teamID, assignee string) (
 	return &resp, nil
 }
 
+type TimeEntryHistoryResponse struct {
+	Data []interface{} `json:"data"`
+}
+
+type AddTagsToTimeEntriesRequest struct {
+	TimeEntryIDs []string `json:"time_entry_ids"`
+	Tags         []Tag    `json:"tags"`
+}
+
+type RemoveTagsFromTimeEntriesRequest struct {
+	TimeEntryIDs []string `json:"time_entry_ids"`
+	Tags         []Tag    `json:"tags"`
+}
+
+type ChangeTagNameRequest struct {
+	Name   string `json:"name"`
+	NewName string `json:"new_name"`
+	TagBg  string `json:"tag_bg"`
+	TagFg  string `json:"tag_fg"`
+}
+
+func (c *Client) GetTimeEntryHistory(ctx context.Context, teamID, timerID string) (*TimeEntryHistoryResponse, error) {
+	var resp TimeEntryHistoryResponse
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/team/%s/time_entries/%s/history", teamID, timerID), nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) AddTagsToTimeEntries(ctx context.Context, teamID string, req *AddTagsToTimeEntriesRequest) error {
+	return c.Do(ctx, "POST", fmt.Sprintf("/v2/team/%s/time_entries/tags", teamID), req, nil)
+}
+
+func (c *Client) RemoveTagsFromTimeEntries(ctx context.Context, teamID string, req *RemoveTagsFromTimeEntriesRequest) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/team/%s/time_entries/tags", teamID), req, nil)
+}
+
+func (c *Client) ChangeTagNames(ctx context.Context, teamID string, req *ChangeTagNameRequest) error {
+	return c.Do(ctx, "PUT", fmt.Sprintf("/v2/team/%s/time_entries/tags", teamID), req, nil)
+}
+
 func (c *Client) GetTimeEntryTags(ctx context.Context, teamID string) (*TimeEntryTagsResponse, error) {
 	var resp TimeEntryTagsResponse
 	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/team/%s/time_entries/tags", teamID), nil, &resp); err != nil {

@@ -110,6 +110,16 @@ type ClientInterface interface {
 	StopTimer(ctx context.Context, teamID string) (*SingleTimeEntryResponse, error)
 	GetRunningTimer(ctx context.Context, teamID string, assignee string) (*SingleTimeEntryResponse, error)
 	GetTimeEntryTags(ctx context.Context, teamID string) (*TimeEntryTagsResponse, error)
+	GetTimeEntryHistory(ctx context.Context, teamID, timerID string) (*TimeEntryHistoryResponse, error)
+	AddTagsToTimeEntries(ctx context.Context, teamID string, req *AddTagsToTimeEntriesRequest) error
+	RemoveTagsFromTimeEntries(ctx context.Context, teamID string, req *RemoveTagsFromTimeEntriesRequest) error
+	ChangeTagNames(ctx context.Context, teamID string, req *ChangeTagNameRequest) error
+
+	// Time Tracking Legacy (task-level)
+	GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string) (*LegacyTimeResponse, error)
+	TrackLegacyTime(ctx context.Context, taskID string, req *LegacyTrackTimeRequest) (*LegacyTimeResponse, error)
+	EditLegacyTime(ctx context.Context, taskID, intervalID string, req *LegacyEditTimeRequest) error
+	DeleteLegacyTime(ctx context.Context, taskID, intervalID string) error
 
 	// Webhooks
 	GetWebhooks(ctx context.Context, teamID string) (*WebhooksResponse, error)
@@ -149,11 +159,69 @@ type ClientInterface interface {
 	UpdateGroup(ctx context.Context, groupID string, req *UpdateGroupRequest) (*Group, error)
 	DeleteGroup(ctx context.Context, groupID string) error
 
+	// Relationships
+	AddDependency(ctx context.Context, taskID string, req *AddDependencyRequest) (*DependencyResponse, error)
+	DeleteDependency(ctx context.Context, taskID, dependsOn, dependencyOf string) error
+	AddTaskLink(ctx context.Context, taskID, linksTo string) (*TaskLinkResponse, error)
+	DeleteTaskLink(ctx context.Context, taskID, linksTo string) error
+
+	// Task Extras
+	MergeTasks(ctx context.Context, taskID string, req *MergeTasksRequest) error
+	GetTimeInStatus(ctx context.Context, taskID string) (*TimeInStatusResponse, error)
+	GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*BulkTimeInStatusResponse, error)
+	AddTaskToList(ctx context.Context, listID, taskID string) error
+	RemoveTaskFromList(ctx context.Context, listID, taskID string) error
+
+	// Attachments
+	CreateTaskAttachment(ctx context.Context, taskID, filePath string) (*Attachment, error)
+
 	// Guests
 	InviteGuest(ctx context.Context, teamID string, req *InviteGuestRequest) error
 	GetGuest(ctx context.Context, teamID, guestID string) (*GuestResponse, error)
 	EditGuest(ctx context.Context, teamID, guestID string, req *EditGuestRequest) (*GuestResponse, error)
 	RemoveGuest(ctx context.Context, teamID, guestID string) error
+
+	// Users
+	InviteUser(ctx context.Context, teamID string, req *InviteUserRequest) (*TeamUserResponse, error)
+	GetTeamUser(ctx context.Context, teamID, userID string) (*TeamUserResponse, error)
+	EditUser(ctx context.Context, teamID, userID string, req *EditUserRequest) (*TeamUserResponse, error)
+	RemoveUser(ctx context.Context, teamID, userID string) error
+
+	// Roles
+	GetCustomRoles(ctx context.Context, teamID string) (*CustomRolesResponse, error)
+
+	// Custom Task Types
+	GetCustomTaskTypes(ctx context.Context, teamID string) (*CustomTaskTypesResponse, error)
+
+	// Shared Hierarchy
+	GetSharedHierarchy(ctx context.Context, teamID string) (*SharedHierarchyResponse, error)
+
+	// Workspace extras
+	GetWorkspaceSeats(ctx context.Context, teamID string) (*SeatsResponse, error)
+	GetWorkspacePlan(ctx context.Context, teamID string) (*PlanResponse, error)
+
+	// Threaded Comments
+	ListThreadedComments(ctx context.Context, commentID string) (*CommentsResponse, error)
+	CreateThreadedComment(ctx context.Context, commentID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
+
+	// View Comments
+	ListViewComments(ctx context.Context, viewID string) (*CommentsResponse, error)
+	CreateViewComment(ctx context.Context, viewID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
+
+	// Guest Assignments
+	AddGuestToTask(ctx context.Context, taskID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error)
+	RemoveGuestFromTask(ctx context.Context, taskID string, guestID int) error
+	AddGuestToList(ctx context.Context, listID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error)
+	RemoveGuestFromList(ctx context.Context, listID string, guestID int) error
+	AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *GuestPermissionRequest) (*GuestResponse, error)
+	RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int) error
+
+	// Templates
+	GetTaskTemplates(ctx context.Context, teamID string, page int) (*TaskTemplatesResponse, error)
+	CreateTaskFromTemplate(ctx context.Context, listID, templateID string, req *CreateFromTemplateRequest) (*CreateFromTemplateResponse, error)
+	CreateFolderFromTemplate(ctx context.Context, spaceID, templateID string, req *CreateFromTemplateRequest) (*CreateFromTemplateResponse, error)
+	CreateListFromFolderTemplate(ctx context.Context, folderID, templateID string, req *CreateFromTemplateRequest) (*CreateFromTemplateResponse, error)
+	CreateListFromSpaceTemplate(ctx context.Context, spaceID, templateID string, req *CreateFromTemplateRequest) (*CreateFromTemplateResponse, error)
 }
 
 // Client implements ClientInterface using HTTP requests to the ClickUp API.

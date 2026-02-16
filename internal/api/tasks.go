@@ -44,17 +44,6 @@ type Dependency struct {
 	Userid      string `json:"userid"`
 }
 
-type Attachment struct {
-	ID             string `json:"id"`
-	Version        string `json:"version"`
-	Date           string `json:"date"`
-	Title          string `json:"title"`
-	Extension      string `json:"extension"`
-	ThumbnailSmall string `json:"thumbnail_small"`
-	ThumbnailLarge string `json:"thumbnail_large"`
-	URL            string `json:"url"`
-}
-
 type Task struct {
 	ID                  string        `json:"id"`
 	CustomID            string        `json:"custom_id,omitempty"`
@@ -469,4 +458,50 @@ func ParseCustomFields(s string) ([]CustomFieldValue, error) {
 		return nil, fmt.Errorf("invalid custom-fields JSON: %v", err)
 	}
 	return fields, nil
+}
+
+// MergeTasksRequest is the request body for merging tasks.
+type MergeTasksRequest struct {
+	MergeWith []string `json:"merge_with"`
+}
+
+// TimeInStatusResponse is the response for time in status.
+type TimeInStatusResponse struct {
+	CurrentStatus    interface{}   `json:"current_status"`
+	StatusHistory    []interface{} `json:"status_history"`
+}
+
+// BulkTimeInStatusResponse is the response for bulk time in status.
+type BulkTimeInStatusResponse map[string]interface{}
+
+func (c *Client) MergeTasks(ctx context.Context, taskID string, req *MergeTasksRequest) error {
+	return c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/merge", taskID), req, nil)
+}
+
+func (c *Client) GetTimeInStatus(ctx context.Context, taskID string) (*TimeInStatusResponse, error) {
+	var resp TimeInStatusResponse
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/task/%s/time_in_status", taskID), nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*BulkTimeInStatusResponse, error) {
+	params := url.Values{}
+	for _, id := range taskIDs {
+		params.Add("task_ids", id)
+	}
+	var resp BulkTimeInStatusResponse
+	if err := c.Do(ctx, "GET", "/v2/task/bulk_time_in_status/task_ids?"+params.Encode(), nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (c *Client) AddTaskToList(ctx context.Context, listID, taskID string) error {
+	return c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/task/%s", listID, taskID), nil, nil)
+}
+
+func (c *Client) RemoveTaskFromList(ctx context.Context, listID, taskID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/list/%s/task/%s", listID, taskID), nil, nil)
 }

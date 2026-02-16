@@ -82,7 +82,15 @@ type MockClient struct {
 	StartTimerFn       func(context.Context, string, *api.StartTimerRequest) (*api.SingleTimeEntryResponse, error)
 	StopTimerFn        func(context.Context, string) (*api.SingleTimeEntryResponse, error)
 	GetRunningTimerFn  func(context.Context, string, string) (*api.SingleTimeEntryResponse, error)
-	GetTimeEntryTagsFn func(context.Context, string) (*api.TimeEntryTagsResponse, error)
+	GetTimeEntryTagsFn            func(context.Context, string) (*api.TimeEntryTagsResponse, error)
+	GetTimeEntryHistoryFn         func(context.Context, string, string) (*api.TimeEntryHistoryResponse, error)
+	AddTagsToTimeEntriesFn        func(context.Context, string, *api.AddTagsToTimeEntriesRequest) error
+	RemoveTagsFromTimeEntriesFn   func(context.Context, string, *api.RemoveTagsFromTimeEntriesRequest) error
+	ChangeTagNamesFn              func(context.Context, string, *api.ChangeTagNameRequest) error
+	GetLegacyTrackedTimeFn        func(context.Context, string, string) (*api.LegacyTimeResponse, error)
+	TrackLegacyTimeFn             func(context.Context, string, *api.LegacyTrackTimeRequest) (*api.LegacyTimeResponse, error)
+	EditLegacyTimeFn              func(context.Context, string, string, *api.LegacyEditTimeRequest) error
+	DeleteLegacyTimeFn            func(context.Context, string, string) error
 
 	// Webhooks
 	GetWebhooksFn   func(context.Context, string) (*api.WebhooksResponse, error)
@@ -127,6 +135,64 @@ type MockClient struct {
 	GetGuestFn    func(context.Context, string, string) (*api.GuestResponse, error)
 	EditGuestFn   func(context.Context, string, string, *api.EditGuestRequest) (*api.GuestResponse, error)
 	RemoveGuestFn func(context.Context, string, string) error
+
+	// Threaded Comments
+	ListThreadedCommentsFn  func(context.Context, string) (*api.CommentsResponse, error)
+	CreateThreadedCommentFn func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
+
+	// View Comments
+	ListViewCommentsFn  func(context.Context, string) (*api.CommentsResponse, error)
+	CreateViewCommentFn func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
+
+	// Guest Assignments
+	AddGuestToTaskFn       func(context.Context, string, int, *api.GuestPermissionRequest) (*api.GuestResponse, error)
+	RemoveGuestFromTaskFn  func(context.Context, string, int) error
+	AddGuestToListFn       func(context.Context, string, int, *api.GuestPermissionRequest) (*api.GuestResponse, error)
+	RemoveGuestFromListFn  func(context.Context, string, int) error
+	AddGuestToFolderFn     func(context.Context, string, int, *api.GuestPermissionRequest) (*api.GuestResponse, error)
+	RemoveGuestFromFolderFn func(context.Context, string, int) error
+
+	// Users
+	InviteUserFn  func(context.Context, string, *api.InviteUserRequest) (*api.TeamUserResponse, error)
+	GetTeamUserFn func(context.Context, string, string) (*api.TeamUserResponse, error)
+	EditUserFn    func(context.Context, string, string, *api.EditUserRequest) (*api.TeamUserResponse, error)
+	RemoveUserFn  func(context.Context, string, string) error
+
+	// Roles
+	GetCustomRolesFn func(context.Context, string) (*api.CustomRolesResponse, error)
+
+	// Custom Task Types
+	GetCustomTaskTypesFn func(context.Context, string) (*api.CustomTaskTypesResponse, error)
+
+	// Shared Hierarchy
+	GetSharedHierarchyFn func(context.Context, string) (*api.SharedHierarchyResponse, error)
+
+	// Workspace extras
+	GetWorkspaceSeatsFn func(context.Context, string) (*api.SeatsResponse, error)
+	GetWorkspacePlanFn  func(context.Context, string) (*api.PlanResponse, error)
+
+	// Templates
+	GetTaskTemplatesFn            func(context.Context, string, int) (*api.TaskTemplatesResponse, error)
+	CreateTaskFromTemplateFn      func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
+	CreateFolderFromTemplateFn    func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
+	CreateListFromFolderTemplateFn func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
+	CreateListFromSpaceTemplateFn  func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
+
+	// Relationships
+	AddDependencyFn       func(context.Context, string, *api.AddDependencyRequest) (*api.DependencyResponse, error)
+	DeleteDependencyFn    func(context.Context, string, string, string) error
+	AddTaskLinkFn         func(context.Context, string, string) (*api.TaskLinkResponse, error)
+	DeleteTaskLinkFn      func(context.Context, string, string) error
+
+	// Task Extras
+	MergeTasksFn          func(context.Context, string, *api.MergeTasksRequest) error
+	GetTimeInStatusFn     func(context.Context, string) (*api.TimeInStatusResponse, error)
+	GetBulkTimeInStatusFn func(context.Context, []string) (*api.BulkTimeInStatusResponse, error)
+	AddTaskToListFn       func(context.Context, string, string) error
+	RemoveTaskFromListFn  func(context.Context, string, string) error
+
+	// Attachments
+	CreateTaskAttachmentFn func(context.Context, string, string) (*api.Attachment, error)
 }
 
 var _ api.ClientInterface = (*MockClient)(nil)
@@ -336,6 +402,30 @@ func (m *MockClient) GetRunningTimer(ctx context.Context, teamID, assignee strin
 func (m *MockClient) GetTimeEntryTags(ctx context.Context, teamID string) (*api.TimeEntryTagsResponse, error) {
 	return m.GetTimeEntryTagsFn(ctx, teamID)
 }
+func (m *MockClient) GetTimeEntryHistory(ctx context.Context, teamID, timerID string) (*api.TimeEntryHistoryResponse, error) {
+	return m.GetTimeEntryHistoryFn(ctx, teamID, timerID)
+}
+func (m *MockClient) AddTagsToTimeEntries(ctx context.Context, teamID string, req *api.AddTagsToTimeEntriesRequest) error {
+	return m.AddTagsToTimeEntriesFn(ctx, teamID, req)
+}
+func (m *MockClient) RemoveTagsFromTimeEntries(ctx context.Context, teamID string, req *api.RemoveTagsFromTimeEntriesRequest) error {
+	return m.RemoveTagsFromTimeEntriesFn(ctx, teamID, req)
+}
+func (m *MockClient) ChangeTagNames(ctx context.Context, teamID string, req *api.ChangeTagNameRequest) error {
+	return m.ChangeTagNamesFn(ctx, teamID, req)
+}
+func (m *MockClient) GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string) (*api.LegacyTimeResponse, error) {
+	return m.GetLegacyTrackedTimeFn(ctx, taskID, subcategoryID)
+}
+func (m *MockClient) TrackLegacyTime(ctx context.Context, taskID string, req *api.LegacyTrackTimeRequest) (*api.LegacyTimeResponse, error) {
+	return m.TrackLegacyTimeFn(ctx, taskID, req)
+}
+func (m *MockClient) EditLegacyTime(ctx context.Context, taskID, intervalID string, req *api.LegacyEditTimeRequest) error {
+	return m.EditLegacyTimeFn(ctx, taskID, intervalID, req)
+}
+func (m *MockClient) DeleteLegacyTime(ctx context.Context, taskID, intervalID string) error {
+	return m.DeleteLegacyTimeFn(ctx, taskID, intervalID)
+}
 
 // Webhooks
 func (m *MockClient) GetWebhooks(ctx context.Context, teamID string) (*api.WebhooksResponse, error) {
@@ -443,4 +533,120 @@ func (m *MockClient) EditGuest(ctx context.Context, teamID, guestID string, req 
 }
 func (m *MockClient) RemoveGuest(ctx context.Context, teamID, guestID string) error {
 	return m.RemoveGuestFn(ctx, teamID, guestID)
+}
+
+// Threaded Comments
+func (m *MockClient) ListThreadedComments(ctx context.Context, commentID string) (*api.CommentsResponse, error) {
+	return m.ListThreadedCommentsFn(ctx, commentID)
+}
+func (m *MockClient) CreateThreadedComment(ctx context.Context, commentID string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
+	return m.CreateThreadedCommentFn(ctx, commentID, req)
+}
+
+// View Comments
+func (m *MockClient) ListViewComments(ctx context.Context, viewID string) (*api.CommentsResponse, error) {
+	return m.ListViewCommentsFn(ctx, viewID)
+}
+func (m *MockClient) CreateViewComment(ctx context.Context, viewID string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
+	return m.CreateViewCommentFn(ctx, viewID, req)
+}
+
+// Guest Assignments
+func (m *MockClient) AddGuestToTask(ctx context.Context, taskID string, guestID int, req *api.GuestPermissionRequest) (*api.GuestResponse, error) {
+	return m.AddGuestToTaskFn(ctx, taskID, guestID, req)
+}
+func (m *MockClient) RemoveGuestFromTask(ctx context.Context, taskID string, guestID int) error {
+	return m.RemoveGuestFromTaskFn(ctx, taskID, guestID)
+}
+func (m *MockClient) AddGuestToList(ctx context.Context, listID string, guestID int, req *api.GuestPermissionRequest) (*api.GuestResponse, error) {
+	return m.AddGuestToListFn(ctx, listID, guestID, req)
+}
+func (m *MockClient) RemoveGuestFromList(ctx context.Context, listID string, guestID int) error {
+	return m.RemoveGuestFromListFn(ctx, listID, guestID)
+}
+func (m *MockClient) AddGuestToFolder(ctx context.Context, folderID string, guestID int, req *api.GuestPermissionRequest) (*api.GuestResponse, error) {
+	return m.AddGuestToFolderFn(ctx, folderID, guestID, req)
+}
+func (m *MockClient) RemoveGuestFromFolder(ctx context.Context, folderID string, guestID int) error {
+	return m.RemoveGuestFromFolderFn(ctx, folderID, guestID)
+}
+
+// Templates
+func (m *MockClient) GetTaskTemplates(ctx context.Context, teamID string, page int) (*api.TaskTemplatesResponse, error) {
+	return m.GetTaskTemplatesFn(ctx, teamID, page)
+}
+func (m *MockClient) CreateTaskFromTemplate(ctx context.Context, listID, templateID string, req *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error) {
+	return m.CreateTaskFromTemplateFn(ctx, listID, templateID, req)
+}
+func (m *MockClient) CreateFolderFromTemplate(ctx context.Context, spaceID, templateID string, req *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error) {
+	return m.CreateFolderFromTemplateFn(ctx, spaceID, templateID, req)
+}
+func (m *MockClient) CreateListFromFolderTemplate(ctx context.Context, folderID, templateID string, req *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error) {
+	return m.CreateListFromFolderTemplateFn(ctx, folderID, templateID, req)
+}
+func (m *MockClient) CreateListFromSpaceTemplate(ctx context.Context, spaceID, templateID string, req *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error) {
+	return m.CreateListFromSpaceTemplateFn(ctx, spaceID, templateID, req)
+}
+func (m *MockClient) InviteUser(ctx context.Context, teamID string, req *api.InviteUserRequest) (*api.TeamUserResponse, error) {
+	return m.InviteUserFn(ctx, teamID, req)
+}
+func (m *MockClient) GetTeamUser(ctx context.Context, teamID, userID string) (*api.TeamUserResponse, error) {
+	return m.GetTeamUserFn(ctx, teamID, userID)
+}
+func (m *MockClient) EditUser(ctx context.Context, teamID, userID string, req *api.EditUserRequest) (*api.TeamUserResponse, error) {
+	return m.EditUserFn(ctx, teamID, userID, req)
+}
+func (m *MockClient) RemoveUser(ctx context.Context, teamID, userID string) error {
+	return m.RemoveUserFn(ctx, teamID, userID)
+}
+func (m *MockClient) GetCustomRoles(ctx context.Context, teamID string) (*api.CustomRolesResponse, error) {
+	return m.GetCustomRolesFn(ctx, teamID)
+}
+func (m *MockClient) GetCustomTaskTypes(ctx context.Context, teamID string) (*api.CustomTaskTypesResponse, error) {
+	return m.GetCustomTaskTypesFn(ctx, teamID)
+}
+func (m *MockClient) GetSharedHierarchy(ctx context.Context, teamID string) (*api.SharedHierarchyResponse, error) {
+	return m.GetSharedHierarchyFn(ctx, teamID)
+}
+func (m *MockClient) GetWorkspaceSeats(ctx context.Context, teamID string) (*api.SeatsResponse, error) {
+	return m.GetWorkspaceSeatsFn(ctx, teamID)
+}
+func (m *MockClient) GetWorkspacePlan(ctx context.Context, teamID string) (*api.PlanResponse, error) {
+	return m.GetWorkspacePlanFn(ctx, teamID)
+}
+
+// Relationships
+func (m *MockClient) AddDependency(ctx context.Context, taskID string, req *api.AddDependencyRequest) (*api.DependencyResponse, error) {
+	return m.AddDependencyFn(ctx, taskID, req)
+}
+func (m *MockClient) DeleteDependency(ctx context.Context, taskID, dependsOn, dependencyOf string) error {
+	return m.DeleteDependencyFn(ctx, taskID, dependsOn, dependencyOf)
+}
+func (m *MockClient) AddTaskLink(ctx context.Context, taskID, linksTo string) (*api.TaskLinkResponse, error) {
+	return m.AddTaskLinkFn(ctx, taskID, linksTo)
+}
+func (m *MockClient) DeleteTaskLink(ctx context.Context, taskID, linksTo string) error {
+	return m.DeleteTaskLinkFn(ctx, taskID, linksTo)
+}
+
+// Task Extras
+func (m *MockClient) MergeTasks(ctx context.Context, taskID string, req *api.MergeTasksRequest) error {
+	return m.MergeTasksFn(ctx, taskID, req)
+}
+func (m *MockClient) GetTimeInStatus(ctx context.Context, taskID string) (*api.TimeInStatusResponse, error) {
+	return m.GetTimeInStatusFn(ctx, taskID)
+}
+func (m *MockClient) GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*api.BulkTimeInStatusResponse, error) {
+	return m.GetBulkTimeInStatusFn(ctx, taskIDs)
+}
+func (m *MockClient) AddTaskToList(ctx context.Context, listID, taskID string) error {
+	return m.AddTaskToListFn(ctx, listID, taskID)
+}
+func (m *MockClient) RemoveTaskFromList(ctx context.Context, listID, taskID string) error {
+	return m.RemoveTaskFromListFn(ctx, listID, taskID)
+}
+
+// Attachments
+func (m *MockClient) CreateTaskAttachment(ctx context.Context, taskID, filePath string) (*api.Attachment, error) {
+	return m.CreateTaskAttachmentFn(ctx, taskID, filePath)
 }

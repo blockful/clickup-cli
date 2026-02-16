@@ -302,6 +302,105 @@ var taskSearchCmd = &cobra.Command{
 	},
 }
 
+var taskMergeCmd = &cobra.Command{
+	Use:   "merge",
+	Short: "Merge tasks into a task",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		taskID, _ := cmd.Flags().GetString("id")
+		mergeWith, _ := cmd.Flags().GetStringSlice("merge-with")
+
+		if taskID == "" || len(mergeWith) == 0 {
+			output.PrintError("VALIDATION_ERROR", "--id and --merge-with are required")
+			return &exitError{code: 1}
+		}
+
+		req := &api.MergeTasksRequest{MergeWith: mergeWith}
+		if err := client.MergeTasks(ctx, taskID, req); err != nil {
+			return handleError(err)
+		}
+		output.JSON(map[string]string{"status": "ok"})
+		return nil
+	},
+}
+
+var taskTimeInStatusCmd = &cobra.Command{
+	Use:   "time-in-status",
+	Short: "Get task's time in status",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		taskID, _ := cmd.Flags().GetString("id")
+		taskIDs, _ := cmd.Flags().GetStringSlice("task-ids")
+
+		if taskID == "" && len(taskIDs) == 0 {
+			output.PrintError("VALIDATION_ERROR", "--id or --task-ids is required")
+			return &exitError{code: 1}
+		}
+
+		if len(taskIDs) > 0 {
+			resp, err := client.GetBulkTimeInStatus(ctx, taskIDs)
+			if err != nil {
+				return handleError(err)
+			}
+			output.JSON(resp)
+			return nil
+		}
+
+		resp, err := client.GetTimeInStatus(ctx, taskID)
+		if err != nil {
+			return handleError(err)
+		}
+		output.JSON(resp)
+		return nil
+	},
+}
+
+var taskAddToListCmd = &cobra.Command{
+	Use:   "add-to-list",
+	Short: "Add a task to an additional list",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		listID, _ := cmd.Flags().GetString("list")
+		taskID, _ := cmd.Flags().GetString("id")
+
+		if listID == "" || taskID == "" {
+			output.PrintError("VALIDATION_ERROR", "--list and --id are required")
+			return &exitError{code: 1}
+		}
+
+		if err := client.AddTaskToList(ctx, listID, taskID); err != nil {
+			return handleError(err)
+		}
+		output.JSON(map[string]string{"status": "ok"})
+		return nil
+	},
+}
+
+var taskRemoveFromListCmd = &cobra.Command{
+	Use:   "remove-from-list",
+	Short: "Remove a task from a list",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client := getClient()
+		ctx := context.Background()
+		listID, _ := cmd.Flags().GetString("list")
+		taskID, _ := cmd.Flags().GetString("id")
+
+		if listID == "" || taskID == "" {
+			output.PrintError("VALIDATION_ERROR", "--list and --id are required")
+			return &exitError{code: 1}
+		}
+
+		if err := client.RemoveTaskFromList(ctx, listID, taskID); err != nil {
+			return handleError(err)
+		}
+		output.JSON(map[string]string{"status": "ok"})
+		return nil
+	},
+}
+
 func init() {
 	// task list
 	taskListCmd.Flags().String("list", "", "List ID")
@@ -401,11 +500,31 @@ func init() {
 	taskSearchCmd.Flags().StringSlice("space-ids", nil, "Filter by space IDs")
 	taskSearchCmd.Flags().StringSlice("folder-ids", nil, "Filter by folder IDs")
 
+	// task merge
+	taskMergeCmd.Flags().String("id", "", "Task ID (required)")
+	taskMergeCmd.Flags().StringSlice("merge-with", nil, "Task IDs to merge with (required)")
+
+	// task time-in-status
+	taskTimeInStatusCmd.Flags().String("id", "", "Task ID")
+	taskTimeInStatusCmd.Flags().StringSlice("task-ids", nil, "Task IDs for bulk query")
+
+	// task add-to-list
+	taskAddToListCmd.Flags().String("list", "", "List ID (required)")
+	taskAddToListCmd.Flags().String("id", "", "Task ID (required)")
+
+	// task remove-from-list
+	taskRemoveFromListCmd.Flags().String("list", "", "List ID (required)")
+	taskRemoveFromListCmd.Flags().String("id", "", "Task ID (required)")
+
 	taskCmd.AddCommand(taskListCmd)
 	taskCmd.AddCommand(taskGetCmd)
 	taskCmd.AddCommand(taskCreateCmd)
 	taskCmd.AddCommand(taskUpdateCmd)
 	taskCmd.AddCommand(taskDeleteCmd)
 	taskCmd.AddCommand(taskSearchCmd)
+	taskCmd.AddCommand(taskMergeCmd)
+	taskCmd.AddCommand(taskTimeInStatusCmd)
+	taskCmd.AddCommand(taskAddToListCmd)
+	taskCmd.AddCommand(taskRemoveFromListCmd)
 	rootCmd.AddCommand(taskCmd)
 }

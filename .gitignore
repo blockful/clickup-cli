@@ -31,3 +31,4 @@ Thumbs.db
 
 # Config (don't commit tokens)
 .clickup-cli.yaml
+clickup

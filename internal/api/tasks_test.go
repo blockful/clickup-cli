@@ -63,7 +63,7 @@ func TestGetTask(t *testing.T) {
 					t.Errorf("expected GET, got %s", r.Method)
 				}
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 
@@ -129,12 +129,12 @@ func TestCreateTask(t *testing.T) {
 					t.Errorf("expected POST, got %s", r.Method)
 				}
 				var body CreateTaskRequest
-				json.NewDecoder(r.Body).Decode(&body)
+				_ = json.NewDecoder(r.Body).Decode(&body)
 				if body.Name != tt.req.Name {
 					t.Errorf("expected name %q in body, got %q", tt.req.Name, body.Name)
 				}
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 
@@ -170,7 +170,7 @@ func TestUpdateTask(t *testing.T) {
 			t.Errorf("expected PUT, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"id":"t1","name":"Updated"}`))
+		_, _ = w.Write([]byte(`{"id":"t1","name":"Updated"}`))
 	}))
 	defer server.Close()
 
@@ -208,7 +208,7 @@ func TestDeleteTask(t *testing.T) {
 					t.Errorf("expected DELETE, got %s", r.Method)
 				}
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 
@@ -267,7 +267,7 @@ func TestListTasks(t *testing.T) {
 					}
 				}
 				w.WriteHeader(200)
-				w.Write([]byte(`{"tasks":[]}`))
+				_, _ = w.Write([]byte(`{"tasks":[]}`))
 			}))
 			defer server.Close()
 

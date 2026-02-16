@@ -15,11 +15,11 @@ func TestUpdateSpace(t *testing.T) {
 			t.Errorf("method: %s", r.Method)
 		}
 		var req UpdateSpaceRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Name != "newname" {
 			t.Errorf("name: %s", req.Name)
 		}
-		json.NewEncoder(w).Encode(Space{ID: "s1", Name: "newname"})
+		_ = json.NewEncoder(w).Encode(Space{ID: "s1", Name: "newname"})
 	}))
 	defer srv.Close()
 

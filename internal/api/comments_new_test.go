@@ -14,7 +14,7 @@ func TestListListComments(t *testing.T) {
 		if r.URL.Path != "/v2/list/l1/comment" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(CommentsResponse{})
+		_ = json.NewEncoder(w).Encode(CommentsResponse{})
 	}))
 	defer srv.Close()
 
@@ -29,14 +29,14 @@ func TestCreateComment_WithAssignee(t *testing.T) {
 	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req CreateCommentRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Assignee == nil || *req.Assignee != 5 {
 			t.Error("assignee not set")
 		}
 		if !req.NotifyAll {
 			t.Error("notify_all should be true")
 		}
-		json.NewEncoder(w).Encode(CreateCommentResponse{ID: "c1"})
+		_ = json.NewEncoder(w).Encode(CreateCommentResponse{ID: "c1"})
 	}))
 	defer srv.Close()
 

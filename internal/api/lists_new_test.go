@@ -14,7 +14,7 @@ func TestListFolderlessLists(t *testing.T) {
 		if r.URL.Path != "/v2/space/s1/list" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(ListsResponse{Lists: []List{{ID: "l1"}}})
+		_ = json.NewEncoder(w).Encode(ListsResponse{Lists: []List{{ID: "l1"}}})
 	}))
 	defer srv.Close()
 
@@ -32,14 +32,14 @@ func TestCreateListWithFields(t *testing.T) {
 	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req CreateListRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Content != "desc" {
 			t.Errorf("content: %s", req.Content)
 		}
 		if req.DueDate == nil || *req.DueDate != 999 {
 			t.Error("due_date")
 		}
-		json.NewEncoder(w).Encode(List{ID: "l1"})
+		_ = json.NewEncoder(w).Encode(List{ID: "l1"})
 	}))
 	defer srv.Close()
 
@@ -57,7 +57,7 @@ func TestUpdateList(t *testing.T) {
 		if r.Method != "PUT" {
 			t.Errorf("method: %s", r.Method)
 		}
-		json.NewEncoder(w).Encode(List{ID: "l1"})
+		_ = json.NewEncoder(w).Encode(List{ID: "l1"})
 	}))
 	defer srv.Close()
 

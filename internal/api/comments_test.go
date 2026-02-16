@@ -40,7 +40,7 @@ func TestListComments(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 
@@ -104,12 +104,12 @@ func TestCreateComment(t *testing.T) {
 					t.Errorf("expected POST, got %s", r.Method)
 				}
 				var body CreateCommentRequest
-				json.NewDecoder(r.Body).Decode(&body)
+				_ = json.NewDecoder(r.Body).Decode(&body)
 				if body.CommentText != tt.text {
 					t.Errorf("expected text %q, got %q", tt.text, body.CommentText)
 				}
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 

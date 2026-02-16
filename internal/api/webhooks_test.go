@@ -14,7 +14,7 @@ func TestGetWebhooks(t *testing.T) {
 		if r.URL.Path != "/v2/team/123/webhook" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(WebhooksResponse{Webhooks: []Webhook{{ID: "wh1"}}})
+		_ = json.NewEncoder(w).Encode(WebhooksResponse{Webhooks: []Webhook{{ID: "wh1"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -33,7 +33,7 @@ func TestCreateWebhook(t *testing.T) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/webhook" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(CreateWebhookResponse{ID: "wh1"})
+		_ = json.NewEncoder(w).Encode(CreateWebhookResponse{ID: "wh1"})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}

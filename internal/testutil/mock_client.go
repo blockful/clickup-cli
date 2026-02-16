@@ -330,7 +330,7 @@ func (m *MockClient) StartTimer(ctx context.Context, teamID string, req *api.Sta
 func (m *MockClient) StopTimer(ctx context.Context, teamID string) (*api.SingleTimeEntryResponse, error) {
 	return m.StopTimerFn(ctx, teamID)
 }
-func (m *MockClient) GetRunningTimer(ctx context.Context, teamID string, assignee string) (*api.SingleTimeEntryResponse, error) {
+func (m *MockClient) GetRunningTimer(ctx context.Context, teamID, assignee string) (*api.SingleTimeEntryResponse, error) {
 	return m.GetRunningTimerFn(ctx, teamID, assignee)
 }
 func (m *MockClient) GetTimeEntryTags(ctx context.Context, teamID string) (*api.TimeEntryTagsResponse, error) {

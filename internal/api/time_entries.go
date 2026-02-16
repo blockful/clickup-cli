@@ -160,7 +160,7 @@ func (c *Client) StopTimer(ctx context.Context, teamID string) (*SingleTimeEntry
 	return &resp, nil
 }
 
-func (c *Client) GetRunningTimer(ctx context.Context, teamID string, assignee string) (*SingleTimeEntryResponse, error) {
+func (c *Client) GetRunningTimer(ctx context.Context, teamID, assignee string) (*SingleTimeEntryResponse, error) {
 	path := fmt.Sprintf("/v2/team/%s/time_entries/current", teamID)
 	if assignee != "" {
 		path += "?assignee=" + assignee

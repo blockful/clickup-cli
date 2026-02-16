@@ -204,7 +204,7 @@ func NewClient(token string) *Client {
 }
 
 // Do executes an HTTP request with automatic retry for 429 and 5xx responses.
-func (c *Client) Do(ctx context.Context, method, path string, body interface{}, result interface{}) error {
+func (c *Client) Do(ctx context.Context, method, path string, body, result interface{}) error {
 	var bodyBytes []byte
 	if body != nil {
 		var err error

@@ -45,7 +45,7 @@ func TestListWorkspaces(t *testing.T) {
 					t.Errorf("expected GET, got %s", r.Method)
 				}
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 

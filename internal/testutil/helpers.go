@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -15,7 +16,7 @@ func NewTestServer(t *testing.T, statusCode int, responseBody string) *httptest.
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(statusCode)
-		w.Write([]byte(responseBody))
+		_, _ = w.Write([]byte(responseBody))
 	}))
 }
 
@@ -34,7 +35,7 @@ func NewTestServerWithValidation(t *testing.T, wantMethod, wantPath string, stat
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(statusCode)
-		w.Write([]byte(responseBody))
+		_, _ = w.Write([]byte(responseBody))
 	}))
 }
 
@@ -50,7 +51,7 @@ func AssertJSONEqual(t *testing.T, expected, actual string) {
 	}
 	eb, _ := json.Marshal(e)
 	ab, _ := json.Marshal(a)
-	if string(eb) != string(ab) {
+	if !bytes.Equal(eb, ab) {
 		t.Errorf("JSON mismatch:\nexpected: %s\nactual:   %s", eb, ab)
 	}
 }
@@ -62,7 +63,9 @@ func GoldenFile(t *testing.T, name string, actual []byte) {
 	golden := filepath.Join("testdata", name+".golden")
 
 	if os.Getenv("UPDATE_GOLDEN") != "" {
-		os.MkdirAll(filepath.Dir(golden), 0o755)
+		if err := os.MkdirAll(filepath.Dir(golden), 0o755); err != nil {
+			t.Fatalf("failed to create golden dir: %v", err)
+		}
 		if err := os.WriteFile(golden, actual, 0o644); err != nil {
 			t.Fatalf("failed to update golden file: %v", err)
 		}
@@ -74,7 +77,7 @@ func GoldenFile(t *testing.T, name string, actual []byte) {
 		t.Fatalf("golden file %s not found (run with UPDATE_GOLDEN=1 to create): %v", golden, err)
 	}
 
-	if string(expected) != string(actual) {
+	if !bytes.Equal(expected, actual) {
 		t.Errorf("golden file mismatch for %s:\nexpected:\n%s\nactual:\n%s", name, expected, actual)
 	}
 }

@@ -14,7 +14,7 @@ func TestGetGoals(t *testing.T) {
 		if r.URL.Path != "/v2/team/123/goal" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(GoalsResponse{Goals: []Goal{{ID: "g1", Name: "Q1"}}})
+		_ = json.NewEncoder(w).Encode(GoalsResponse{Goals: []Goal{{ID: "g1", Name: "Q1"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -33,7 +33,7 @@ func TestGetGoal(t *testing.T) {
 		if r.URL.Path != "/v2/goal/g1" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(GoalResponse{Goal: Goal{ID: "g1"}})
+		_ = json.NewEncoder(w).Encode(GoalResponse{Goal: Goal{ID: "g1"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -52,7 +52,7 @@ func TestCreateGoal(t *testing.T) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/goal" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(GoalResponse{Goal: Goal{ID: "g2"}})
+		_ = json.NewEncoder(w).Encode(GoalResponse{Goal: Goal{ID: "g2"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}

@@ -15,11 +15,11 @@ func TestCreateChecklist(t *testing.T) {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
 		var req CreateChecklistRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Name != "My Checklist" {
 			t.Errorf("name = %s", req.Name)
 		}
-		json.NewEncoder(w).Encode(ChecklistResponse{Checklist: ChecklistDetailed{ID: "cl1", Name: "My Checklist"}})
+		_ = json.NewEncoder(w).Encode(ChecklistResponse{Checklist: ChecklistDetailed{ID: "cl1", Name: "My Checklist"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -68,7 +68,7 @@ func TestCreateChecklistItem(t *testing.T) {
 		if r.Method != "POST" || r.URL.Path != "/v2/checklist/cl1/checklist_item" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(ChecklistResponse{Checklist: ChecklistDetailed{ID: "cl1"}})
+		_ = json.NewEncoder(w).Encode(ChecklistResponse{Checklist: ChecklistDetailed{ID: "cl1"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -84,7 +84,7 @@ func TestEditChecklistItem(t *testing.T) {
 		if r.Method != "PUT" || r.URL.Path != "/v2/checklist/cl1/checklist_item/i1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(ChecklistResponse{Checklist: ChecklistDetailed{ID: "cl1"}})
+		_ = json.NewEncoder(w).Encode(ChecklistResponse{Checklist: ChecklistDetailed{ID: "cl1"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}

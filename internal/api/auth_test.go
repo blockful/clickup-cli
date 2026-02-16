@@ -46,7 +46,7 @@ func TestGetUser(t *testing.T) {
 					t.Errorf("expected path /v2/user, got %s", r.URL.Path)
 				}
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 

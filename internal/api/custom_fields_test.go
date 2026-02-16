@@ -26,7 +26,7 @@ func TestGetListCustomFields(t *testing.T) {
 				if r.Method != "GET" {
 					t.Errorf("method = %s, want GET", r.Method)
 				}
-				json.NewEncoder(w).Encode(CustomFieldsResponse{Fields: []CustomField{{ID: "f1", Name: "Priority"}}})
+				_ = json.NewEncoder(w).Encode(CustomFieldsResponse{Fields: []CustomField{{ID: "f1", Name: "Priority"}}})
 			}))
 			defer srv.Close()
 			c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -47,7 +47,7 @@ func TestGetFolderCustomFields(t *testing.T) {
 		if r.URL.Path != "/v2/folder/456/field" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(CustomFieldsResponse{})
+		_ = json.NewEncoder(w).Encode(CustomFieldsResponse{})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -63,7 +63,7 @@ func TestGetSpaceCustomFields(t *testing.T) {
 		if r.URL.Path != "/v2/space/789/field" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(CustomFieldsResponse{})
+		_ = json.NewEncoder(w).Encode(CustomFieldsResponse{})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -79,7 +79,7 @@ func TestGetWorkspaceCustomFields(t *testing.T) {
 		if r.URL.Path != "/v2/team/111/field" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(CustomFieldsResponse{})
+		_ = json.NewEncoder(w).Encode(CustomFieldsResponse{})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -99,7 +99,7 @@ func TestSetCustomFieldValue(t *testing.T) {
 			t.Errorf("path = %s", r.URL.Path)
 		}
 		var req SetCustomFieldRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Value != "hello" {
 			t.Errorf("value = %v", req.Value)
 		}

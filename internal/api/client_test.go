@@ -128,7 +128,7 @@ func TestClientDo(t *testing.T) {
 					t.Errorf("missing Content-Type header")
 				}
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 
@@ -160,10 +160,8 @@ func TestClientDo(t *testing.T) {
 				if clientErr.Code != tt.errCode {
 					t.Errorf("expected code %q, got %q", tt.errCode, clientErr.Code)
 				}
-			} else {
-				if err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
+			} else if err != nil {
+				t.Fatalf("unexpected error: %v", err)
 			}
 		})
 	}
@@ -196,9 +194,9 @@ func TestClientDo_PostBodyValidation(t *testing.T) {
 		if r.Method != "POST" {
 			t.Errorf("expected POST, got %s", r.Method)
 		}
-		json.NewDecoder(r.Body).Decode(&receivedBody)
+		_ = json.NewDecoder(r.Body).Decode(&receivedBody)
 		w.WriteHeader(200)
-		w.Write([]byte(`{"id":"123"}`))
+		_, _ = w.Write([]byte(`{"id":"123"}`))
 	}))
 	defer server.Close()
 

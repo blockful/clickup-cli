@@ -44,7 +44,7 @@ func TestListLists(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 
@@ -73,7 +73,7 @@ func TestGetList(t *testing.T) {
 	ctx := context.Background()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
-		w.Write([]byte(`{"id":"l1","name":"My List","task_count":5}`))
+		_, _ = w.Write([]byte(`{"id":"l1","name":"My List","task_count":5}`))
 	}))
 	defer server.Close()
 
@@ -100,7 +100,7 @@ func TestCreateList(t *testing.T) {
 			t.Errorf("expected POST, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"id":"l2","name":"New List"}`))
+		_, _ = w.Write([]byte(`{"id":"l2","name":"New List"}`))
 	}))
 	defer server.Close()
 

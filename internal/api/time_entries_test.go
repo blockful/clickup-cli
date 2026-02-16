@@ -17,7 +17,7 @@ func TestGetTimeEntries(t *testing.T) {
 		if r.URL.Path != "/v2/team/123/time_entries" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(TimeEntriesResponse{Data: []TimeEntry{{ID: "te1"}}})
+		_ = json.NewEncoder(w).Encode(TimeEntriesResponse{Data: []TimeEntry{{ID: "te1"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -36,7 +36,7 @@ func TestGetTimeEntriesWithOpts(t *testing.T) {
 		if r.URL.Query().Get("assignee") != "5" {
 			t.Errorf("assignee = %s", r.URL.Query().Get("assignee"))
 		}
-		json.NewEncoder(w).Encode(TimeEntriesResponse{})
+		_ = json.NewEncoder(w).Encode(TimeEntriesResponse{})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -52,7 +52,7 @@ func TestCreateTimeEntry(t *testing.T) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/time_entries" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(TimeEntry{ID: "te1"})
+		_ = json.NewEncoder(w).Encode(TimeEntry{ID: "te1"})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -71,7 +71,7 @@ func TestGetTimeEntry(t *testing.T) {
 		if r.URL.Path != "/v2/team/123/time_entries/te1" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(SingleTimeEntryResponse{Data: TimeEntry{ID: "te1"}})
+		_ = json.NewEncoder(w).Encode(SingleTimeEntryResponse{Data: TimeEntry{ID: "te1"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -105,7 +105,7 @@ func TestStartTimer(t *testing.T) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/time_entries/start" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(SingleTimeEntryResponse{Data: TimeEntry{ID: "te2"}})
+		_ = json.NewEncoder(w).Encode(SingleTimeEntryResponse{Data: TimeEntry{ID: "te2"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -124,7 +124,7 @@ func TestStopTimer(t *testing.T) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/time_entries/stop" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(SingleTimeEntryResponse{Data: TimeEntry{ID: "te1"}})
+		_ = json.NewEncoder(w).Encode(SingleTimeEntryResponse{Data: TimeEntry{ID: "te1"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -140,7 +140,7 @@ func TestGetRunningTimer(t *testing.T) {
 		if r.URL.Path != "/v2/team/123/time_entries/current" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(SingleTimeEntryResponse{Data: TimeEntry{ID: "te1"}})
+		_ = json.NewEncoder(w).Encode(SingleTimeEntryResponse{Data: TimeEntry{ID: "te1"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}

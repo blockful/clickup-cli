@@ -50,7 +50,7 @@ func TestListTasksOptions_AllParams(t *testing.T) {
 						t.Errorf("param %s: got %q, want %q", k, got, v)
 					}
 				}
-				json.NewEncoder(w).Encode(TasksResponse{})
+				_ = json.NewEncoder(w).Encode(TasksResponse{})
 			}))
 			defer srv.Close()
 
@@ -72,7 +72,7 @@ func TestGetTask_WithOptions(t *testing.T) {
 		if r.URL.Query().Get("include_markdown_description") != "true" {
 			t.Error("expected include_markdown_description=true")
 		}
-		json.NewEncoder(w).Encode(Task{ID: "t1"})
+		_ = json.NewEncoder(w).Encode(Task{ID: "t1"})
 	}))
 	defer srv.Close()
 
@@ -90,7 +90,7 @@ func TestCreateTask_AllFields(t *testing.T) {
 	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req CreateTaskRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Name != "test" {
 			t.Errorf("name: got %s", req.Name)
 		}
@@ -103,7 +103,7 @@ func TestCreateTask_AllFields(t *testing.T) {
 		if req.NotifyAll != true {
 			t.Error("notify_all should be true")
 		}
-		json.NewEncoder(w).Encode(Task{ID: "new"})
+		_ = json.NewEncoder(w).Encode(Task{ID: "new"})
 	}))
 	defer srv.Close()
 
@@ -124,7 +124,7 @@ func TestUpdateTask_WithAssignees(t *testing.T) {
 	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req UpdateTaskRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Assignees == nil {
 			t.Fatal("assignees nil")
 		}
@@ -134,7 +134,7 @@ func TestUpdateTask_WithAssignees(t *testing.T) {
 		if r.URL.Query().Get("custom_task_ids") != "true" {
 			t.Error("expected custom_task_ids query param")
 		}
-		json.NewEncoder(w).Encode(Task{ID: "t1"})
+		_ = json.NewEncoder(w).Encode(Task{ID: "t1"})
 	}))
 	defer srv.Close()
 
@@ -156,7 +156,7 @@ func TestSearchTasks(t *testing.T) {
 		if r.URL.Query().Get("include_closed") != "true" {
 			t.Error("expected include_closed")
 		}
-		json.NewEncoder(w).Encode(TasksResponse{})
+		_ = json.NewEncoder(w).Encode(TasksResponse{})
 	}))
 	defer srv.Close()
 

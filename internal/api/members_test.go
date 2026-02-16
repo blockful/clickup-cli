@@ -14,7 +14,7 @@ func TestGetListMembers(t *testing.T) {
 		if r.URL.Path != "/v2/list/l1/member" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(MembersResponse{Members: []Member{{ID: 1, Username: "john"}}})
+		_ = json.NewEncoder(w).Encode(MembersResponse{Members: []Member{{ID: 1, Username: "john"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -33,7 +33,7 @@ func TestGetTaskMembers(t *testing.T) {
 		if r.URL.Path != "/v2/task/t1/member" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(MembersResponse{})
+		_ = json.NewEncoder(w).Encode(MembersResponse{})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -49,7 +49,7 @@ func TestGetGroups(t *testing.T) {
 		if r.URL.Path != "/v2/group" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(GroupsResponse{Groups: []Group{{ID: "g1"}}})
+		_ = json.NewEncoder(w).Encode(GroupsResponse{Groups: []Group{{ID: "g1"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}

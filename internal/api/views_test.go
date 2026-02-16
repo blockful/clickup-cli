@@ -14,7 +14,7 @@ func TestGetTeamViews(t *testing.T) {
 		if r.URL.Path != "/v2/team/123/view" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(ViewsResponse{Views: []View{{ID: "v1"}}})
+		_ = json.NewEncoder(w).Encode(ViewsResponse{Views: []View{{ID: "v1"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -33,7 +33,7 @@ func TestGetView(t *testing.T) {
 		if r.URL.Path != "/v2/view/v1" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(ViewResponse{View: View{ID: "v1", Name: "Test"}})
+		_ = json.NewEncoder(w).Encode(ViewResponse{View: View{ID: "v1", Name: "Test"}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -67,7 +67,7 @@ func TestGetViewTasks(t *testing.T) {
 		if r.URL.Path != "/v2/view/v1/task" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(ViewTasksResponse{LastPage: true})
+		_ = json.NewEncoder(w).Encode(ViewTasksResponse{LastPage: true})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}

@@ -14,7 +14,7 @@ func TestGetSpaceTags(t *testing.T) {
 		if r.URL.Path != "/v2/space/512/tag" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(TagsResponse{Tags: []Tag{{Name: "bug", TagFg: "#fff", TagBg: "#f00"}}})
+		_ = json.NewEncoder(w).Encode(TagsResponse{Tags: []Tag{{Name: "bug", TagFg: "#fff", TagBg: "#f00"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -34,7 +34,7 @@ func TestCreateSpaceTag(t *testing.T) {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
 		var req CreateTagRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Tag.Name != "feature" {
 			t.Errorf("name = %s", req.Tag.Name)
 		}

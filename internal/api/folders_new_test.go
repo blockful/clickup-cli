@@ -14,7 +14,7 @@ func TestUpdateFolder(t *testing.T) {
 		if r.Method != "PUT" {
 			t.Errorf("method: %s", r.Method)
 		}
-		json.NewEncoder(w).Encode(Folder{ID: "f1", Name: "updated"})
+		_ = json.NewEncoder(w).Encode(Folder{ID: "f1", Name: "updated"})
 	}))
 	defer srv.Close()
 

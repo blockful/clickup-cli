@@ -15,11 +15,11 @@ func TestCreateDoc(t *testing.T) {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
 		var req CreateDocRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 		if req.Name != "My Doc" {
 			t.Errorf("name = %s", req.Name)
 		}
-		json.NewEncoder(w).Encode(Doc{ID: "d1", Name: "My Doc"})
+		_ = json.NewEncoder(w).Encode(Doc{ID: "d1", Name: "My Doc"})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -38,7 +38,7 @@ func TestSearchDocs(t *testing.T) {
 		if r.URL.Path != "/v3/workspaces/w1/docs" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(DocsResponse{Docs: []Doc{{ID: "d1"}}})
+		_ = json.NewEncoder(w).Encode(DocsResponse{Docs: []Doc{{ID: "d1"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -57,7 +57,7 @@ func TestGetDoc(t *testing.T) {
 		if r.URL.Path != "/v3/workspaces/w1/docs/d1" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(Doc{ID: "d1"})
+		_ = json.NewEncoder(w).Encode(Doc{ID: "d1"})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -76,7 +76,7 @@ func TestCreatePage(t *testing.T) {
 		if r.Method != "POST" || r.URL.Path != "/v3/workspaces/w1/docs/d1/pages" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(DocPage{ID: "p1", Name: "Page 1"})
+		_ = json.NewEncoder(w).Encode(DocPage{ID: "p1", Name: "Page 1"})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -95,7 +95,7 @@ func TestGetPage(t *testing.T) {
 		if r.URL.Path != "/v3/workspaces/w1/docs/d1/pages/p1" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(DocPage{ID: "p1"})
+		_ = json.NewEncoder(w).Encode(DocPage{ID: "p1"})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -114,7 +114,7 @@ func TestEditPage(t *testing.T) {
 		if r.Method != "PUT" || r.URL.Path != "/v3/workspaces/w1/docs/d1/pages/p1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(DocPage{ID: "p1", Name: "Updated"})
+		_ = json.NewEncoder(w).Encode(DocPage{ID: "p1", Name: "Updated"})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
@@ -133,7 +133,7 @@ func TestGetDocPageListing(t *testing.T) {
 		if r.URL.Path != "/v3/workspaces/w1/docs/d1/page_listing" {
 			t.Errorf("path: %s", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(DocPagesResponse{Pages: []DocPage{{ID: "p1"}, {ID: "p2"}}})
+		_ = json.NewEncoder(w).Encode(DocPagesResponse{Pages: []DocPage{{ID: "p1"}, {ID: "p2"}}})
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}

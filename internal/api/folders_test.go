@@ -39,7 +39,7 @@ func TestListFolders(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.response))
+				_, _ = w.Write([]byte(tt.response))
 			}))
 			defer server.Close()
 
@@ -71,7 +71,7 @@ func TestGetFolder(t *testing.T) {
 	ctx := context.Background()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
-		w.Write([]byte(`{"id":"f1","name":"Test Folder"}`))
+		_, _ = w.Write([]byte(`{"id":"f1","name":"Test Folder"}`))
 	}))
 	defer server.Close()
 
@@ -95,7 +95,7 @@ func TestCreateFolder(t *testing.T) {
 			t.Errorf("expected POST, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"id":"f2","name":"New Folder"}`))
+		_, _ = w.Write([]byte(`{"id":"f2","name":"New Folder"}`))
 	}))
 	defer server.Close()
 

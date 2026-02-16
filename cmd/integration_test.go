@@ -53,12 +53,12 @@ func runCommand(t *testing.T, serverURL string, args ...string) (string, error) 
 
 // requestLog captures HTTP requests for verification.
 type requestLog struct {
-	mu       sync.Mutex
-	Method   string
-	Path     string
-	Query    string
-	Body     string
-	Headers  http.Header
+	mu      sync.Mutex
+	Method  string
+	Path    string
+	Query   string
+	Body    string
+	Headers http.Header
 }
 
 func newMockServer(t *testing.T, handler http.HandlerFunc) (*httptest.Server, *requestLog) {
@@ -97,7 +97,7 @@ func mustContainJSON(t *testing.T, output, key, expected string) {
 func TestWorkspaceList(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"teams": []map[string]interface{}{
 				{
 					"id":     "90901234567",
@@ -109,10 +109,10 @@ func TestWorkspaceList(t *testing.T) {
 					},
 				},
 				{
-					"id":     "90907654321",
-					"name":   "Personal",
-					"color":  "#ff6900",
-					"avatar": "",
+					"id":      "90907654321",
+					"name":    "Personal",
+					"color":   "#ff6900",
+					"avatar":  "",
 					"members": []map[string]interface{}{},
 				},
 			},
@@ -140,14 +140,14 @@ func TestWorkspaceList(t *testing.T) {
 func TestSpaceList(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"spaces": []map[string]interface{}{
 				{
-					"id":                  "98765432",
-					"name":                "Engineering",
-					"private":             false,
-					"multiple_assignees":  true,
-					"features":            map[string]interface{}{"due_dates": map[string]interface{}{"enabled": true}},
+					"id":                 "98765432",
+					"name":               "Engineering",
+					"private":            false,
+					"multiple_assignees": true,
+					"features":           map[string]interface{}{"due_dates": map[string]interface{}{"enabled": true}},
 				},
 			},
 		})
@@ -172,28 +172,28 @@ func TestSpaceList(t *testing.T) {
 func TestTaskList(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"tasks": []map[string]interface{}{
 				{
-					"id":          "abc123def",
-					"name":        "Implement auth flow",
-					"description": "OAuth2 implementation",
-					"status":      map[string]interface{}{"status": "in progress", "color": "#4194f6", "type": "custom"},
-					"orderindex":  "1.00000",
-					"date_created": "1676000000000",
-					"date_updated": "1676100000000",
-					"creator":     map[string]interface{}{"id": 12345678, "username": "alice", "email": "alice@example.com"},
-					"assignees":   []map[string]interface{}{{"id": 12345678, "username": "alice"}},
-					"tags":        []map[string]interface{}{{"name": "backend", "tag_fg": "#fff", "tag_bg": "#000"}},
-					"parent":      nil,
-					"priority":    map[string]interface{}{"id": "2", "priority": "high", "color": "#ffcc00"},
-					"due_date":    "1677000000000",
-					"points":      3.0,
+					"id":            "abc123def",
+					"name":          "Implement auth flow",
+					"description":   "OAuth2 implementation",
+					"status":        map[string]interface{}{"status": "in progress", "color": "#4194f6", "type": "custom"},
+					"orderindex":    "1.00000",
+					"date_created":  "1676000000000",
+					"date_updated":  "1676100000000",
+					"creator":       map[string]interface{}{"id": 12345678, "username": "alice", "email": "alice@example.com"},
+					"assignees":     []map[string]interface{}{{"id": 12345678, "username": "alice"}},
+					"tags":          []map[string]interface{}{{"name": "backend", "tag_fg": "#fff", "tag_bg": "#000"}},
+					"parent":        nil,
+					"priority":      map[string]interface{}{"id": "2", "priority": "high", "color": "#ffcc00"},
+					"due_date":      "1677000000000",
+					"points":        3.0,
 					"time_estimate": 7200000,
 					"custom_fields": []map[string]interface{}{
 						{"id": "cf_uuid_1", "name": "Sprint", "type": "drop_down", "value": "Sprint 42"},
 					},
-					"url": "https://app.clickup.com/t/abc123def",
+					"url":    "https://app.clickup.com/t/abc123def",
 					"list":   map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
 					"folder": map[string]interface{}{"id": "800100200300", "name": "Product"},
 					"space":  map[string]interface{}{"id": "98765432"},
@@ -223,24 +223,24 @@ func TestTaskList(t *testing.T) {
 func TestTaskGet(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"id":          "abc123def",
-			"name":        "Implement auth flow",
-			"description": "Full OAuth2 implementation with PKCE",
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":                   "abc123def",
+			"name":                 "Implement auth flow",
+			"description":          "Full OAuth2 implementation with PKCE",
 			"markdown_description": "# Auth Flow\n\nImplement OAuth2 with PKCE",
-			"status":      map[string]interface{}{"status": "in progress", "color": "#4194f6", "type": "custom"},
-			"orderindex":  "1.00000",
-			"date_created": "1676000000000",
-			"date_updated": "1676100000000",
-			"creator":     map[string]interface{}{"id": 12345678, "username": "alice", "email": "alice@example.com"},
-			"assignees":   []map[string]interface{}{{"id": 12345678, "username": "alice"}},
-			"tags":        []map[string]interface{}{},
-			"parent":      nil,
-			"priority":    map[string]interface{}{"id": "2", "priority": "high", "color": "#ffcc00"},
-			"url":         "https://app.clickup.com/t/abc123def",
-			"list":        map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
-			"folder":      map[string]interface{}{"id": "800100200300", "name": "Product"},
-			"space":       map[string]interface{}{"id": "98765432"},
+			"status":               map[string]interface{}{"status": "in progress", "color": "#4194f6", "type": "custom"},
+			"orderindex":           "1.00000",
+			"date_created":         "1676000000000",
+			"date_updated":         "1676100000000",
+			"creator":              map[string]interface{}{"id": 12345678, "username": "alice", "email": "alice@example.com"},
+			"assignees":            []map[string]interface{}{{"id": 12345678, "username": "alice"}},
+			"tags":                 []map[string]interface{}{},
+			"parent":               nil,
+			"priority":             map[string]interface{}{"id": "2", "priority": "high", "color": "#ffcc00"},
+			"url":                  "https://app.clickup.com/t/abc123def",
+			"list":                 map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
+			"folder":               map[string]interface{}{"id": "800100200300", "name": "Product"},
+			"space":                map[string]interface{}{"id": "98765432"},
 		})
 	})
 
@@ -264,22 +264,22 @@ func TestTaskGet(t *testing.T) {
 func TestTaskCreate(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"id":          "xyz789abc",
-			"name":        "New feature task",
-			"description": "Build the new feature",
-			"status":      map[string]interface{}{"status": "to do", "color": "#d3d3d3", "type": "custom"},
-			"orderindex":  "2.00000",
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":           "xyz789abc",
+			"name":         "New feature task",
+			"description":  "Build the new feature",
+			"status":       map[string]interface{}{"status": "to do", "color": "#d3d3d3", "type": "custom"},
+			"orderindex":   "2.00000",
 			"date_created": "1676200000000",
-			"creator":     map[string]interface{}{"id": 12345678, "username": "alice"},
-			"assignees":   []map[string]interface{}{{"id": 12345678, "username": "alice"}},
-			"tags":        []map[string]interface{}{},
-			"parent":      nil,
-			"priority":    map[string]interface{}{"id": "3", "priority": "normal", "color": "#6fddff"},
-			"url":         "https://app.clickup.com/t/xyz789abc",
-			"list":        map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
-			"folder":      map[string]interface{}{"id": "800100200300", "name": "Product"},
-			"space":       map[string]interface{}{"id": "98765432"},
+			"creator":      map[string]interface{}{"id": 12345678, "username": "alice"},
+			"assignees":    []map[string]interface{}{{"id": 12345678, "username": "alice"}},
+			"tags":         []map[string]interface{}{},
+			"parent":       nil,
+			"priority":     map[string]interface{}{"id": "3", "priority": "normal", "color": "#6fddff"},
+			"url":          "https://app.clickup.com/t/xyz789abc",
+			"list":         map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
+			"folder":       map[string]interface{}{"id": "800100200300", "name": "Product"},
+			"space":        map[string]interface{}{"id": "98765432"},
 		})
 	})
 
@@ -305,7 +305,7 @@ func TestTaskCreate(t *testing.T) {
 
 	// Verify request body
 	var reqBody map[string]interface{}
-	json.Unmarshal([]byte(log.Body), &reqBody)
+	_ = json.Unmarshal([]byte(log.Body), &reqBody)
 	if reqBody["name"] != "New feature task" {
 		t.Errorf("expected name 'New feature task', got %v", reqBody["name"])
 	}
@@ -330,21 +330,21 @@ func TestTaskCreate(t *testing.T) {
 func TestTaskUpdate(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"id":          "abc123def",
-			"name":        "Updated task name",
-			"status":      map[string]interface{}{"status": "complete", "color": "#6bc950", "type": "closed"},
-			"orderindex":  "1.00000",
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":           "abc123def",
+			"name":         "Updated task name",
+			"status":       map[string]interface{}{"status": "complete", "color": "#6bc950", "type": "closed"},
+			"orderindex":   "1.00000",
 			"date_created": "1676000000000",
-			"creator":     map[string]interface{}{"id": 12345678, "username": "alice"},
-			"assignees":   []map[string]interface{}{},
-			"tags":        []map[string]interface{}{},
-			"parent":      nil,
-			"priority":    map[string]interface{}{"id": "1", "priority": "urgent", "color": "#f50000"},
-			"url":         "https://app.clickup.com/t/abc123def",
-			"list":        map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
-			"folder":      map[string]interface{}{"id": "800100200300", "name": "Product"},
-			"space":       map[string]interface{}{"id": "98765432"},
+			"creator":      map[string]interface{}{"id": 12345678, "username": "alice"},
+			"assignees":    []map[string]interface{}{},
+			"tags":         []map[string]interface{}{},
+			"parent":       nil,
+			"priority":     map[string]interface{}{"id": "1", "priority": "urgent", "color": "#f50000"},
+			"url":          "https://app.clickup.com/t/abc123def",
+			"list":         map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
+			"folder":       map[string]interface{}{"id": "800100200300", "name": "Product"},
+			"space":        map[string]interface{}{"id": "98765432"},
 		})
 	})
 
@@ -366,7 +366,7 @@ func TestTaskUpdate(t *testing.T) {
 	}
 
 	var reqBody map[string]interface{}
-	json.Unmarshal([]byte(log.Body), &reqBody)
+	_ = json.Unmarshal([]byte(log.Body), &reqBody)
 	if reqBody["name"] != "Updated task name" {
 		t.Errorf("expected name, got %v", reqBody["name"])
 	}
@@ -383,7 +383,7 @@ func TestCommentCreate(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		// ClickUp returns numeric comment IDs
-		w.Write([]byte(`{"id":457898234,"hist_id":"abc123hist","date":1676300000000}`))
+		_, _ = w.Write([]byte(`{"id":457898234,"hist_id":"abc123hist","date":1676300000000}`))
 	})
 
 	out, err := runCommand(t, server.URL, "comment", "create",
@@ -404,7 +404,7 @@ func TestCommentCreate(t *testing.T) {
 	}
 
 	var reqBody map[string]interface{}
-	json.Unmarshal([]byte(log.Body), &reqBody)
+	_ = json.Unmarshal([]byte(log.Body), &reqBody)
 	if reqBody["comment_text"] != "Great progress on this task!" {
 		t.Errorf("expected comment_text, got %v", reqBody["comment_text"])
 	}
@@ -424,7 +424,7 @@ func TestCommentCreate(t *testing.T) {
 func TestCommentList(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"comments": []map[string]interface{}{
 				{
 					"id":           "90901010101",
@@ -461,7 +461,7 @@ func TestCommentList(t *testing.T) {
 func TestCustomFieldList(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"fields": []map[string]interface{}{
 				{
 					"id":               "cf_uuid_sprint",
@@ -523,7 +523,7 @@ func TestCustomFieldSet(t *testing.T) {
 	}
 
 	var reqBody map[string]interface{}
-	json.Unmarshal([]byte(log.Body), &reqBody)
+	_ = json.Unmarshal([]byte(log.Body), &reqBody)
 	if reqBody["value"] != "Sprint 43" {
 		t.Errorf("expected value 'Sprint 43', got %v", reqBody["value"])
 	}
@@ -537,7 +537,7 @@ func TestDocList(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		// Use numeric date_created to test json.Number handling
-		w.Write([]byte(`{"docs":[{"id":"doc_abc123","name":"API Design Doc","workspace_id":"12345678","date_created":1676000000000,"deleted":false,"visibility":"public"},{"id":"doc_def456","name":"Architecture Notes","workspace_id":"12345678","date_created":1676100000000,"deleted":false,"visibility":"private"}]}`))
+		_, _ = w.Write([]byte(`{"docs":[{"id":"doc_abc123","name":"API Design Doc","workspace_id":"12345678","date_created":1676000000000,"deleted":false,"visibility":"public"},{"id":"doc_def456","name":"Architecture Notes","workspace_id":"12345678","date_created":1676100000000,"deleted":false,"visibility":"private"}]}`))
 	})
 
 	out, err := runCommand(t, server.URL, "doc", "list", "--workspace", "12345678")
@@ -562,7 +562,7 @@ func TestDocList(t *testing.T) {
 func TestTimeEntryList(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"data": []map[string]interface{}{
 				{
 					"id":          "3600000123456",
@@ -602,23 +602,23 @@ func TestTimeEntryList(t *testing.T) {
 func TestTaskSearch(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"tasks": []map[string]interface{}{
 				{
-					"id":          "abc123def",
-					"name":        "Implement auth flow",
-					"status":      map[string]interface{}{"status": "in progress", "color": "#4194f6", "type": "custom"},
-					"orderindex":  "1.00000",
+					"id":           "abc123def",
+					"name":         "Implement auth flow",
+					"status":       map[string]interface{}{"status": "in progress", "color": "#4194f6", "type": "custom"},
+					"orderindex":   "1.00000",
 					"date_created": "1676000000000",
-					"creator":     map[string]interface{}{"id": 12345678, "username": "alice"},
-					"assignees":   []map[string]interface{}{},
-					"tags":        []map[string]interface{}{},
-					"parent":      nil,
-					"priority":    nil,
-					"url":         "https://app.clickup.com/t/abc123def",
-					"list":        map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
-					"folder":      map[string]interface{}{"id": "800100200300", "name": "Product"},
-					"space":       map[string]interface{}{"id": "98765432"},
+					"creator":      map[string]interface{}{"id": 12345678, "username": "alice"},
+					"assignees":    []map[string]interface{}{},
+					"tags":         []map[string]interface{}{},
+					"parent":       nil,
+					"priority":     nil,
+					"url":          "https://app.clickup.com/t/abc123def",
+					"list":         map[string]interface{}{"id": "901100200300", "name": "Sprint Backlog"},
+					"folder":       map[string]interface{}{"id": "800100200300", "name": "Product"},
+					"space":        map[string]interface{}{"id": "98765432"},
 				},
 			},
 		})
@@ -653,7 +653,7 @@ func TestTaskSearch(t *testing.T) {
 func TestWebhookCreate(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"id": "wh_abc123def456",
 			"webhook": map[string]interface{}{
 				"id":        "wh_abc123def456",
@@ -685,7 +685,7 @@ func TestWebhookCreate(t *testing.T) {
 	}
 
 	var reqBody map[string]interface{}
-	json.Unmarshal([]byte(log.Body), &reqBody)
+	_ = json.Unmarshal([]byte(log.Body), &reqBody)
 	if reqBody["endpoint"] != "https://example.com/webhook" {
 		t.Errorf("expected endpoint, got %v", reqBody["endpoint"])
 	}
@@ -699,7 +699,7 @@ func TestWebhookCreate(t *testing.T) {
 func TestErrorUnauthorized(t *testing.T) {
 	server, _ := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(401)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"err":   "Token invalid",
 			"ECODE": "OAUTH_025",
 		})
@@ -714,7 +714,7 @@ func TestErrorUnauthorized(t *testing.T) {
 func TestErrorNotFound(t *testing.T) {
 	server, _ := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"err":   "Task not found",
 			"ECODE": "ITEM_015",
 		})
@@ -729,7 +729,7 @@ func TestErrorNotFound(t *testing.T) {
 func TestErrorRateLimit(t *testing.T) {
 	server, _ := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(429)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"err":   "Rate limit exceeded",
 			"ECODE": "RATE_001",
 		})
@@ -746,7 +746,7 @@ func TestErrorRateLimit(t *testing.T) {
 func TestWorkspaceListEmpty(t *testing.T) {
 	server, _ := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"teams": []interface{}{}})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"teams": []interface{}{}})
 	})
 
 	out, err := runCommand(t, server.URL, "workspace", "list")
@@ -761,7 +761,7 @@ func TestWorkspaceListEmpty(t *testing.T) {
 func TestTaskListEmpty(t *testing.T) {
 	server, _ := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"tasks": []interface{}{}})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"tasks": []interface{}{}})
 	})
 
 	out, err := runCommand(t, server.URL, "task", "list", "--list", "901100200300")
@@ -778,7 +778,7 @@ func TestTaskListEmpty(t *testing.T) {
 func TestAuthorizationHeader(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"teams": []interface{}{}})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"teams": []interface{}{}})
 	})
 
 	_, err := runCommand(t, server.URL, "workspace", "list")
@@ -796,7 +796,7 @@ func TestAuthorizationHeader(t *testing.T) {
 func TestTaskListWithFilters(t *testing.T) {
 	server, log := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"tasks": []interface{}{}})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"tasks": []interface{}{}})
 	})
 
 	_, err := runCommand(t, server.URL, "task", "list",
@@ -852,7 +852,7 @@ func TestOutputIsValidJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			server, _ := newMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
-				w.Write([]byte(tt.resp))
+				_, _ = w.Write([]byte(tt.resp))
 			})
 
 			out, err := runCommand(t, server.URL, tt.args...)

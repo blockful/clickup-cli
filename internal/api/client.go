@@ -11,11 +11,51 @@ import (
 
 const DefaultBaseURL = "https://api.clickup.com/api"
 
+// ClientInterface defines all ClickUp API operations.
+// Commands depend on this interface, enabling mock-based testing.
+type ClientInterface interface {
+	// Auth
+	GetUser() (*UserResponse, error)
+
+	// Workspaces
+	ListWorkspaces() (*WorkspacesResponse, error)
+
+	// Spaces
+	ListSpaces(workspaceID string) (*SpacesResponse, error)
+	GetSpace(spaceID string) (*Space, error)
+	CreateSpace(workspaceID string, req *CreateSpaceRequest) (*Space, error)
+
+	// Folders
+	ListFolders(spaceID string) (*FoldersResponse, error)
+	GetFolder(folderID string) (*Folder, error)
+	CreateFolder(spaceID string, req *CreateFolderRequest) (*Folder, error)
+
+	// Lists
+	ListLists(folderID string) (*ListsResponse, error)
+	GetList(listID string) (*List, error)
+	CreateList(folderID string, req *CreateListRequest) (*List, error)
+
+	// Tasks
+	ListTasks(listID string, opts *ListTasksOptions) (*TasksResponse, error)
+	GetTask(taskID string) (*Task, error)
+	CreateTask(listID string, req *CreateTaskRequest) (*Task, error)
+	UpdateTask(taskID string, req *UpdateTaskRequest) (*Task, error)
+	DeleteTask(taskID string) error
+
+	// Comments
+	ListComments(taskID string) (*CommentsResponse, error)
+	CreateComment(taskID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
+}
+
+// Client implements ClientInterface using HTTP requests to the ClickUp API.
 type Client struct {
 	BaseURL    string
 	Token      string
 	HTTPClient *http.Client
 }
+
+// Ensure Client implements ClientInterface at compile time.
+var _ ClientInterface = (*Client)(nil)
 
 type APIError struct {
 	Err     string `json:"err"`
@@ -75,7 +115,6 @@ func (c *Client) Do(method, path string, body interface{}, result interface{}) e
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		code := errorCodeFromStatus(resp.StatusCode)
-		// Try to parse ClickUp error
 		var apiErr APIError
 		if json.Unmarshal(respBody, &apiErr) == nil && (apiErr.Err != "" || apiErr.Message != "") {
 			msg := apiErr.Err

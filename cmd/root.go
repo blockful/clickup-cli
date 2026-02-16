@@ -16,6 +16,9 @@ var rootCmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
+// clientFactory can be overridden in tests to inject a mock client.
+var clientFactory func() api.ClientInterface
+
 func Execute() error {
 	return rootCmd.Execute()
 }
@@ -32,7 +35,10 @@ func init() {
 	_ = viper.BindPFlag("workspace", rootCmd.PersistentFlags().Lookup("workspace"))
 }
 
-func getClient() *api.Client {
+func getClient() api.ClientInterface {
+	if clientFactory != nil {
+		return clientFactory()
+	}
 	token := config.GetToken()
 	if token == "" {
 		output.PrintErrorAndExit("AUTH_REQUIRED", "No API token configured. Run 'clickup auth login' first.", 2)

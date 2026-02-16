@@ -26,7 +26,7 @@ var legacyListCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 		subcategoryID, _ := cmd.Flags().GetString("subcategory-id")
-		resp, err := client.GetLegacyTrackedTime(ctx, taskID, subcategoryID)
+		resp, err := client.GetLegacyTrackedTime(ctx, taskID, subcategoryID, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -66,7 +66,7 @@ var legacyCreateCmd = &cobra.Command{
 			}
 		}
 
-		resp, err := client.TrackLegacyTime(ctx, taskID, req)
+		resp, err := client.TrackLegacyTime(ctx, taskID, req, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -108,7 +108,7 @@ var legacyUpdateCmd = &cobra.Command{
 			}
 		}
 
-		if err := client.EditLegacyTime(ctx, taskID, intervalID, req); err != nil {
+		if err := client.EditLegacyTime(ctx, taskID, intervalID, req, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -128,7 +128,7 @@ var legacyDeleteCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--task-id and --interval-id are required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteLegacyTime(ctx, taskID, intervalID); err != nil {
+		if err := client.DeleteLegacyTime(ctx, taskID, intervalID, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -142,12 +142,14 @@ func init() {
 
 	legacyListCmd.Flags().String("task-id", "", "Task ID (required)")
 	legacyListCmd.Flags().String("subcategory-id", "", "Subcategory ID filter")
+	addTaskScopedFlags(legacyListCmd)
 
 	legacyCreateCmd.Flags().String("task-id", "", "Task ID (required)")
 	legacyCreateCmd.Flags().Int64("time", 0, "Time in milliseconds (required)")
 	legacyCreateCmd.Flags().Int64("start", 0, "Start date (unix ms)")
 	legacyCreateCmd.Flags().Int64("end", 0, "End date (unix ms)")
 	legacyCreateCmd.Flags().String("tags", "", "Comma-separated tag names")
+	addTaskScopedFlags(legacyCreateCmd)
 
 	legacyUpdateCmd.Flags().String("task-id", "", "Task ID (required)")
 	legacyUpdateCmd.Flags().String("interval-id", "", "Interval ID (required)")
@@ -156,7 +158,9 @@ func init() {
 	legacyUpdateCmd.Flags().Int64("end", 0, "End date (unix ms)")
 	legacyUpdateCmd.Flags().String("tag-action", "", "Tag action (add/replace)")
 	legacyUpdateCmd.Flags().String("tags", "", "Comma-separated tag names")
+	addTaskScopedFlags(legacyUpdateCmd)
 
 	legacyDeleteCmd.Flags().String("task-id", "", "Task ID (required)")
 	legacyDeleteCmd.Flags().String("interval-id", "", "Interval ID (required)")
+	addTaskScopedFlags(legacyDeleteCmd)
 }

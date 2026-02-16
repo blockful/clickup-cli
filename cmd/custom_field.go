@@ -72,7 +72,7 @@ var customFieldSetCmd = &cobra.Command{
 		}
 
 		req := &api.SetCustomFieldRequest{Value: v}
-		if err := client.SetCustomFieldValue(ctx, taskID, fieldID, req); err != nil {
+		if err := client.SetCustomFieldValue(ctx, taskID, fieldID, req, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -94,7 +94,7 @@ var customFieldRemoveCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.RemoveCustomFieldValue(ctx, taskID, fieldID); err != nil {
+		if err := client.RemoveCustomFieldValue(ctx, taskID, fieldID, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -116,7 +116,9 @@ func init() {
 	customFieldSetCmd.Flags().String("task", "", "Task ID (required)")
 	customFieldSetCmd.Flags().String("field", "", "Field ID (required)")
 	customFieldSetCmd.Flags().String("value", "", "Field value as JSON or string (required)")
+	addTaskScopedFlags(customFieldSetCmd)
 
 	customFieldRemoveCmd.Flags().String("task", "", "Task ID (required)")
 	customFieldRemoveCmd.Flags().String("field", "", "Field ID (required)")
+	addTaskScopedFlags(customFieldRemoveCmd)
 }

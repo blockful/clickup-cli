@@ -357,7 +357,7 @@ var taskMergeCmd = &cobra.Command{
 		}
 
 		req := &api.MergeTasksRequest{MergeWith: mergeWith}
-		if err := client.MergeTasks(ctx, taskID, req); err != nil {
+		if err := client.MergeTasks(ctx, taskID, req, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})

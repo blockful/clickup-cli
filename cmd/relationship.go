@@ -38,7 +38,7 @@ var dependencyAddCmd = &cobra.Command{
 			DependencyOf: dependencyOf,
 			Type:         depType,
 		}
-		resp, err := client.AddDependency(ctx, taskID, req)
+		resp, err := client.AddDependency(ctx, taskID, req, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -66,7 +66,7 @@ var dependencyRemoveCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.DeleteDependency(ctx, taskID, dependsOn, dependencyOf); err != nil {
+		if err := client.DeleteDependency(ctx, taskID, dependsOn, dependencyOf, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -93,7 +93,7 @@ var linkAddCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		resp, err := client.AddTaskLink(ctx, taskID, linksTo)
+		resp, err := client.AddTaskLink(ctx, taskID, linksTo, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -116,7 +116,7 @@ var linkRemoveCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.DeleteTaskLink(ctx, taskID, linksTo); err != nil {
+		if err := client.DeleteTaskLink(ctx, taskID, linksTo, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -132,17 +132,21 @@ func init() {
 	dependencyAddCmd.Flags().String("depends-on", "", "Task ID this task depends on")
 	dependencyAddCmd.Flags().String("dependency-of", "", "Task ID that depends on this task")
 	dependencyAddCmd.Flags().String("type", "", "Dependency type")
+	addTaskScopedFlags(dependencyAddCmd)
 
 	dependencyRemoveCmd.Flags().String("task", "", "Task ID (required)")
 	dependencyRemoveCmd.Flags().String("depends-on", "", "Task ID this task depends on")
 	dependencyRemoveCmd.Flags().String("dependency-of", "", "Task ID that depends on this task")
+	addTaskScopedFlags(dependencyRemoveCmd)
 
 	taskCmd.AddCommand(linkCmd)
 	linkCmd.AddCommand(linkAddCmd, linkRemoveCmd)
 
 	linkAddCmd.Flags().String("task", "", "Task ID (required)")
 	linkAddCmd.Flags().String("links-to", "", "Task ID to link to (required)")
+	addTaskScopedFlags(linkAddCmd)
 
 	linkRemoveCmd.Flags().String("task", "", "Task ID (required)")
 	linkRemoveCmd.Flags().String("links-to", "", "Task ID to unlink (required)")
+	addTaskScopedFlags(linkRemoveCmd)
 }

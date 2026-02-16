@@ -43,7 +43,7 @@ var commentListCmd = &cobra.Command{
 			output.JSON(resp)
 			return nil
 		}
-		resp, err := client.ListComments(ctx, taskID, startID)
+		resp, err := client.ListComments(ctx, taskID, startID, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -97,7 +97,7 @@ var commentCreateCmd = &cobra.Command{
 			output.JSON(resp)
 			return nil
 		}
-		resp, err := client.CreateComment(ctx, taskID, req)
+		resp, err := client.CreateComment(ctx, taskID, req, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -223,6 +223,7 @@ func init() {
 	commentListCmd.Flags().String("list", "", "List ID")
 	commentListCmd.Flags().String("view-id", "", "View ID (chat view comments)")
 	commentListCmd.Flags().String("start-id", "", "Start comment ID for pagination")
+	addTaskScopedFlags(commentListCmd)
 
 	commentCreateCmd.Flags().String("task", "", "Task ID")
 	commentCreateCmd.Flags().String("list", "", "List ID")
@@ -231,6 +232,7 @@ func init() {
 	commentCreateCmd.Flags().Int("assignee", 0, "Assignee user ID")
 	commentCreateCmd.Flags().Int("group-assignee", 0, "Group assignee ID")
 	commentCreateCmd.Flags().Bool("notify-all", false, "Notify all")
+	addTaskScopedFlags(commentCreateCmd)
 
 	commentUpdateCmd.Flags().String("id", "", "Comment ID")
 	commentUpdateCmd.Flags().String("text", "", "Comment text")

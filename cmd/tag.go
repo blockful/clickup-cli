@@ -126,7 +126,7 @@ var tagAddCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.AddTagToTask(ctx, taskID, tagName); err != nil {
+		if err := client.AddTagToTask(ctx, taskID, tagName, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -148,7 +148,7 @@ var tagRemoveCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.RemoveTagFromTask(ctx, taskID, tagName); err != nil {
+		if err := client.RemoveTagFromTask(ctx, taskID, tagName, getTaskScopedOpts(cmd)); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -178,7 +178,9 @@ func init() {
 
 	tagAddCmd.Flags().String("task", "", "Task ID (required)")
 	tagAddCmd.Flags().String("name", "", "Tag name (required)")
+	addTaskScopedFlags(tagAddCmd)
 
 	tagRemoveCmd.Flags().String("task", "", "Task ID (required)")
 	tagRemoveCmd.Flags().String("name", "", "Tag name (required)")
+	addTaskScopedFlags(tagRemoveCmd)
 }

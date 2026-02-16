@@ -32,7 +32,7 @@ var checklistCreateCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		resp, err := client.CreateChecklist(ctx, taskID, &api.CreateChecklistRequest{Name: name})
+		resp, err := client.CreateChecklist(ctx, taskID, &api.CreateChecklistRequest{Name: name}, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -193,6 +193,7 @@ func init() {
 
 	checklistCreateCmd.Flags().String("task", "", "Task ID (required)")
 	checklistCreateCmd.Flags().String("name", "", "Checklist name (required)")
+	addTaskScopedFlags(checklistCreateCmd)
 
 	checklistUpdateCmd.Flags().String("id", "", "Checklist ID (required)")
 	checklistUpdateCmd.Flags().String("name", "", "New name")

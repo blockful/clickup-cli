@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 )
 
@@ -12,7 +13,7 @@ type Doc struct {
 	WorkspaceID string      `json:"workspace_id,omitempty"`
 	Parent      interface{} `json:"parent,omitempty"`
 	Creator     interface{} `json:"creator,omitempty"`
-	DateCreated string      `json:"date_created,omitempty"`
+	DateCreated json.Number `json:"date_created,omitempty"`
 	Deleted     bool        `json:"deleted,omitempty"`
 	Visibility  string      `json:"visibility,omitempty"`
 }
@@ -38,8 +39,8 @@ type DocPage struct {
 	Content     string      `json:"content,omitempty"`
 	ContentHtml string      `json:"content_html,omitempty"`
 	OrderIndex  interface{} `json:"orderindex,omitempty"`
-	DateCreated string      `json:"date_created,omitempty"`
-	DateUpdated string      `json:"date_updated,omitempty"`
+	DateCreated json.Number `json:"date_created,omitempty"`
+	DateUpdated json.Number `json:"date_updated,omitempty"`
 	Archived    bool        `json:"archived,omitempty"`
 	Protected   bool        `json:"protected,omitempty"`
 	CreatorID   interface{} `json:"creator_id,omitempty"`

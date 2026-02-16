@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -66,9 +67,9 @@ type CreateCommentRequest struct {
 }
 
 type CreateCommentResponse struct {
-	ID     string `json:"id"`
-	HistID string `json:"hist_id"`
-	Date   int64  `json:"date"`
+	ID     json.Number `json:"id"`
+	HistID string      `json:"hist_id"`
+	Date   json.Number `json:"date"`
 }
 
 func (c *Client) CreateComment(ctx context.Context, taskID string, req *CreateCommentRequest, opts ...*TaskScopedOptions) (*CreateCommentResponse, error) {

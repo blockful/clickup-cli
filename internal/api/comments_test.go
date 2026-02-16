@@ -83,9 +83,9 @@ func TestCreateComment(t *testing.T) {
 			name:       "success",
 			taskID:     "t1",
 			text:       "Great work!",
-			response:   `{"id":"c1","hist_id":"h1","date":1234567890}`,
+			response:   `{"id":123,"hist_id":"h1","date":1234567890}`,
 			statusCode: 200,
-			wantID:     "c1",
+			wantID:     "123",
 		},
 		{
 			name:       "unauthorized",
@@ -127,8 +127,8 @@ func TestCreateComment(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
-			if resp.ID != tt.wantID {
-				t.Errorf("expected ID %q, got %q", tt.wantID, resp.ID)
+			if resp.ID.String() != tt.wantID {
+				t.Errorf("expected ID %q, got %q", tt.wantID, resp.ID.String())
 			}
 		})
 	}

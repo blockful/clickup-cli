@@ -86,9 +86,9 @@ func TestCreateThreadedComment(t *testing.T) {
 			name:       "success",
 			commentID:  "c1",
 			text:       "reply text",
-			response:   `{"id":"r1","hist_id":"h1","date":123}`,
+			response:   `{"id":456,"hist_id":"h1","date":123}`,
 			statusCode: 200,
-			wantID:     "r1",
+			wantID:     "456",
 		},
 		{
 			name:       "unauthorized",
@@ -130,8 +130,8 @@ func TestCreateThreadedComment(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
-			if resp.ID != tt.wantID {
-				t.Errorf("expected ID %q, got %q", tt.wantID, resp.ID)
+			if resp.ID.String() != tt.wantID {
+				t.Errorf("expected ID %q, got %q", tt.wantID, resp.ID.String())
 			}
 		})
 	}
@@ -165,7 +165,7 @@ func TestCreateViewComment(t *testing.T) {
 			t.Errorf("expected POST, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		_, _ = w.Write([]byte(`{"id":"vc1","hist_id":"h1","date":123}`))
+		_, _ = w.Write([]byte(`{"id":789,"hist_id":"h1","date":123}`))
 	}))
 	defer server.Close()
 
@@ -177,7 +177,7 @@ func TestCreateViewComment(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if resp.ID != "vc1" {
-		t.Errorf("expected vc1, got %s", resp.ID)
+	if resp.ID.String() != "789" {
+		t.Errorf("expected 789, got %s", resp.ID.String())
 	}
 }

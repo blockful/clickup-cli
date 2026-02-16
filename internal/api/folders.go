@@ -1,6 +1,9 @@
 package api
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type Folder struct {
 	ID               string `json:"id"`
@@ -20,17 +23,17 @@ type FoldersResponse struct {
 	Folders []Folder `json:"folders"`
 }
 
-func (c *Client) ListFolders(spaceID string) (*FoldersResponse, error) {
+func (c *Client) ListFolders(ctx context.Context, spaceID string) (*FoldersResponse, error) {
 	var resp FoldersResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/space/%s/folder?archived=false", spaceID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/space/%s/folder?archived=false", spaceID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) GetFolder(folderID string) (*Folder, error) {
+func (c *Client) GetFolder(ctx context.Context, folderID string) (*Folder, error) {
 	var resp Folder
-	if err := c.Do("GET", fmt.Sprintf("/v2/folder/%s", folderID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/folder/%s", folderID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -40,9 +43,9 @@ type CreateFolderRequest struct {
 	Name string `json:"name"`
 }
 
-func (c *Client) CreateFolder(spaceID string, req *CreateFolderRequest) (*Folder, error) {
+func (c *Client) CreateFolder(ctx context.Context, spaceID string, req *CreateFolderRequest) (*Folder, error) {
 	var resp Folder
-	if err := c.Do("POST", fmt.Sprintf("/v2/space/%s/folder", spaceID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/space/%s/folder", spaceID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -52,14 +55,14 @@ type UpdateFolderRequest struct {
 	Name string `json:"name"`
 }
 
-func (c *Client) UpdateFolder(folderID string, req *UpdateFolderRequest) (*Folder, error) {
+func (c *Client) UpdateFolder(ctx context.Context, folderID string, req *UpdateFolderRequest) (*Folder, error) {
 	var resp Folder
-	if err := c.Do("PUT", fmt.Sprintf("/v2/folder/%s", folderID), req, &resp); err != nil {
+	if err := c.Do(ctx, "PUT", fmt.Sprintf("/v2/folder/%s", folderID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) DeleteFolder(folderID string) error {
-	return c.Do("DELETE", fmt.Sprintf("/v2/folder/%s", folderID), nil, nil)
+func (c *Client) DeleteFolder(ctx context.Context, folderID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/folder/%s", folderID), nil, nil)
 }

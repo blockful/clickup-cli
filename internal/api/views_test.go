@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestGetTeamViews(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/team/123/view" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -16,7 +18,7 @@ func TestGetTeamViews(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetTeamViews("123")
+	resp, err := c.GetTeamViews(ctx, "123")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,6 +28,7 @@ func TestGetTeamViews(t *testing.T) {
 }
 
 func TestGetView(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/view/v1" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -34,7 +37,7 @@ func TestGetView(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetView("v1")
+	resp, err := c.GetView(ctx, "v1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,6 +47,7 @@ func TestGetView(t *testing.T) {
 }
 
 func TestDeleteView(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v2/view/v1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -52,12 +56,13 @@ func TestDeleteView(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.DeleteView("v1"); err != nil {
+	if err := c.DeleteView(ctx, "v1"); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestGetViewTasks(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/view/v1/task" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -66,7 +71,7 @@ func TestGetViewTasks(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetViewTasks("v1", 0)
+	resp, err := c.GetViewTasks(ctx, "v1", 0)
 	if err != nil {
 		t.Fatal(err)
 	}

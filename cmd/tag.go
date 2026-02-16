@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,12 +17,13 @@ var tagListCmd = &cobra.Command{
 	Short: "List tags in a space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		spaceID, _ := cmd.Flags().GetString("space")
 		if spaceID == "" {
 			output.PrintError("VALIDATION_ERROR", "--space is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetSpaceTags(spaceID)
+		resp, err := client.GetSpaceTags(ctx, spaceID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -35,6 +37,7 @@ var tagCreateCmd = &cobra.Command{
 	Short: "Create a tag in a space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		spaceID, _ := cmd.Flags().GetString("space")
 		name, _ := cmd.Flags().GetString("name")
 		fg, _ := cmd.Flags().GetString("fg")
@@ -46,7 +49,7 @@ var tagCreateCmd = &cobra.Command{
 		}
 
 		req := &api.CreateTagRequest{Tag: api.Tag{Name: name, TagFg: fg, TagBg: bg}}
-		if err := client.CreateSpaceTag(spaceID, req); err != nil {
+		if err := client.CreateSpaceTag(ctx, spaceID, req); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -59,6 +62,7 @@ var tagUpdateCmd = &cobra.Command{
 	Short: "Update a tag in a space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		spaceID, _ := cmd.Flags().GetString("space")
 		tagName, _ := cmd.Flags().GetString("name")
 		newName, _ := cmd.Flags().GetString("new-name")
@@ -77,7 +81,7 @@ var tagUpdateCmd = &cobra.Command{
 			tag.Name = tagName
 		}
 		req := &api.UpdateTagRequest{Tag: tag}
-		if err := client.UpdateSpaceTag(spaceID, tagName, req); err != nil {
+		if err := client.UpdateSpaceTag(ctx, spaceID, tagName, req); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -90,6 +94,7 @@ var tagDeleteCmd = &cobra.Command{
 	Short: "Delete a tag from a space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		spaceID, _ := cmd.Flags().GetString("space")
 		tagName, _ := cmd.Flags().GetString("name")
 
@@ -98,7 +103,7 @@ var tagDeleteCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.DeleteSpaceTag(spaceID, tagName); err != nil {
+		if err := client.DeleteSpaceTag(ctx, spaceID, tagName); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -111,6 +116,7 @@ var tagAddCmd = &cobra.Command{
 	Short: "Add a tag to a task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		taskID, _ := cmd.Flags().GetString("task")
 		tagName, _ := cmd.Flags().GetString("name")
 
@@ -119,7 +125,7 @@ var tagAddCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.AddTagToTask(taskID, tagName); err != nil {
+		if err := client.AddTagToTask(ctx, taskID, tagName); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -132,6 +138,7 @@ var tagRemoveCmd = &cobra.Command{
 	Short: "Remove a tag from a task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		taskID, _ := cmd.Flags().GetString("task")
 		tagName, _ := cmd.Flags().GetString("name")
 
@@ -140,7 +147,7 @@ var tagRemoveCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.RemoveTagFromTask(taskID, tagName); err != nil {
+		if err := client.RemoveTagFromTask(ctx, taskID, tagName); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})

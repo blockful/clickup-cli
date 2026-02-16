@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ var listListCmd = &cobra.Command{
 	Short: "List lists in a folder or space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		folderID, _ := cmd.Flags().GetString("folder")
 		spaceID, _ := cmd.Flags().GetString("space")
 		if folderID == "" && spaceID == "" {
@@ -23,14 +25,14 @@ var listListCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 		if spaceID != "" {
-			resp, err := client.ListFolderlessLists(spaceID)
+			resp, err := client.ListFolderlessLists(ctx, spaceID)
 			if err != nil {
 				return handleError(err)
 			}
 			output.JSON(resp)
 			return nil
 		}
-		resp, err := client.ListLists(folderID)
+		resp, err := client.ListLists(ctx, folderID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -44,12 +46,13 @@ var listGetCmd = &cobra.Command{
 	Short: "Get a list by ID",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetList(id)
+		resp, err := client.GetList(ctx, id)
 		if err != nil {
 			return handleError(err)
 		}
@@ -63,6 +66,7 @@ var listCreateCmd = &cobra.Command{
 	Short: "Create a new list",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		folderID, _ := cmd.Flags().GetString("folder")
 		spaceID, _ := cmd.Flags().GetString("space")
 		if folderID == "" && spaceID == "" {
@@ -91,14 +95,14 @@ var listCreateCmd = &cobra.Command{
 		}
 
 		if spaceID != "" {
-			resp, err := client.CreateFolderlessList(spaceID, req)
+			resp, err := client.CreateFolderlessList(ctx, spaceID, req)
 			if err != nil {
 				return handleError(err)
 			}
 			output.JSON(resp)
 			return nil
 		}
-		resp, err := client.CreateList(folderID, req)
+		resp, err := client.CreateList(ctx, folderID, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -112,6 +116,7 @@ var listUpdateCmd = &cobra.Command{
 	Short: "Update a list",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
@@ -141,7 +146,7 @@ var listUpdateCmd = &cobra.Command{
 		}
 		req.UnsetStatus, _ = cmd.Flags().GetBool("unset-status")
 
-		resp, err := client.UpdateList(id, req)
+		resp, err := client.UpdateList(ctx, id, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -155,12 +160,13 @@ var listDeleteCmd = &cobra.Command{
 	Short: "Delete a list",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteList(id); err != nil {
+		if err := client.DeleteList(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"message": "list deleted", "id": id})

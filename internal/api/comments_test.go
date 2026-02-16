@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestListComments(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		taskID     string
@@ -43,9 +45,10 @@ func TestListComments(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.ListComments(tt.taskID)
+			resp, err := client.ListComments(ctx, tt.taskID)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")
@@ -66,6 +69,7 @@ func TestListComments(t *testing.T) {
 }
 
 func TestCreateComment(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		taskID     string
@@ -110,9 +114,10 @@ func TestCreateComment(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.CreateComment(tt.taskID, &CreateCommentRequest{CommentText: tt.text})
+			resp, err := client.CreateComment(ctx, tt.taskID, &CreateCommentRequest{CommentText: tt.text})
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")

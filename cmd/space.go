@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/blockful/clickup-cli/internal/api"
@@ -18,8 +19,9 @@ var spaceListCmd = &cobra.Command{
 	Short: "List spaces in a workspace",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wsID := getWorkspaceID(cmd)
-		resp, err := client.ListSpaces(wsID)
+		resp, err := client.ListSpaces(ctx, wsID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -33,12 +35,13 @@ var spaceGetCmd = &cobra.Command{
 	Short: "Get a space by ID",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetSpace(id)
+		resp, err := client.GetSpace(ctx, id)
 		if err != nil {
 			return handleError(err)
 		}
@@ -52,6 +55,7 @@ var spaceCreateCmd = &cobra.Command{
 	Short: "Create a new space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wsID := getWorkspaceID(cmd)
 		name, _ := cmd.Flags().GetString("name")
 		if name == "" {
@@ -69,7 +73,7 @@ var spaceCreateCmd = &cobra.Command{
 			}
 			req.Features = features
 		}
-		resp, err := client.CreateSpace(wsID, req)
+		resp, err := client.CreateSpace(ctx, wsID, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -83,6 +87,7 @@ var spaceUpdateCmd = &cobra.Command{
 	Short: "Update a space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
@@ -105,7 +110,7 @@ var spaceUpdateCmd = &cobra.Command{
 			}
 			req.Features = features
 		}
-		resp, err := client.UpdateSpace(id, req)
+		resp, err := client.UpdateSpace(ctx, id, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -119,12 +124,13 @@ var spaceDeleteCmd = &cobra.Command{
 	Short: "Delete a space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteSpace(id); err != nil {
+		if err := client.DeleteSpace(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"message": "space deleted", "id": id})

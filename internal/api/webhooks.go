@@ -1,6 +1,9 @@
 package api
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type Webhook struct {
 	ID       string      `json:"id"`
@@ -46,30 +49,30 @@ type UpdateWebhookResponse struct {
 	Webhook Webhook `json:"webhook"`
 }
 
-func (c *Client) GetWebhooks(teamID string) (*WebhooksResponse, error) {
+func (c *Client) GetWebhooks(ctx context.Context, teamID string) (*WebhooksResponse, error) {
 	var resp WebhooksResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/team/%s/webhook", teamID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/team/%s/webhook", teamID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) CreateWebhook(teamID string, req *CreateWebhookRequest) (*CreateWebhookResponse, error) {
+func (c *Client) CreateWebhook(ctx context.Context, teamID string, req *CreateWebhookRequest) (*CreateWebhookResponse, error) {
 	var resp CreateWebhookResponse
-	if err := c.Do("POST", fmt.Sprintf("/v2/team/%s/webhook", teamID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/team/%s/webhook", teamID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) UpdateWebhook(webhookID string, req *UpdateWebhookRequest) (*UpdateWebhookResponse, error) {
+func (c *Client) UpdateWebhook(ctx context.Context, webhookID string, req *UpdateWebhookRequest) (*UpdateWebhookResponse, error) {
 	var resp UpdateWebhookResponse
-	if err := c.Do("PUT", fmt.Sprintf("/v2/webhook/%s", webhookID), req, &resp); err != nil {
+	if err := c.Do(ctx, "PUT", fmt.Sprintf("/v2/webhook/%s", webhookID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) DeleteWebhook(webhookID string) error {
-	return c.Do("DELETE", fmt.Sprintf("/v2/webhook/%s", webhookID), nil, nil)
+func (c *Client) DeleteWebhook(ctx context.Context, webhookID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/webhook/%s", webhookID), nil, nil)
 }

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestGetSpaceTags(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/space/512/tag" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -16,7 +18,7 @@ func TestGetSpaceTags(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetSpaceTags("512")
+	resp, err := c.GetSpaceTags(ctx, "512")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,6 +28,7 @@ func TestGetSpaceTags(t *testing.T) {
 }
 
 func TestCreateSpaceTag(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v2/space/512/tag" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -39,13 +42,14 @@ func TestCreateSpaceTag(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	err := c.CreateSpaceTag("512", &CreateTagRequest{Tag: Tag{Name: "feature", TagFg: "#000", TagBg: "#0f0"}})
+	err := c.CreateSpaceTag(ctx, "512", &CreateTagRequest{Tag: Tag{Name: "feature", TagFg: "#000", TagBg: "#0f0"}})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestUpdateSpaceTag(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "PUT" || r.URL.Path != "/v2/space/512/tag/old" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -54,13 +58,14 @@ func TestUpdateSpaceTag(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	err := c.UpdateSpaceTag("512", "old", &UpdateTagRequest{Tag: Tag{Name: "new"}})
+	err := c.UpdateSpaceTag(ctx, "512", "old", &UpdateTagRequest{Tag: Tag{Name: "new"}})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDeleteSpaceTag(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v2/space/512/tag/old" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -69,13 +74,14 @@ func TestDeleteSpaceTag(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	err := c.DeleteSpaceTag("512", "old")
+	err := c.DeleteSpaceTag(ctx, "512", "old")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestAddTagToTask(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v2/task/t1/tag/bug" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -84,12 +90,13 @@ func TestAddTagToTask(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.AddTagToTask("t1", "bug"); err != nil {
+	if err := c.AddTagToTask(ctx, "t1", "bug"); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestRemoveTagFromTask(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v2/task/t1/tag/bug" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -98,7 +105,7 @@ func TestRemoveTagFromTask(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.RemoveTagFromTask("t1", "bug"); err != nil {
+	if err := c.RemoveTagFromTask(ctx, "t1", "bug"); err != nil {
 		t.Fatal(err)
 	}
 }

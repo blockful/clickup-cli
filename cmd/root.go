@@ -9,9 +9,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "clickup",
-	Short: "ClickUp CLI — optimized for AI agents",
-	Long:  "A command-line interface for ClickUp, designed for AI agent workflows. All output is JSON by default.",
+	Use:           "clickup",
+	Short:         "ClickUp CLI — optimized for AI agents",
+	Long:          "A command-line interface for ClickUp, designed for AI agent workflows. All output is JSON by default.",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }

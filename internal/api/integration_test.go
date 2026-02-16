@@ -3,6 +3,7 @@
 package api
 
 import (
+	"context"
 	"os"
 	"testing"
 )
@@ -20,8 +21,9 @@ func getIntegrationClient(t *testing.T) *Client {
 }
 
 func TestIntegration_GetUser(t *testing.T) {
+	ctx := context.Background()
 	client := getIntegrationClient(t)
-	resp, err := client.GetUser()
+	resp, err := client.GetUser(ctx)
 	if err != nil {
 		t.Fatalf("GetUser failed: %v", err)
 	}
@@ -32,8 +34,9 @@ func TestIntegration_GetUser(t *testing.T) {
 }
 
 func TestIntegration_ListWorkspaces(t *testing.T) {
+	ctx := context.Background()
 	client := getIntegrationClient(t)
-	resp, err := client.ListWorkspaces()
+	resp, err := client.ListWorkspaces(ctx)
 	if err != nil {
 		t.Fatalf("ListWorkspaces failed: %v", err)
 	}

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestGetTimeEntries(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			t.Errorf("method = %s", r.Method)
@@ -19,7 +21,7 @@ func TestGetTimeEntries(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetTimeEntries("123", nil)
+	resp, err := c.GetTimeEntries(ctx, "123", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,6 +31,7 @@ func TestGetTimeEntries(t *testing.T) {
 }
 
 func TestGetTimeEntriesWithOpts(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Query().Get("assignee") != "5" {
 			t.Errorf("assignee = %s", r.URL.Query().Get("assignee"))
@@ -37,13 +40,14 @@ func TestGetTimeEntriesWithOpts(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.GetTimeEntries("123", &ListTimeEntriesOptions{Assignee: "5"})
+	_, err := c.GetTimeEntries(ctx, "123", &ListTimeEntriesOptions{Assignee: "5"})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestCreateTimeEntry(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/time_entries" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -52,7 +56,7 @@ func TestCreateTimeEntry(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.CreateTimeEntry("123", &CreateTimeEntryRequest{Start: 1000, Duration: 3600000})
+	resp, err := c.CreateTimeEntry(ctx, "123", &CreateTimeEntryRequest{Start: 1000, Duration: 3600000})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,6 +66,7 @@ func TestCreateTimeEntry(t *testing.T) {
 }
 
 func TestGetTimeEntry(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/team/123/time_entries/te1" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -70,7 +75,7 @@ func TestGetTimeEntry(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetTimeEntry("123", "te1")
+	resp, err := c.GetTimeEntry(ctx, "123", "te1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,6 +85,7 @@ func TestGetTimeEntry(t *testing.T) {
 }
 
 func TestDeleteTimeEntry(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v2/team/123/time_entries/te1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -88,12 +94,13 @@ func TestDeleteTimeEntry(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.DeleteTimeEntry("123", "te1"); err != nil {
+	if err := c.DeleteTimeEntry(ctx, "123", "te1"); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestStartTimer(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/time_entries/start" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -102,7 +109,7 @@ func TestStartTimer(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.StartTimer("123", &StartTimerRequest{Tid: "t1"})
+	resp, err := c.StartTimer(ctx, "123", &StartTimerRequest{Tid: "t1"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,6 +119,7 @@ func TestStartTimer(t *testing.T) {
 }
 
 func TestStopTimer(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/time_entries/stop" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -120,13 +128,14 @@ func TestStopTimer(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.StopTimer("123")
+	_, err := c.StopTimer(ctx, "123")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestGetRunningTimer(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/team/123/time_entries/current" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -135,7 +144,7 @@ func TestGetRunningTimer(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.GetRunningTimer("123", "")
+	_, err := c.GetRunningTimer(ctx, "123", "")
 	if err != nil {
 		t.Fatal(err)
 	}

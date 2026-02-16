@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestGetUser(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		response   string
@@ -49,9 +51,10 @@ func TestGetUser(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.GetUser()
+			resp, err := client.GetUser(ctx)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")

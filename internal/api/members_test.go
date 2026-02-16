@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestGetListMembers(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/list/l1/member" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -16,7 +18,7 @@ func TestGetListMembers(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetListMembers("l1")
+	resp, err := c.GetListMembers(ctx, "l1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,6 +28,7 @@ func TestGetListMembers(t *testing.T) {
 }
 
 func TestGetTaskMembers(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/task/t1/member" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -34,13 +37,14 @@ func TestGetTaskMembers(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.GetTaskMembers("t1")
+	_, err := c.GetTaskMembers(ctx, "t1")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestGetGroups(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/group" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -49,7 +53,7 @@ func TestGetGroups(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetGroups("123")
+	resp, err := c.GetGroups(ctx, "123")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,6 +63,7 @@ func TestGetGroups(t *testing.T) {
 }
 
 func TestDeleteGroup(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v2/group/g1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -67,7 +72,7 @@ func TestDeleteGroup(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.DeleteGroup("g1"); err != nil {
+	if err := c.DeleteGroup(ctx, "g1"); err != nil {
 		t.Fatal(err)
 	}
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,8 +17,9 @@ var webhookListCmd = &cobra.Command{
 	Short: "List webhooks",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
-		resp, err := client.GetWebhooks(wid)
+		resp, err := client.GetWebhooks(ctx, wid)
 		if err != nil {
 			return handleError(err)
 		}
@@ -31,6 +33,7 @@ var webhookCreateCmd = &cobra.Command{
 	Short: "Create a webhook",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		endpoint, _ := cmd.Flags().GetString("endpoint")
 		events, _ := cmd.Flags().GetStringSlice("events")
@@ -41,7 +44,7 @@ var webhookCreateCmd = &cobra.Command{
 		}
 
 		req := &api.CreateWebhookRequest{Endpoint: endpoint, Events: events}
-		resp, err := client.CreateWebhook(wid, req)
+		resp, err := client.CreateWebhook(ctx, wid, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -55,6 +58,7 @@ var webhookUpdateCmd = &cobra.Command{
 	Short: "Update a webhook",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		endpoint, _ := cmd.Flags().GetString("endpoint")
 		events, _ := cmd.Flags().GetString("events")
@@ -66,7 +70,7 @@ var webhookUpdateCmd = &cobra.Command{
 		}
 
 		req := &api.UpdateWebhookRequest{Endpoint: endpoint, Events: events, Status: status}
-		resp, err := client.UpdateWebhook(id, req)
+		resp, err := client.UpdateWebhook(ctx, id, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -80,12 +84,13 @@ var webhookDeleteCmd = &cobra.Command{
 	Short: "Delete a webhook",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteWebhook(id); err != nil {
+		if err := client.DeleteWebhook(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})

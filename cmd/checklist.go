@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -21,6 +22,7 @@ var checklistCreateCmd = &cobra.Command{
 	Short: "Create a checklist on a task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		taskID, _ := cmd.Flags().GetString("task")
 		name, _ := cmd.Flags().GetString("name")
 
@@ -29,7 +31,7 @@ var checklistCreateCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		resp, err := client.CreateChecklist(taskID, &api.CreateChecklistRequest{Name: name})
+		resp, err := client.CreateChecklist(ctx, taskID, &api.CreateChecklistRequest{Name: name})
 		if err != nil {
 			return handleError(err)
 		}
@@ -43,6 +45,7 @@ var checklistUpdateCmd = &cobra.Command{
 	Short: "Update a checklist",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		name, _ := cmd.Flags().GetString("name")
 		position, _ := cmd.Flags().GetInt("position")
@@ -60,7 +63,7 @@ var checklistUpdateCmd = &cobra.Command{
 			req.Position = &position
 		}
 
-		if err := client.EditChecklist(id, req); err != nil {
+		if err := client.EditChecklist(ctx, id, req); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -73,13 +76,14 @@ var checklistDeleteCmd = &cobra.Command{
 	Short: "Delete a checklist",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
 
-		if err := client.DeleteChecklist(id); err != nil {
+		if err := client.DeleteChecklist(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -92,6 +96,7 @@ var checklistItemCreateCmd = &cobra.Command{
 	Short: "Create a checklist item",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		checklistID, _ := cmd.Flags().GetString("checklist")
 		name, _ := cmd.Flags().GetString("name")
 		assignee, _ := cmd.Flags().GetInt("assignee")
@@ -106,7 +111,7 @@ var checklistItemCreateCmd = &cobra.Command{
 			req.Assignee = &assignee
 		}
 
-		resp, err := client.CreateChecklistItem(checklistID, req)
+		resp, err := client.CreateChecklistItem(ctx, checklistID, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -120,6 +125,7 @@ var checklistItemUpdateCmd = &cobra.Command{
 	Short: "Update a checklist item",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		checklistID, _ := cmd.Flags().GetString("checklist")
 		itemID, _ := cmd.Flags().GetString("id")
 		name, _ := cmd.Flags().GetString("name")
@@ -146,7 +152,7 @@ var checklistItemUpdateCmd = &cobra.Command{
 			req.Parent = &parent
 		}
 
-		resp, err := client.EditChecklistItem(checklistID, itemID, req)
+		resp, err := client.EditChecklistItem(ctx, checklistID, itemID, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -160,6 +166,7 @@ var checklistItemDeleteCmd = &cobra.Command{
 	Short: "Delete a checklist item",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		checklistID, _ := cmd.Flags().GetString("checklist")
 		itemID, _ := cmd.Flags().GetString("id")
 
@@ -168,7 +175,7 @@ var checklistItemDeleteCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.DeleteChecklistItem(checklistID, itemID); err != nil {
+		if err := client.DeleteChecklistItem(ctx, checklistID, itemID); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})

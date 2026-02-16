@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -41,7 +42,8 @@ var authLoginCmd = &cobra.Command{
 
 		// Validate token by calling /v2/user
 		client := api.NewClient(token)
-		user, err := client.GetUser()
+		ctx := context.Background()
+		user, err := client.GetUser(ctx)
 		if err != nil {
 			return handleError(err)
 		}
@@ -66,7 +68,8 @@ var authWhoamiCmd = &cobra.Command{
 	Short: "Show current authenticated user",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
-		user, err := client.GetUser()
+		ctx := context.Background()
+		user, err := client.GetUser(ctx)
 		if err != nil {
 			return handleError(err)
 		}

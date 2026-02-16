@@ -1,6 +1,9 @@
 package api
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type Goal struct {
 	ID               string      `json:"id"`
@@ -70,59 +73,59 @@ type KeyResultResponse struct {
 }
 
 type CreateKeyResultRequest struct {
-	Name       string `json:"name"`
-	Owners     []int  `json:"owners"`
-	Type       string `json:"type"`
-	StepsStart int    `json:"steps_start"`
-	StepsEnd   int    `json:"steps_end"`
-	Unit       string `json:"unit"`
+	Name       string   `json:"name"`
+	Owners     []int    `json:"owners"`
+	Type       string   `json:"type"`
+	StepsStart int      `json:"steps_start"`
+	StepsEnd   int      `json:"steps_end"`
+	Unit       string   `json:"unit"`
 	TaskIDs    []string `json:"task_ids,omitempty"`
 	ListIDs    []string `json:"list_ids,omitempty"`
 }
 
-func (c *Client) GetGoals(teamID string, includeCompleted bool) (*GoalsResponse, error) {
+func (c *Client) GetGoals(ctx context.Context, teamID string, includeCompleted bool) (*GoalsResponse, error) {
 	path := fmt.Sprintf("/v2/team/%s/goal", teamID)
 	if includeCompleted {
 		path += "?include_completed=true"
 	}
 	var resp GoalsResponse
-	if err := c.Do("GET", path, nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) GetGoal(goalID string) (*GoalResponse, error) {
+func (c *Client) GetGoal(ctx context.Context, goalID string) (*GoalResponse, error) {
 	var resp GoalResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/goal/%s", goalID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/goal/%s", goalID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) CreateGoal(teamID string, req *CreateGoalRequest) (*GoalResponse, error) {
+func (c *Client) CreateGoal(ctx context.Context, teamID string, req *CreateGoalRequest) (*GoalResponse, error) {
 	var resp GoalResponse
-	if err := c.Do("POST", fmt.Sprintf("/v2/team/%s/goal", teamID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/team/%s/goal", teamID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) UpdateGoal(goalID string, req *UpdateGoalRequest) (*GoalResponse, error) {
+func (c *Client) UpdateGoal(ctx context.Context, goalID string, req *UpdateGoalRequest) (*GoalResponse, error) {
 	var resp GoalResponse
-	if err := c.Do("PUT", fmt.Sprintf("/v2/goal/%s", goalID), req, &resp); err != nil {
+	if err := c.Do(ctx, "PUT", fmt.Sprintf("/v2/goal/%s", goalID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) DeleteGoal(goalID string) error {
-	return c.Do("DELETE", fmt.Sprintf("/v2/goal/%s", goalID), nil, nil)
+func (c *Client) DeleteGoal(ctx context.Context, goalID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/goal/%s", goalID), nil, nil)
 }
 
-func (c *Client) CreateKeyResult(goalID string, req *CreateKeyResultRequest) (*KeyResultResponse, error) {
+func (c *Client) CreateKeyResult(ctx context.Context, goalID string, req *CreateKeyResultRequest) (*KeyResultResponse, error) {
 	var resp KeyResultResponse
-	if err := c.Do("POST", fmt.Sprintf("/v2/goal/%s/key_result", goalID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/goal/%s/key_result", goalID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil

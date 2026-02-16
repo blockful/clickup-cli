@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -19,20 +20,20 @@ type CustomField struct {
 }
 
 type Checklist struct {
-	ID          string      `json:"id"`
-	TaskID      string      `json:"task_id"`
-	Name        string      `json:"name"`
-	OrderIndex  int         `json:"orderindex"`
-	Resolved    int         `json:"resolved"`
-	Unresolved  int         `json:"unresolved"`
-	Items       interface{} `json:"items,omitempty"`
+	ID         string      `json:"id"`
+	TaskID     string      `json:"task_id"`
+	Name       string      `json:"name"`
+	OrderIndex int         `json:"orderindex"`
+	Resolved   int         `json:"resolved"`
+	Unresolved int         `json:"unresolved"`
+	Items      interface{} `json:"items,omitempty"`
 }
 
 type LinkedTask struct {
-	TaskID     string `json:"task_id"`
-	LinkID     string `json:"link_id"`
+	TaskID      string `json:"task_id"`
+	LinkID      string `json:"link_id"`
 	DateCreated string `json:"date_created"`
-	Userid     string `json:"userid"`
+	Userid      string `json:"userid"`
 }
 
 type Dependency struct {
@@ -55,34 +56,34 @@ type Attachment struct {
 }
 
 type Task struct {
-	ID                   string          `json:"id"`
-	CustomID             string          `json:"custom_id,omitempty"`
-	Name                 string          `json:"name"`
-	Description          string          `json:"description,omitempty"`
-	MarkdownDescription  string          `json:"markdown_description,omitempty"`
-	Status               TaskStatus      `json:"status"`
-	OrderIndex           string          `json:"orderindex"`
-	DateCreated          string          `json:"date_created"`
-	DateUpdated          string          `json:"date_updated,omitempty"`
-	DateClosed           string          `json:"date_closed,omitempty"`
-	Creator              User            `json:"creator"`
-	Assignees            []User          `json:"assignees"`
-	Watchers             []User          `json:"watchers,omitempty"`
-	Tags                 []TaskTag       `json:"tags"`
-	Parent               interface{}     `json:"parent"`
-	Priority             *TaskPriority   `json:"priority"`
-	DueDate              string          `json:"due_date,omitempty"`
-	StartDate            string          `json:"start_date,omitempty"`
-	Points               interface{}     `json:"points"`
-	TimeEstimate         interface{}     `json:"time_estimate"`
-	TimeSpent            interface{}     `json:"time_spent,omitempty"`
-	CustomFields         []CustomField   `json:"custom_fields,omitempty"`
-	Checklists           []Checklist     `json:"checklists,omitempty"`
-	LinkedTasks          []LinkedTask    `json:"linked_tasks,omitempty"`
-	Dependencies         []Dependency    `json:"dependencies,omitempty"`
-	Attachments          []Attachment    `json:"attachments,omitempty"`
-	URL                  string          `json:"url"`
-	List                 struct {
+	ID                  string        `json:"id"`
+	CustomID            string        `json:"custom_id,omitempty"`
+	Name                string        `json:"name"`
+	Description         string        `json:"description,omitempty"`
+	MarkdownDescription string        `json:"markdown_description,omitempty"`
+	Status              TaskStatus    `json:"status"`
+	OrderIndex          string        `json:"orderindex"`
+	DateCreated         string        `json:"date_created"`
+	DateUpdated         string        `json:"date_updated,omitempty"`
+	DateClosed          string        `json:"date_closed,omitempty"`
+	Creator             User          `json:"creator"`
+	Assignees           []User        `json:"assignees"`
+	Watchers            []User        `json:"watchers,omitempty"`
+	Tags                []TaskTag     `json:"tags"`
+	Parent              interface{}   `json:"parent"`
+	Priority            *TaskPriority `json:"priority"`
+	DueDate             string        `json:"due_date,omitempty"`
+	StartDate           string        `json:"start_date,omitempty"`
+	Points              interface{}   `json:"points"`
+	TimeEstimate        interface{}   `json:"time_estimate"`
+	TimeSpent           interface{}   `json:"time_spent,omitempty"`
+	CustomFields        []CustomField `json:"custom_fields,omitempty"`
+	Checklists          []Checklist   `json:"checklists,omitempty"`
+	LinkedTasks         []LinkedTask  `json:"linked_tasks,omitempty"`
+	Dependencies        []Dependency  `json:"dependencies,omitempty"`
+	Attachments         []Attachment  `json:"attachments,omitempty"`
+	URL                 string        `json:"url"`
+	List                struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
 	} `json:"list"`
@@ -143,7 +144,7 @@ type ListTasksOptions struct {
 	CustomItems     []int
 }
 
-func (c *Client) ListTasks(listID string, opts *ListTasksOptions) (*TasksResponse, error) {
+func (c *Client) ListTasks(ctx context.Context, listID string, opts *ListTasksOptions) (*TasksResponse, error) {
 	params := url.Values{}
 	if opts != nil {
 		for _, s := range opts.Statuses {
@@ -221,7 +222,7 @@ func (c *Client) ListTasks(listID string, opts *ListTasksOptions) (*TasksRespons
 	}
 
 	var resp TasksResponse
-	if err := c.Do("GET", path, nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -234,7 +235,7 @@ type GetTaskOptions struct {
 	IncludeMarkdown bool
 }
 
-func (c *Client) GetTask(taskID string, opts ...GetTaskOptions) (*Task, error) {
+func (c *Client) GetTask(ctx context.Context, taskID string, opts ...GetTaskOptions) (*Task, error) {
 	params := url.Values{}
 	if len(opts) > 0 {
 		o := opts[0]
@@ -257,7 +258,7 @@ func (c *Client) GetTask(taskID string, opts ...GetTaskOptions) (*Task, error) {
 		path += "?" + q
 	}
 	var resp Task
-	if err := c.Do("GET", path, nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -288,9 +289,9 @@ type CreateTaskRequest struct {
 	CustomItemID        *int               `json:"custom_item_id,omitempty"`
 }
 
-func (c *Client) CreateTask(listID string, req *CreateTaskRequest) (*Task, error) {
+func (c *Client) CreateTask(ctx context.Context, listID string, req *CreateTaskRequest) (*Task, error) {
 	var resp Task
-	if err := c.Do("POST", fmt.Sprintf("/v2/list/%s/task", listID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/task", listID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -322,7 +323,7 @@ type UpdateTaskOptions struct {
 	TeamID        string
 }
 
-func (c *Client) UpdateTask(taskID string, req *UpdateTaskRequest, opts ...UpdateTaskOptions) (*Task, error) {
+func (c *Client) UpdateTask(ctx context.Context, taskID string, req *UpdateTaskRequest, opts ...UpdateTaskOptions) (*Task, error) {
 	params := url.Values{}
 	if len(opts) > 0 {
 		o := opts[0]
@@ -339,14 +340,14 @@ func (c *Client) UpdateTask(taskID string, req *UpdateTaskRequest, opts ...Updat
 		path += "?" + q
 	}
 	var resp Task
-	if err := c.Do("PUT", path, req, &resp); err != nil {
+	if err := c.Do(ctx, "PUT", path, req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) DeleteTask(taskID string) error {
-	return c.Do("DELETE", fmt.Sprintf("/v2/task/%s", taskID), nil, nil)
+func (c *Client) DeleteTask(ctx context.Context, taskID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s", taskID), nil, nil)
 }
 
 // SearchTasks searches tasks across a workspace (GET /v2/team/{team_id}/task).
@@ -376,7 +377,7 @@ type SearchTasksOptions struct {
 	IncludeMarkdown bool
 }
 
-func (c *Client) SearchTasks(teamID string, opts *SearchTasksOptions) (*TasksResponse, error) {
+func (c *Client) SearchTasks(ctx context.Context, teamID string, opts *SearchTasksOptions) (*TasksResponse, error) {
 	params := url.Values{}
 	if opts != nil {
 		if opts.Page > 0 {
@@ -455,30 +456,10 @@ func (c *Client) SearchTasks(teamID string, opts *SearchTasksOptions) (*TasksRes
 		path += "?" + q
 	}
 	var resp TasksResponse
-	if err := c.Do("GET", path, nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
-}
-
-// StringPtr returns a pointer to the given string.
-func StringPtr(s string) *string {
-	return &s
-}
-
-// IntPtr returns a pointer to the given int.
-func IntPtr(i int) *int {
-	return &i
-}
-
-// Int64Ptr returns a pointer to the given int64.
-func Int64Ptr(i int64) *int64 {
-	return &i
-}
-
-// BoolPtr returns a pointer to the given bool.
-func BoolPtr(b bool) *bool {
-	return &b
 }
 
 // ParseCustomFields parses a JSON string into a slice of CustomFieldValue.

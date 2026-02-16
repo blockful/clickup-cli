@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ var viewListCmd = &cobra.Command{
 	Short: "List views at workspace/space/folder/list level",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		spaceID, _ := cmd.Flags().GetString("space")
 		folderID, _ := cmd.Flags().GetString("folder")
 		listID, _ := cmd.Flags().GetString("list")
@@ -25,14 +27,14 @@ var viewListCmd = &cobra.Command{
 
 		switch {
 		case listID != "":
-			resp, err = client.GetListViews(listID)
+			resp, err = client.GetListViews(ctx, listID)
 		case folderID != "":
-			resp, err = client.GetFolderViews(folderID)
+			resp, err = client.GetFolderViews(ctx, folderID)
 		case spaceID != "":
-			resp, err = client.GetSpaceViews(spaceID)
+			resp, err = client.GetSpaceViews(ctx, spaceID)
 		default:
 			wid := getWorkspaceID(cmd)
-			resp, err = client.GetTeamViews(wid)
+			resp, err = client.GetTeamViews(ctx, wid)
 		}
 
 		if err != nil {
@@ -48,12 +50,13 @@ var viewGetCmd = &cobra.Command{
 	Short: "Get a view by ID",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetView(id)
+		resp, err := client.GetView(ctx, id)
 		if err != nil {
 			return handleError(err)
 		}
@@ -67,6 +70,7 @@ var viewCreateCmd = &cobra.Command{
 	Short: "Create a view",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		name, _ := cmd.Flags().GetString("name")
 		viewType, _ := cmd.Flags().GetString("type")
 		spaceID, _ := cmd.Flags().GetString("space")
@@ -84,14 +88,14 @@ var viewCreateCmd = &cobra.Command{
 
 		switch {
 		case listID != "":
-			resp, err = client.CreateListView(listID, req)
+			resp, err = client.CreateListView(ctx, listID, req)
 		case folderID != "":
-			resp, err = client.CreateFolderView(folderID, req)
+			resp, err = client.CreateFolderView(ctx, folderID, req)
 		case spaceID != "":
-			resp, err = client.CreateSpaceView(spaceID, req)
+			resp, err = client.CreateSpaceView(ctx, spaceID, req)
 		default:
 			wid := getWorkspaceID(cmd)
-			resp, err = client.CreateTeamView(wid, req)
+			resp, err = client.CreateTeamView(ctx, wid, req)
 		}
 
 		if err != nil {
@@ -107,6 +111,7 @@ var viewUpdateCmd = &cobra.Command{
 	Short: "Update a view",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		name, _ := cmd.Flags().GetString("name")
 
@@ -116,7 +121,7 @@ var viewUpdateCmd = &cobra.Command{
 		}
 
 		req := &api.UpdateViewRequest{Name: name}
-		resp, err := client.UpdateView(id, req)
+		resp, err := client.UpdateView(ctx, id, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -130,12 +135,13 @@ var viewDeleteCmd = &cobra.Command{
 	Short: "Delete a view",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteView(id); err != nil {
+		if err := client.DeleteView(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -148,13 +154,14 @@ var viewTasksCmd = &cobra.Command{
 	Short: "Get tasks in a view",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		page, _ := cmd.Flags().GetInt("page")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetViewTasks(id, page)
+		resp, err := client.GetViewTasks(ctx, id, page)
 		if err != nil {
 			return handleError(err)
 		}

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestListTasksOptions_AllParams(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name   string
 		opts   *ListTasksOptions
@@ -17,8 +19,8 @@ func TestListTasksOptions_AllParams(t *testing.T) {
 			name: "archived and markdown",
 			opts: &ListTasksOptions{Archived: true, IncludeMarkdown: true},
 			expect: map[string]string{
-				"archived":                       "true",
-				"include_markdown_description":    "true",
+				"archived":                     "true",
+				"include_markdown_description": "true",
 			},
 		},
 		{
@@ -53,7 +55,7 @@ func TestListTasksOptions_AllParams(t *testing.T) {
 			defer srv.Close()
 
 			c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-			_, err := c.ListTasks("list1", tc.opts)
+			_, err := c.ListTasks(ctx, "list1", tc.opts)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -62,6 +64,7 @@ func TestListTasksOptions_AllParams(t *testing.T) {
 }
 
 func TestGetTask_WithOptions(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Query().Get("include_subtasks") != "true" {
 			t.Error("expected include_subtasks=true")
@@ -74,7 +77,7 @@ func TestGetTask_WithOptions(t *testing.T) {
 	defer srv.Close()
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	task, err := c.GetTask("t1", GetTaskOptions{IncludeSubtasks: true, IncludeMarkdown: true})
+	task, err := c.GetTask(ctx, "t1", GetTaskOptions{IncludeSubtasks: true, IncludeMarkdown: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,6 +87,7 @@ func TestGetTask_WithOptions(t *testing.T) {
 }
 
 func TestCreateTask_AllFields(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req CreateTaskRequest
 		json.NewDecoder(r.Body).Decode(&req)
@@ -105,7 +109,7 @@ func TestCreateTask_AllFields(t *testing.T) {
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
 	dd := int64(12345)
-	_, err := c.CreateTask("list1", &CreateTaskRequest{
+	_, err := c.CreateTask(ctx, "list1", &CreateTaskRequest{
 		Name:      "test",
 		Parent:    "parent1",
 		DueDate:   &dd,
@@ -117,6 +121,7 @@ func TestCreateTask_AllFields(t *testing.T) {
 }
 
 func TestUpdateTask_WithAssignees(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req UpdateTaskRequest
 		json.NewDecoder(r.Body).Decode(&req)
@@ -134,7 +139,7 @@ func TestUpdateTask_WithAssignees(t *testing.T) {
 	defer srv.Close()
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.UpdateTask("t1", &UpdateTaskRequest{
+	_, err := c.UpdateTask(ctx, "t1", &UpdateTaskRequest{
 		Assignees: &UpdateTaskAssignees{Add: []int{42}},
 	}, UpdateTaskOptions{CustomTaskIDs: true})
 	if err != nil {
@@ -143,6 +148,7 @@ func TestUpdateTask_WithAssignees(t *testing.T) {
 }
 
 func TestSearchTasks(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/team/team1/task" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -155,7 +161,7 @@ func TestSearchTasks(t *testing.T) {
 	defer srv.Close()
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.SearchTasks("team1", &SearchTasksOptions{IncludeClosed: true})
+	_, err := c.SearchTasks(ctx, "team1", &SearchTasksOptions{IncludeClosed: true})
 	if err != nil {
 		t.Fatal(err)
 	}

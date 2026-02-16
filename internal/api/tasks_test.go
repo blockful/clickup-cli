@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestGetTask(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		taskID     string
@@ -66,9 +68,10 @@ func TestGetTask(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			task, err := client.GetTask(tt.taskID)
+			task, err := client.GetTask(ctx, tt.taskID)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error, got nil")
@@ -89,6 +92,7 @@ func TestGetTask(t *testing.T) {
 }
 
 func TestCreateTask(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		listID     string
@@ -135,9 +139,10 @@ func TestCreateTask(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			task, err := client.CreateTask(tt.listID, tt.req)
+			task, err := client.CreateTask(ctx, tt.listID, tt.req)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")
@@ -158,6 +163,7 @@ func TestCreateTask(t *testing.T) {
 }
 
 func TestUpdateTask(t *testing.T) {
+	ctx := context.Background()
 	name := "Updated"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "PUT" {
@@ -169,9 +175,10 @@ func TestUpdateTask(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient("pk_test")
+	client.MaxRetries = 0
 	client.BaseURL = server.URL
 
-	task, err := client.UpdateTask("t1", &UpdateTaskRequest{Name: &name})
+	task, err := client.UpdateTask(ctx, "t1", &UpdateTaskRequest{Name: &name})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -181,6 +188,7 @@ func TestUpdateTask(t *testing.T) {
 }
 
 func TestDeleteTask(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		taskID     string
@@ -205,9 +213,10 @@ func TestDeleteTask(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			err := client.DeleteTask(tt.taskID)
+			err := client.DeleteTask(ctx, tt.taskID)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")
@@ -223,6 +232,7 @@ func TestDeleteTask(t *testing.T) {
 }
 
 func TestListTasks(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name      string
 		listID    string
@@ -235,15 +245,15 @@ func TestListTasks(t *testing.T) {
 			opts:   nil,
 		},
 		{
-			name:   "with pagination",
-			listID: "list1",
-			opts:   &ListTasksOptions{Page: 2},
+			name:      "with pagination",
+			listID:    "list1",
+			opts:      &ListTasksOptions{Page: 2},
 			wantQuery: map[string]string{"page": "2"},
 		},
 		{
-			name:   "with filters",
-			listID: "list1",
-			opts:   &ListTasksOptions{Reverse: true, Subtasks: true, IncludeClosed: true, OrderBy: "created"},
+			name:      "with filters",
+			listID:    "list1",
+			opts:      &ListTasksOptions{Reverse: true, Subtasks: true, IncludeClosed: true, OrderBy: "created"},
 			wantQuery: map[string]string{"reverse": "true", "subtasks": "true", "include_closed": "true", "order_by": "created"},
 		},
 	}
@@ -262,9 +272,10 @@ func TestListTasks(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.ListTasks(tt.listID, tt.opts)
+			resp, err := client.ListTasks(ctx, tt.listID, tt.opts)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}

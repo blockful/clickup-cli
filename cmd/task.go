@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ var taskListCmd = &cobra.Command{
 	Short: "List tasks in a list",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		listID, _ := cmd.Flags().GetString("list")
 		if listID == "" {
 			output.PrintError("VALIDATION_ERROR", "--list is required")
@@ -46,7 +48,7 @@ var taskListCmd = &cobra.Command{
 		opts.CustomFields, _ = cmd.Flags().GetString("custom-fields")
 		opts.CustomItems, _ = cmd.Flags().GetIntSlice("custom-items")
 
-		resp, err := client.ListTasks(listID, opts)
+		resp, err := client.ListTasks(ctx, listID, opts)
 		if err != nil {
 			return handleError(err)
 		}
@@ -60,6 +62,7 @@ var taskGetCmd = &cobra.Command{
 	Short: "Get a task by ID",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
@@ -71,7 +74,7 @@ var taskGetCmd = &cobra.Command{
 		getOpts.IncludeSubtasks, _ = cmd.Flags().GetBool("include-subtasks")
 		getOpts.IncludeMarkdown, _ = cmd.Flags().GetBool("include-markdown")
 
-		resp, err := client.GetTask(id, getOpts)
+		resp, err := client.GetTask(ctx, id, getOpts)
 		if err != nil {
 			return handleError(err)
 		}
@@ -85,6 +88,7 @@ var taskCreateCmd = &cobra.Command{
 	Short: "Create a new task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		listID, _ := cmd.Flags().GetString("list")
 		if listID == "" {
 			output.PrintError("VALIDATION_ERROR", "--list is required")
@@ -150,7 +154,7 @@ var taskCreateCmd = &cobra.Command{
 			req.CustomFields = fields
 		}
 
-		resp, err := client.CreateTask(listID, req)
+		resp, err := client.CreateTask(ctx, listID, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -164,6 +168,7 @@ var taskUpdateCmd = &cobra.Command{
 	Short: "Update a task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
@@ -226,7 +231,7 @@ var taskUpdateCmd = &cobra.Command{
 		updateOpts.CustomTaskIDs, _ = cmd.Flags().GetBool("custom-task-ids")
 		updateOpts.TeamID, _ = cmd.Flags().GetString("team-id")
 
-		resp, err := client.UpdateTask(id, req, updateOpts)
+		resp, err := client.UpdateTask(ctx, id, req, updateOpts)
 		if err != nil {
 			return handleError(err)
 		}
@@ -240,12 +245,13 @@ var taskDeleteCmd = &cobra.Command{
 	Short: "Delete a task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteTask(id); err != nil {
+		if err := client.DeleteTask(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"message": "task deleted", "id": id})
@@ -258,6 +264,7 @@ var taskSearchCmd = &cobra.Command{
 	Short: "Search tasks across a workspace",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		teamID := getWorkspaceID(cmd)
 
 		opts := &api.SearchTasksOptions{}
@@ -285,7 +292,7 @@ var taskSearchCmd = &cobra.Command{
 		opts.SpaceIDs, _ = cmd.Flags().GetStringSlice("space-ids")
 		opts.FolderIDs, _ = cmd.Flags().GetStringSlice("folder-ids")
 
-		resp, err := client.SearchTasks(teamID, opts)
+		resp, err := client.SearchTasks(ctx, teamID, opts)
 		if err != nil {
 			return handleError(err)
 		}

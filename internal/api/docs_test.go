@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestCreateDoc(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v3/workspaces/w1/docs" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -21,7 +23,7 @@ func TestCreateDoc(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.CreateDoc("w1", &CreateDocRequest{Name: "My Doc"})
+	resp, err := c.CreateDoc(ctx, "w1", &CreateDocRequest{Name: "My Doc"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,6 +33,7 @@ func TestCreateDoc(t *testing.T) {
 }
 
 func TestSearchDocs(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v3/workspaces/w1/docs" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -39,7 +42,7 @@ func TestSearchDocs(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.SearchDocs("w1")
+	resp, err := c.SearchDocs(ctx, "w1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,6 +52,7 @@ func TestSearchDocs(t *testing.T) {
 }
 
 func TestGetDoc(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v3/workspaces/w1/docs/d1" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -57,7 +61,7 @@ func TestGetDoc(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetDoc("w1", "d1")
+	resp, err := c.GetDoc(ctx, "w1", "d1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,6 +71,7 @@ func TestGetDoc(t *testing.T) {
 }
 
 func TestCreatePage(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v3/workspaces/w1/docs/d1/pages" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -75,7 +80,7 @@ func TestCreatePage(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.CreatePage("w1", "d1", &CreatePageRequest{Name: "Page 1"})
+	resp, err := c.CreatePage(ctx, "w1", "d1", &CreatePageRequest{Name: "Page 1"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,6 +90,7 @@ func TestCreatePage(t *testing.T) {
 }
 
 func TestGetPage(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v3/workspaces/w1/docs/d1/pages/p1" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -93,7 +99,7 @@ func TestGetPage(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetPage("w1", "d1", "p1")
+	resp, err := c.GetPage(ctx, "w1", "d1", "p1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,6 +109,7 @@ func TestGetPage(t *testing.T) {
 }
 
 func TestEditPage(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "PUT" || r.URL.Path != "/v3/workspaces/w1/docs/d1/pages/p1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -111,7 +118,7 @@ func TestEditPage(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.EditPage("w1", "d1", "p1", &EditPageRequest{Name: "Updated"})
+	resp, err := c.EditPage(ctx, "w1", "d1", "p1", &EditPageRequest{Name: "Updated"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,6 +128,7 @@ func TestEditPage(t *testing.T) {
 }
 
 func TestGetDocPageListing(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v3/workspaces/w1/docs/d1/page_listing" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -129,7 +137,7 @@ func TestGetDocPageListing(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetDocPageListing("w1", "d1")
+	resp, err := c.GetDocPageListing(ctx, "w1", "d1")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ var commentListCmd = &cobra.Command{
 	Short: "List comments on a task or list",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		taskID, _ := cmd.Flags().GetString("task")
 		listID, _ := cmd.Flags().GetString("list")
 		if taskID == "" && listID == "" {
@@ -23,14 +25,14 @@ var commentListCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 		if listID != "" {
-			resp, err := client.ListListComments(listID)
+			resp, err := client.ListListComments(ctx, listID)
 			if err != nil {
 				return handleError(err)
 			}
 			output.JSON(resp)
 			return nil
 		}
-		resp, err := client.ListComments(taskID)
+		resp, err := client.ListComments(ctx, taskID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -44,6 +46,7 @@ var commentCreateCmd = &cobra.Command{
 	Short: "Add a comment to a task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		taskID, _ := cmd.Flags().GetString("task")
 		listID, _ := cmd.Flags().GetString("list")
 		if taskID == "" && listID == "" {
@@ -63,14 +66,14 @@ var commentCreateCmd = &cobra.Command{
 		req.NotifyAll, _ = cmd.Flags().GetBool("notify-all")
 
 		if listID != "" {
-			resp, err := client.CreateListComment(listID, req)
+			resp, err := client.CreateListComment(ctx, listID, req)
 			if err != nil {
 				return handleError(err)
 			}
 			output.JSON(resp)
 			return nil
 		}
-		resp, err := client.CreateComment(taskID, req)
+		resp, err := client.CreateComment(ctx, taskID, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -84,6 +87,7 @@ var commentUpdateCmd = &cobra.Command{
 	Short: "Update a comment",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
@@ -103,7 +107,7 @@ var commentUpdateCmd = &cobra.Command{
 			v, _ := cmd.Flags().GetBool("resolved")
 			req.Resolved = api.BoolPtr(v)
 		}
-		if err := client.UpdateComment(id, req); err != nil {
+		if err := client.UpdateComment(ctx, id, req); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"message": "comment updated", "id": id})
@@ -116,12 +120,13 @@ var commentDeleteCmd = &cobra.Command{
 	Short: "Delete a comment",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteComment(id); err != nil {
+		if err := client.DeleteComment(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"message": "comment deleted", "id": id})

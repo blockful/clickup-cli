@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestUpdateSpace(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "PUT" {
 			t.Errorf("method: %s", r.Method)
@@ -22,7 +24,7 @@ func TestUpdateSpace(t *testing.T) {
 	defer srv.Close()
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	s, err := c.UpdateSpace("s1", &UpdateSpaceRequest{Name: "newname"})
+	s, err := c.UpdateSpace(ctx, "s1", &UpdateSpaceRequest{Name: "newname"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,6 +34,7 @@ func TestUpdateSpace(t *testing.T) {
 }
 
 func TestDeleteSpace(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" {
 			t.Errorf("method: %s", r.Method)
@@ -41,7 +44,7 @@ func TestDeleteSpace(t *testing.T) {
 	defer srv.Close()
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.DeleteSpace("s1"); err != nil {
+	if err := c.DeleteSpace(ctx, "s1"); err != nil {
 		t.Fatal(err)
 	}
 }

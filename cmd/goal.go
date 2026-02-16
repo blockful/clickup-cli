@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,9 +17,10 @@ var goalListCmd = &cobra.Command{
 	Short: "List goals",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		includeCompleted, _ := cmd.Flags().GetBool("include-completed")
-		resp, err := client.GetGoals(wid, includeCompleted)
+		resp, err := client.GetGoals(ctx, wid, includeCompleted)
 		if err != nil {
 			return handleError(err)
 		}
@@ -32,12 +34,13 @@ var goalGetCmd = &cobra.Command{
 	Short: "Get a goal",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetGoal(id)
+		resp, err := client.GetGoal(ctx, id)
 		if err != nil {
 			return handleError(err)
 		}
@@ -51,6 +54,7 @@ var goalCreateCmd = &cobra.Command{
 	Short: "Create a goal",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		name, _ := cmd.Flags().GetString("name")
 		dueDate, _ := cmd.Flags().GetInt64("due-date")
@@ -71,7 +75,7 @@ var goalCreateCmd = &cobra.Command{
 			MultipleOwners: multipleOwners,
 		}
 
-		resp, err := client.CreateGoal(wid, req)
+		resp, err := client.CreateGoal(ctx, wid, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -85,6 +89,7 @@ var goalUpdateCmd = &cobra.Command{
 	Short: "Update a goal",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
@@ -102,7 +107,7 @@ var goalUpdateCmd = &cobra.Command{
 			req.Color, _ = cmd.Flags().GetString("color")
 		}
 
-		resp, err := client.UpdateGoal(id, req)
+		resp, err := client.UpdateGoal(ctx, id, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -116,12 +121,13 @@ var goalDeleteCmd = &cobra.Command{
 	Short: "Delete a goal",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteGoal(id); err != nil {
+		if err := client.DeleteGoal(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})

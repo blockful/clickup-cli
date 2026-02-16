@@ -1,400 +1,446 @@
 package testutil
 
-import "github.com/blockful/clickup-cli/internal/api"
+import (
+	"context"
+
+	"github.com/blockful/clickup-cli/internal/api"
+)
 
 // MockClient implements api.ClientInterface for testing.
 type MockClient struct {
-	GetUserFn              func() (*api.UserResponse, error)
-	ListWorkspacesFn       func() (*api.WorkspacesResponse, error)
-	ListSpacesFn           func(workspaceID string) (*api.SpacesResponse, error)
-	GetSpaceFn             func(spaceID string) (*api.Space, error)
-	CreateSpaceFn          func(workspaceID string, req *api.CreateSpaceRequest) (*api.Space, error)
-	UpdateSpaceFn          func(spaceID string, req *api.UpdateSpaceRequest) (*api.Space, error)
-	DeleteSpaceFn          func(spaceID string) error
-	ListFoldersFn          func(spaceID string) (*api.FoldersResponse, error)
-	GetFolderFn            func(folderID string) (*api.Folder, error)
-	CreateFolderFn         func(spaceID string, req *api.CreateFolderRequest) (*api.Folder, error)
-	UpdateFolderFn         func(folderID string, req *api.UpdateFolderRequest) (*api.Folder, error)
-	DeleteFolderFn         func(folderID string) error
-	ListListsFn            func(folderID string) (*api.ListsResponse, error)
-	ListFolderlessListsFn  func(spaceID string) (*api.ListsResponse, error)
-	GetListFn              func(listID string) (*api.List, error)
-	CreateListFn           func(folderID string, req *api.CreateListRequest) (*api.List, error)
-	CreateFolderlessListFn func(spaceID string, req *api.CreateListRequest) (*api.List, error)
-	UpdateListFn           func(listID string, req *api.UpdateListRequest) (*api.List, error)
-	DeleteListFn           func(listID string) error
-	ListTasksFn            func(listID string, opts *api.ListTasksOptions) (*api.TasksResponse, error)
-	GetTaskFn              func(taskID string, opts ...api.GetTaskOptions) (*api.Task, error)
-	CreateTaskFn           func(listID string, req *api.CreateTaskRequest) (*api.Task, error)
-	UpdateTaskFn           func(taskID string, req *api.UpdateTaskRequest, opts ...api.UpdateTaskOptions) (*api.Task, error)
-	DeleteTaskFn           func(taskID string) error
-	SearchTasksFn          func(teamID string, opts *api.SearchTasksOptions) (*api.TasksResponse, error)
-	ListCommentsFn         func(taskID string) (*api.CommentsResponse, error)
-	ListListCommentsFn     func(listID string) (*api.CommentsResponse, error)
-	CreateCommentFn        func(taskID string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
-	CreateListCommentFn    func(listID string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
-	UpdateCommentFn        func(commentID string, req *api.UpdateCommentRequest) error
-	DeleteCommentFn        func(commentID string) error
+	GetUserFn              func(context.Context) (*api.UserResponse, error)
+	ListWorkspacesFn       func(context.Context) (*api.WorkspacesResponse, error)
+	ListSpacesFn           func(context.Context, string) (*api.SpacesResponse, error)
+	GetSpaceFn             func(context.Context, string) (*api.Space, error)
+	CreateSpaceFn          func(context.Context, string, *api.CreateSpaceRequest) (*api.Space, error)
+	UpdateSpaceFn          func(context.Context, string, *api.UpdateSpaceRequest) (*api.Space, error)
+	DeleteSpaceFn          func(context.Context, string) error
+	ListFoldersFn          func(context.Context, string) (*api.FoldersResponse, error)
+	GetFolderFn            func(context.Context, string) (*api.Folder, error)
+	CreateFolderFn         func(context.Context, string, *api.CreateFolderRequest) (*api.Folder, error)
+	UpdateFolderFn         func(context.Context, string, *api.UpdateFolderRequest) (*api.Folder, error)
+	DeleteFolderFn         func(context.Context, string) error
+	ListListsFn            func(context.Context, string) (*api.ListsResponse, error)
+	ListFolderlessListsFn  func(context.Context, string) (*api.ListsResponse, error)
+	GetListFn              func(context.Context, string) (*api.List, error)
+	CreateListFn           func(context.Context, string, *api.CreateListRequest) (*api.List, error)
+	CreateFolderlessListFn func(context.Context, string, *api.CreateListRequest) (*api.List, error)
+	UpdateListFn           func(context.Context, string, *api.UpdateListRequest) (*api.List, error)
+	DeleteListFn           func(context.Context, string) error
+	ListTasksFn            func(context.Context, string, *api.ListTasksOptions) (*api.TasksResponse, error)
+	GetTaskFn              func(context.Context, string, ...api.GetTaskOptions) (*api.Task, error)
+	CreateTaskFn           func(context.Context, string, *api.CreateTaskRequest) (*api.Task, error)
+	UpdateTaskFn           func(context.Context, string, *api.UpdateTaskRequest, ...api.UpdateTaskOptions) (*api.Task, error)
+	DeleteTaskFn           func(context.Context, string) error
+	SearchTasksFn          func(context.Context, string, *api.SearchTasksOptions) (*api.TasksResponse, error)
+	ListCommentsFn         func(context.Context, string) (*api.CommentsResponse, error)
+	ListListCommentsFn     func(context.Context, string) (*api.CommentsResponse, error)
+	CreateCommentFn        func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
+	CreateListCommentFn    func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
+	UpdateCommentFn        func(context.Context, string, *api.UpdateCommentRequest) error
+	DeleteCommentFn        func(context.Context, string) error
 
 	// Custom Fields
-	GetListCustomFieldsFn      func(listID string) (*api.CustomFieldsResponse, error)
-	GetFolderCustomFieldsFn    func(folderID string) (*api.CustomFieldsResponse, error)
-	GetSpaceCustomFieldsFn     func(spaceID string) (*api.CustomFieldsResponse, error)
-	GetWorkspaceCustomFieldsFn func(teamID string) (*api.CustomFieldsResponse, error)
-	SetCustomFieldValueFn      func(taskID, fieldID string, req *api.SetCustomFieldRequest) error
-	RemoveCustomFieldValueFn   func(taskID, fieldID string) error
+	GetListCustomFieldsFn      func(context.Context, string) (*api.CustomFieldsResponse, error)
+	GetFolderCustomFieldsFn    func(context.Context, string) (*api.CustomFieldsResponse, error)
+	GetSpaceCustomFieldsFn     func(context.Context, string) (*api.CustomFieldsResponse, error)
+	GetWorkspaceCustomFieldsFn func(context.Context, string) (*api.CustomFieldsResponse, error)
+	SetCustomFieldValueFn      func(context.Context, string, string, *api.SetCustomFieldRequest) error
+	RemoveCustomFieldValueFn   func(context.Context, string, string) error
 
 	// Tags
-	GetSpaceTagsFn      func(spaceID string) (*api.TagsResponse, error)
-	CreateSpaceTagFn    func(spaceID string, req *api.CreateTagRequest) error
-	UpdateSpaceTagFn    func(spaceID, tagName string, req *api.UpdateTagRequest) error
-	DeleteSpaceTagFn    func(spaceID, tagName string) error
-	AddTagToTaskFn      func(taskID, tagName string) error
-	RemoveTagFromTaskFn func(taskID, tagName string) error
+	GetSpaceTagsFn      func(context.Context, string) (*api.TagsResponse, error)
+	CreateSpaceTagFn    func(context.Context, string, *api.CreateTagRequest) error
+	UpdateSpaceTagFn    func(context.Context, string, string, *api.UpdateTagRequest) error
+	DeleteSpaceTagFn    func(context.Context, string, string) error
+	AddTagToTaskFn      func(context.Context, string, string) error
+	RemoveTagFromTaskFn func(context.Context, string, string) error
 
 	// Checklists
-	CreateChecklistFn     func(taskID string, req *api.CreateChecklistRequest) (*api.ChecklistResponse, error)
-	EditChecklistFn       func(checklistID string, req *api.EditChecklistRequest) error
-	DeleteChecklistFn     func(checklistID string) error
-	CreateChecklistItemFn func(checklistID string, req *api.CreateChecklistItemRequest) (*api.ChecklistResponse, error)
-	EditChecklistItemFn   func(checklistID, checklistItemID string, req *api.EditChecklistItemRequest) (*api.ChecklistResponse, error)
-	DeleteChecklistItemFn func(checklistID, checklistItemID string) error
+	CreateChecklistFn     func(context.Context, string, *api.CreateChecklistRequest) (*api.ChecklistResponse, error)
+	EditChecklistFn       func(context.Context, string, *api.EditChecklistRequest) error
+	DeleteChecklistFn     func(context.Context, string) error
+	CreateChecklistItemFn func(context.Context, string, *api.CreateChecklistItemRequest) (*api.ChecklistResponse, error)
+	EditChecklistItemFn   func(context.Context, string, string, *api.EditChecklistItemRequest) (*api.ChecklistResponse, error)
+	DeleteChecklistItemFn func(context.Context, string, string) error
 
 	// Docs
-	CreateDocFn        func(workspaceID string, req *api.CreateDocRequest) (*api.Doc, error)
-	SearchDocsFn       func(workspaceID string) (*api.DocsResponse, error)
-	GetDocFn           func(workspaceID, docID string) (*api.Doc, error)
-	CreatePageFn       func(workspaceID, docID string, req *api.CreatePageRequest) (*api.DocPage, error)
-	GetPageFn          func(workspaceID, docID, pageID string) (*api.DocPage, error)
-	EditPageFn         func(workspaceID, docID, pageID string, req *api.EditPageRequest) (*api.DocPage, error)
-	GetDocPageListingFn func(workspaceID, docID string) (*api.DocPagesResponse, error)
+	CreateDocFn         func(context.Context, string, *api.CreateDocRequest) (*api.Doc, error)
+	SearchDocsFn        func(context.Context, string) (*api.DocsResponse, error)
+	GetDocFn            func(context.Context, string, string) (*api.Doc, error)
+	CreatePageFn        func(context.Context, string, string, *api.CreatePageRequest) (*api.DocPage, error)
+	GetPageFn           func(context.Context, string, string, string) (*api.DocPage, error)
+	EditPageFn          func(context.Context, string, string, string, *api.EditPageRequest) (*api.DocPage, error)
+	GetDocPageListingFn func(context.Context, string, string) (*api.DocPagesResponse, error)
 
 	// Time Tracking
-	GetTimeEntriesFn    func(teamID string, opts *api.ListTimeEntriesOptions) (*api.TimeEntriesResponse, error)
-	CreateTimeEntryFn   func(teamID string, req *api.CreateTimeEntryRequest) (*api.TimeEntry, error)
-	GetTimeEntryFn      func(teamID, timerID string) (*api.SingleTimeEntryResponse, error)
-	UpdateTimeEntryFn   func(teamID, timerID string, req *api.UpdateTimeEntryRequest) error
-	DeleteTimeEntryFn   func(teamID, timerID string) error
-	StartTimerFn        func(teamID string, req *api.StartTimerRequest) (*api.SingleTimeEntryResponse, error)
-	StopTimerFn         func(teamID string) (*api.SingleTimeEntryResponse, error)
-	GetRunningTimerFn   func(teamID string, assignee string) (*api.SingleTimeEntryResponse, error)
-	GetTimeEntryTagsFn  func(teamID string) (*api.TimeEntryTagsResponse, error)
+	GetTimeEntriesFn   func(context.Context, string, *api.ListTimeEntriesOptions) (*api.TimeEntriesResponse, error)
+	CreateTimeEntryFn  func(context.Context, string, *api.CreateTimeEntryRequest) (*api.TimeEntry, error)
+	GetTimeEntryFn     func(context.Context, string, string) (*api.SingleTimeEntryResponse, error)
+	UpdateTimeEntryFn  func(context.Context, string, string, *api.UpdateTimeEntryRequest) error
+	DeleteTimeEntryFn  func(context.Context, string, string) error
+	StartTimerFn       func(context.Context, string, *api.StartTimerRequest) (*api.SingleTimeEntryResponse, error)
+	StopTimerFn        func(context.Context, string) (*api.SingleTimeEntryResponse, error)
+	GetRunningTimerFn  func(context.Context, string, string) (*api.SingleTimeEntryResponse, error)
+	GetTimeEntryTagsFn func(context.Context, string) (*api.TimeEntryTagsResponse, error)
 
 	// Webhooks
-	GetWebhooksFn    func(teamID string) (*api.WebhooksResponse, error)
-	CreateWebhookFn  func(teamID string, req *api.CreateWebhookRequest) (*api.CreateWebhookResponse, error)
-	UpdateWebhookFn  func(webhookID string, req *api.UpdateWebhookRequest) (*api.UpdateWebhookResponse, error)
-	DeleteWebhookFn  func(webhookID string) error
+	GetWebhooksFn   func(context.Context, string) (*api.WebhooksResponse, error)
+	CreateWebhookFn func(context.Context, string, *api.CreateWebhookRequest) (*api.CreateWebhookResponse, error)
+	UpdateWebhookFn func(context.Context, string, *api.UpdateWebhookRequest) (*api.UpdateWebhookResponse, error)
+	DeleteWebhookFn func(context.Context, string) error
 
 	// Views
-	GetTeamViewsFn    func(teamID string) (*api.ViewsResponse, error)
-	GetSpaceViewsFn   func(spaceID string) (*api.ViewsResponse, error)
-	GetFolderViewsFn  func(folderID string) (*api.ViewsResponse, error)
-	GetListViewsFn    func(listID string) (*api.ViewsResponse, error)
-	GetViewFn         func(viewID string) (*api.ViewResponse, error)
-	CreateTeamViewFn  func(teamID string, req *api.CreateViewRequest) (*api.ViewResponse, error)
-	CreateSpaceViewFn func(spaceID string, req *api.CreateViewRequest) (*api.ViewResponse, error)
-	CreateFolderViewFn func(folderID string, req *api.CreateViewRequest) (*api.ViewResponse, error)
-	CreateListViewFn  func(listID string, req *api.CreateViewRequest) (*api.ViewResponse, error)
-	UpdateViewFn      func(viewID string, req *api.UpdateViewRequest) (*api.ViewResponse, error)
-	DeleteViewFn      func(viewID string) error
-	GetViewTasksFn    func(viewID string, page int) (*api.ViewTasksResponse, error)
+	GetTeamViewsFn     func(context.Context, string) (*api.ViewsResponse, error)
+	GetSpaceViewsFn    func(context.Context, string) (*api.ViewsResponse, error)
+	GetFolderViewsFn   func(context.Context, string) (*api.ViewsResponse, error)
+	GetListViewsFn     func(context.Context, string) (*api.ViewsResponse, error)
+	GetViewFn          func(context.Context, string) (*api.ViewResponse, error)
+	CreateTeamViewFn   func(context.Context, string, *api.CreateViewRequest) (*api.ViewResponse, error)
+	CreateSpaceViewFn  func(context.Context, string, *api.CreateViewRequest) (*api.ViewResponse, error)
+	CreateFolderViewFn func(context.Context, string, *api.CreateViewRequest) (*api.ViewResponse, error)
+	CreateListViewFn   func(context.Context, string, *api.CreateViewRequest) (*api.ViewResponse, error)
+	UpdateViewFn       func(context.Context, string, *api.UpdateViewRequest) (*api.ViewResponse, error)
+	DeleteViewFn       func(context.Context, string) error
+	GetViewTasksFn     func(context.Context, string, int) (*api.ViewTasksResponse, error)
 
 	// Goals
-	GetGoalsFn       func(teamID string, includeCompleted bool) (*api.GoalsResponse, error)
-	GetGoalFn        func(goalID string) (*api.GoalResponse, error)
-	CreateGoalFn     func(teamID string, req *api.CreateGoalRequest) (*api.GoalResponse, error)
-	UpdateGoalFn     func(goalID string, req *api.UpdateGoalRequest) (*api.GoalResponse, error)
-	DeleteGoalFn     func(goalID string) error
-	CreateKeyResultFn func(goalID string, req *api.CreateKeyResultRequest) (*api.KeyResultResponse, error)
+	GetGoalsFn        func(context.Context, string, bool) (*api.GoalsResponse, error)
+	GetGoalFn         func(context.Context, string) (*api.GoalResponse, error)
+	CreateGoalFn      func(context.Context, string, *api.CreateGoalRequest) (*api.GoalResponse, error)
+	UpdateGoalFn      func(context.Context, string, *api.UpdateGoalRequest) (*api.GoalResponse, error)
+	DeleteGoalFn      func(context.Context, string) error
+	CreateKeyResultFn func(context.Context, string, *api.CreateKeyResultRequest) (*api.KeyResultResponse, error)
 
 	// Members
-	GetListMembersFn func(listID string) (*api.MembersResponse, error)
-	GetTaskMembersFn func(taskID string) (*api.MembersResponse, error)
+	GetListMembersFn func(context.Context, string) (*api.MembersResponse, error)
+	GetTaskMembersFn func(context.Context, string) (*api.MembersResponse, error)
 
 	// Groups
-	GetGroupsFn    func(teamID string) (*api.GroupsResponse, error)
-	CreateGroupFn  func(teamID string, req *api.CreateGroupRequest) (*api.Group, error)
-	UpdateGroupFn  func(groupID string, req *api.UpdateGroupRequest) (*api.Group, error)
-	DeleteGroupFn  func(groupID string) error
+	GetGroupsFn   func(context.Context, string) (*api.GroupsResponse, error)
+	CreateGroupFn func(context.Context, string, *api.CreateGroupRequest) (*api.Group, error)
+	UpdateGroupFn func(context.Context, string, *api.UpdateGroupRequest) (*api.Group, error)
+	DeleteGroupFn func(context.Context, string) error
 
 	// Guests
-	InviteGuestFn func(teamID string, req *api.InviteGuestRequest) error
-	GetGuestFn    func(teamID, guestID string) (*api.GuestResponse, error)
-	EditGuestFn   func(teamID, guestID string, req *api.EditGuestRequest) (*api.GuestResponse, error)
-	RemoveGuestFn func(teamID, guestID string) error
+	InviteGuestFn func(context.Context, string, *api.InviteGuestRequest) error
+	GetGuestFn    func(context.Context, string, string) (*api.GuestResponse, error)
+	EditGuestFn   func(context.Context, string, string, *api.EditGuestRequest) (*api.GuestResponse, error)
+	RemoveGuestFn func(context.Context, string, string) error
 }
 
 var _ api.ClientInterface = (*MockClient)(nil)
 
-func (m *MockClient) GetUser() (*api.UserResponse, error) { return m.GetUserFn() }
-func (m *MockClient) ListWorkspaces() (*api.WorkspacesResponse, error) {
-	return m.ListWorkspacesFn()
+func (m *MockClient) GetUser(ctx context.Context) (*api.UserResponse, error) {
+	return m.GetUserFn(ctx)
 }
-func (m *MockClient) ListSpaces(id string) (*api.SpacesResponse, error) { return m.ListSpacesFn(id) }
-func (m *MockClient) GetSpace(id string) (*api.Space, error)            { return m.GetSpaceFn(id) }
-func (m *MockClient) CreateSpace(wid string, req *api.CreateSpaceRequest) (*api.Space, error) {
-	return m.CreateSpaceFn(wid, req)
+func (m *MockClient) ListWorkspaces(ctx context.Context) (*api.WorkspacesResponse, error) {
+	return m.ListWorkspacesFn(ctx)
 }
-func (m *MockClient) UpdateSpace(id string, req *api.UpdateSpaceRequest) (*api.Space, error) {
-	return m.UpdateSpaceFn(id, req)
+func (m *MockClient) ListSpaces(ctx context.Context, id string) (*api.SpacesResponse, error) {
+	return m.ListSpacesFn(ctx, id)
 }
-func (m *MockClient) DeleteSpace(id string) error { return m.DeleteSpaceFn(id) }
-func (m *MockClient) ListFolders(id string) (*api.FoldersResponse, error) {
-	return m.ListFoldersFn(id)
+func (m *MockClient) GetSpace(ctx context.Context, id string) (*api.Space, error) {
+	return m.GetSpaceFn(ctx, id)
 }
-func (m *MockClient) GetFolder(id string) (*api.Folder, error) { return m.GetFolderFn(id) }
-func (m *MockClient) CreateFolder(sid string, req *api.CreateFolderRequest) (*api.Folder, error) {
-	return m.CreateFolderFn(sid, req)
+func (m *MockClient) CreateSpace(ctx context.Context, wid string, req *api.CreateSpaceRequest) (*api.Space, error) {
+	return m.CreateSpaceFn(ctx, wid, req)
 }
-func (m *MockClient) UpdateFolder(id string, req *api.UpdateFolderRequest) (*api.Folder, error) {
-	return m.UpdateFolderFn(id, req)
+func (m *MockClient) UpdateSpace(ctx context.Context, id string, req *api.UpdateSpaceRequest) (*api.Space, error) {
+	return m.UpdateSpaceFn(ctx, id, req)
 }
-func (m *MockClient) DeleteFolder(id string) error { return m.DeleteFolderFn(id) }
-func (m *MockClient) ListLists(id string) (*api.ListsResponse, error) { return m.ListListsFn(id) }
-func (m *MockClient) ListFolderlessLists(id string) (*api.ListsResponse, error) {
-	return m.ListFolderlessListsFn(id)
+func (m *MockClient) DeleteSpace(ctx context.Context, id string) error {
+	return m.DeleteSpaceFn(ctx, id)
 }
-func (m *MockClient) GetList(id string) (*api.List, error) { return m.GetListFn(id) }
-func (m *MockClient) CreateList(fid string, req *api.CreateListRequest) (*api.List, error) {
-	return m.CreateListFn(fid, req)
+func (m *MockClient) ListFolders(ctx context.Context, id string) (*api.FoldersResponse, error) {
+	return m.ListFoldersFn(ctx, id)
 }
-func (m *MockClient) CreateFolderlessList(sid string, req *api.CreateListRequest) (*api.List, error) {
-	return m.CreateFolderlessListFn(sid, req)
+func (m *MockClient) GetFolder(ctx context.Context, id string) (*api.Folder, error) {
+	return m.GetFolderFn(ctx, id)
 }
-func (m *MockClient) UpdateList(id string, req *api.UpdateListRequest) (*api.List, error) {
-	return m.UpdateListFn(id, req)
+func (m *MockClient) CreateFolder(ctx context.Context, sid string, req *api.CreateFolderRequest) (*api.Folder, error) {
+	return m.CreateFolderFn(ctx, sid, req)
 }
-func (m *MockClient) DeleteList(id string) error { return m.DeleteListFn(id) }
-func (m *MockClient) ListTasks(id string, opts *api.ListTasksOptions) (*api.TasksResponse, error) {
-	return m.ListTasksFn(id, opts)
+func (m *MockClient) UpdateFolder(ctx context.Context, id string, req *api.UpdateFolderRequest) (*api.Folder, error) {
+	return m.UpdateFolderFn(ctx, id, req)
 }
-func (m *MockClient) GetTask(id string, opts ...api.GetTaskOptions) (*api.Task, error) {
-	return m.GetTaskFn(id, opts...)
+func (m *MockClient) DeleteFolder(ctx context.Context, id string) error {
+	return m.DeleteFolderFn(ctx, id)
 }
-func (m *MockClient) CreateTask(lid string, req *api.CreateTaskRequest) (*api.Task, error) {
-	return m.CreateTaskFn(lid, req)
+func (m *MockClient) ListLists(ctx context.Context, id string) (*api.ListsResponse, error) {
+	return m.ListListsFn(ctx, id)
 }
-func (m *MockClient) UpdateTask(id string, req *api.UpdateTaskRequest, opts ...api.UpdateTaskOptions) (*api.Task, error) {
-	return m.UpdateTaskFn(id, req, opts...)
+func (m *MockClient) ListFolderlessLists(ctx context.Context, id string) (*api.ListsResponse, error) {
+	return m.ListFolderlessListsFn(ctx, id)
 }
-func (m *MockClient) DeleteTask(id string) error { return m.DeleteTaskFn(id) }
-func (m *MockClient) SearchTasks(teamID string, opts *api.SearchTasksOptions) (*api.TasksResponse, error) {
-	return m.SearchTasksFn(teamID, opts)
+func (m *MockClient) GetList(ctx context.Context, id string) (*api.List, error) {
+	return m.GetListFn(ctx, id)
 }
-func (m *MockClient) ListComments(id string) (*api.CommentsResponse, error) {
-	return m.ListCommentsFn(id)
+func (m *MockClient) CreateList(ctx context.Context, fid string, req *api.CreateListRequest) (*api.List, error) {
+	return m.CreateListFn(ctx, fid, req)
 }
-func (m *MockClient) ListListComments(id string) (*api.CommentsResponse, error) {
-	return m.ListListCommentsFn(id)
+func (m *MockClient) CreateFolderlessList(ctx context.Context, sid string, req *api.CreateListRequest) (*api.List, error) {
+	return m.CreateFolderlessListFn(ctx, sid, req)
 }
-func (m *MockClient) CreateComment(tid string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
-	return m.CreateCommentFn(tid, req)
+func (m *MockClient) UpdateList(ctx context.Context, id string, req *api.UpdateListRequest) (*api.List, error) {
+	return m.UpdateListFn(ctx, id, req)
 }
-func (m *MockClient) CreateListComment(lid string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
-	return m.CreateListCommentFn(lid, req)
+func (m *MockClient) DeleteList(ctx context.Context, id string) error {
+	return m.DeleteListFn(ctx, id)
 }
-func (m *MockClient) UpdateComment(id string, req *api.UpdateCommentRequest) error {
-	return m.UpdateCommentFn(id, req)
+func (m *MockClient) ListTasks(ctx context.Context, id string, opts *api.ListTasksOptions) (*api.TasksResponse, error) {
+	return m.ListTasksFn(ctx, id, opts)
 }
-func (m *MockClient) DeleteComment(id string) error { return m.DeleteCommentFn(id) }
+func (m *MockClient) GetTask(ctx context.Context, id string, opts ...api.GetTaskOptions) (*api.Task, error) {
+	return m.GetTaskFn(ctx, id, opts...)
+}
+func (m *MockClient) CreateTask(ctx context.Context, lid string, req *api.CreateTaskRequest) (*api.Task, error) {
+	return m.CreateTaskFn(ctx, lid, req)
+}
+func (m *MockClient) UpdateTask(ctx context.Context, id string, req *api.UpdateTaskRequest, opts ...api.UpdateTaskOptions) (*api.Task, error) {
+	return m.UpdateTaskFn(ctx, id, req, opts...)
+}
+func (m *MockClient) DeleteTask(ctx context.Context, id string) error {
+	return m.DeleteTaskFn(ctx, id)
+}
+func (m *MockClient) SearchTasks(ctx context.Context, teamID string, opts *api.SearchTasksOptions) (*api.TasksResponse, error) {
+	return m.SearchTasksFn(ctx, teamID, opts)
+}
+func (m *MockClient) ListComments(ctx context.Context, id string) (*api.CommentsResponse, error) {
+	return m.ListCommentsFn(ctx, id)
+}
+func (m *MockClient) ListListComments(ctx context.Context, id string) (*api.CommentsResponse, error) {
+	return m.ListListCommentsFn(ctx, id)
+}
+func (m *MockClient) CreateComment(ctx context.Context, tid string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
+	return m.CreateCommentFn(ctx, tid, req)
+}
+func (m *MockClient) CreateListComment(ctx context.Context, lid string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {
+	return m.CreateListCommentFn(ctx, lid, req)
+}
+func (m *MockClient) UpdateComment(ctx context.Context, id string, req *api.UpdateCommentRequest) error {
+	return m.UpdateCommentFn(ctx, id, req)
+}
+func (m *MockClient) DeleteComment(ctx context.Context, id string) error {
+	return m.DeleteCommentFn(ctx, id)
+}
 
 // Custom Fields
-func (m *MockClient) GetListCustomFields(id string) (*api.CustomFieldsResponse, error) {
-	return m.GetListCustomFieldsFn(id)
+func (m *MockClient) GetListCustomFields(ctx context.Context, id string) (*api.CustomFieldsResponse, error) {
+	return m.GetListCustomFieldsFn(ctx, id)
 }
-func (m *MockClient) GetFolderCustomFields(id string) (*api.CustomFieldsResponse, error) {
-	return m.GetFolderCustomFieldsFn(id)
+func (m *MockClient) GetFolderCustomFields(ctx context.Context, id string) (*api.CustomFieldsResponse, error) {
+	return m.GetFolderCustomFieldsFn(ctx, id)
 }
-func (m *MockClient) GetSpaceCustomFields(id string) (*api.CustomFieldsResponse, error) {
-	return m.GetSpaceCustomFieldsFn(id)
+func (m *MockClient) GetSpaceCustomFields(ctx context.Context, id string) (*api.CustomFieldsResponse, error) {
+	return m.GetSpaceCustomFieldsFn(ctx, id)
 }
-func (m *MockClient) GetWorkspaceCustomFields(id string) (*api.CustomFieldsResponse, error) {
-	return m.GetWorkspaceCustomFieldsFn(id)
+func (m *MockClient) GetWorkspaceCustomFields(ctx context.Context, id string) (*api.CustomFieldsResponse, error) {
+	return m.GetWorkspaceCustomFieldsFn(ctx, id)
 }
-func (m *MockClient) SetCustomFieldValue(taskID, fieldID string, req *api.SetCustomFieldRequest) error {
-	return m.SetCustomFieldValueFn(taskID, fieldID, req)
+func (m *MockClient) SetCustomFieldValue(ctx context.Context, taskID, fieldID string, req *api.SetCustomFieldRequest) error {
+	return m.SetCustomFieldValueFn(ctx, taskID, fieldID, req)
 }
-func (m *MockClient) RemoveCustomFieldValue(taskID, fieldID string) error {
-	return m.RemoveCustomFieldValueFn(taskID, fieldID)
+func (m *MockClient) RemoveCustomFieldValue(ctx context.Context, taskID, fieldID string) error {
+	return m.RemoveCustomFieldValueFn(ctx, taskID, fieldID)
 }
 
 // Tags
-func (m *MockClient) GetSpaceTags(id string) (*api.TagsResponse, error) {
-	return m.GetSpaceTagsFn(id)
+func (m *MockClient) GetSpaceTags(ctx context.Context, id string) (*api.TagsResponse, error) {
+	return m.GetSpaceTagsFn(ctx, id)
 }
-func (m *MockClient) CreateSpaceTag(id string, req *api.CreateTagRequest) error {
-	return m.CreateSpaceTagFn(id, req)
+func (m *MockClient) CreateSpaceTag(ctx context.Context, id string, req *api.CreateTagRequest) error {
+	return m.CreateSpaceTagFn(ctx, id, req)
 }
-func (m *MockClient) UpdateSpaceTag(id, name string, req *api.UpdateTagRequest) error {
-	return m.UpdateSpaceTagFn(id, name, req)
+func (m *MockClient) UpdateSpaceTag(ctx context.Context, id, name string, req *api.UpdateTagRequest) error {
+	return m.UpdateSpaceTagFn(ctx, id, name, req)
 }
-func (m *MockClient) DeleteSpaceTag(id, name string) error { return m.DeleteSpaceTagFn(id, name) }
-func (m *MockClient) AddTagToTask(taskID, tagName string) error {
-	return m.AddTagToTaskFn(taskID, tagName)
+func (m *MockClient) DeleteSpaceTag(ctx context.Context, id, name string) error {
+	return m.DeleteSpaceTagFn(ctx, id, name)
 }
-func (m *MockClient) RemoveTagFromTask(taskID, tagName string) error {
-	return m.RemoveTagFromTaskFn(taskID, tagName)
+func (m *MockClient) AddTagToTask(ctx context.Context, taskID, tagName string) error {
+	return m.AddTagToTaskFn(ctx, taskID, tagName)
+}
+func (m *MockClient) RemoveTagFromTask(ctx context.Context, taskID, tagName string) error {
+	return m.RemoveTagFromTaskFn(ctx, taskID, tagName)
 }
 
 // Checklists
-func (m *MockClient) CreateChecklist(taskID string, req *api.CreateChecklistRequest) (*api.ChecklistResponse, error) {
-	return m.CreateChecklistFn(taskID, req)
+func (m *MockClient) CreateChecklist(ctx context.Context, taskID string, req *api.CreateChecklistRequest) (*api.ChecklistResponse, error) {
+	return m.CreateChecklistFn(ctx, taskID, req)
 }
-func (m *MockClient) EditChecklist(id string, req *api.EditChecklistRequest) error {
-	return m.EditChecklistFn(id, req)
+func (m *MockClient) EditChecklist(ctx context.Context, id string, req *api.EditChecklistRequest) error {
+	return m.EditChecklistFn(ctx, id, req)
 }
-func (m *MockClient) DeleteChecklist(id string) error { return m.DeleteChecklistFn(id) }
-func (m *MockClient) CreateChecklistItem(id string, req *api.CreateChecklistItemRequest) (*api.ChecklistResponse, error) {
-	return m.CreateChecklistItemFn(id, req)
+func (m *MockClient) DeleteChecklist(ctx context.Context, id string) error {
+	return m.DeleteChecklistFn(ctx, id)
 }
-func (m *MockClient) EditChecklistItem(cid, iid string, req *api.EditChecklistItemRequest) (*api.ChecklistResponse, error) {
-	return m.EditChecklistItemFn(cid, iid, req)
+func (m *MockClient) CreateChecklistItem(ctx context.Context, id string, req *api.CreateChecklistItemRequest) (*api.ChecklistResponse, error) {
+	return m.CreateChecklistItemFn(ctx, id, req)
 }
-func (m *MockClient) DeleteChecklistItem(cid, iid string) error {
-	return m.DeleteChecklistItemFn(cid, iid)
+func (m *MockClient) EditChecklistItem(ctx context.Context, cid, iid string, req *api.EditChecklistItemRequest) (*api.ChecklistResponse, error) {
+	return m.EditChecklistItemFn(ctx, cid, iid, req)
+}
+func (m *MockClient) DeleteChecklistItem(ctx context.Context, cid, iid string) error {
+	return m.DeleteChecklistItemFn(ctx, cid, iid)
 }
 
 // Docs
-func (m *MockClient) CreateDoc(wid string, req *api.CreateDocRequest) (*api.Doc, error) {
-	return m.CreateDocFn(wid, req)
+func (m *MockClient) CreateDoc(ctx context.Context, wid string, req *api.CreateDocRequest) (*api.Doc, error) {
+	return m.CreateDocFn(ctx, wid, req)
 }
-func (m *MockClient) SearchDocs(wid string) (*api.DocsResponse, error) { return m.SearchDocsFn(wid) }
-func (m *MockClient) GetDoc(wid, did string) (*api.Doc, error)         { return m.GetDocFn(wid, did) }
-func (m *MockClient) CreatePage(wid, did string, req *api.CreatePageRequest) (*api.DocPage, error) {
-	return m.CreatePageFn(wid, did, req)
+func (m *MockClient) SearchDocs(ctx context.Context, wid string) (*api.DocsResponse, error) {
+	return m.SearchDocsFn(ctx, wid)
 }
-func (m *MockClient) GetPage(wid, did, pid string) (*api.DocPage, error) {
-	return m.GetPageFn(wid, did, pid)
+func (m *MockClient) GetDoc(ctx context.Context, wid, did string) (*api.Doc, error) {
+	return m.GetDocFn(ctx, wid, did)
 }
-func (m *MockClient) EditPage(wid, did, pid string, req *api.EditPageRequest) (*api.DocPage, error) {
-	return m.EditPageFn(wid, did, pid, req)
+func (m *MockClient) CreatePage(ctx context.Context, wid, did string, req *api.CreatePageRequest) (*api.DocPage, error) {
+	return m.CreatePageFn(ctx, wid, did, req)
 }
-func (m *MockClient) GetDocPageListing(wid, did string) (*api.DocPagesResponse, error) {
-	return m.GetDocPageListingFn(wid, did)
+func (m *MockClient) GetPage(ctx context.Context, wid, did, pid string) (*api.DocPage, error) {
+	return m.GetPageFn(ctx, wid, did, pid)
+}
+func (m *MockClient) EditPage(ctx context.Context, wid, did, pid string, req *api.EditPageRequest) (*api.DocPage, error) {
+	return m.EditPageFn(ctx, wid, did, pid, req)
+}
+func (m *MockClient) GetDocPageListing(ctx context.Context, wid, did string) (*api.DocPagesResponse, error) {
+	return m.GetDocPageListingFn(ctx, wid, did)
 }
 
 // Time Tracking
-func (m *MockClient) GetTimeEntries(teamID string, opts *api.ListTimeEntriesOptions) (*api.TimeEntriesResponse, error) {
-	return m.GetTimeEntriesFn(teamID, opts)
+func (m *MockClient) GetTimeEntries(ctx context.Context, teamID string, opts *api.ListTimeEntriesOptions) (*api.TimeEntriesResponse, error) {
+	return m.GetTimeEntriesFn(ctx, teamID, opts)
 }
-func (m *MockClient) CreateTimeEntry(teamID string, req *api.CreateTimeEntryRequest) (*api.TimeEntry, error) {
-	return m.CreateTimeEntryFn(teamID, req)
+func (m *MockClient) CreateTimeEntry(ctx context.Context, teamID string, req *api.CreateTimeEntryRequest) (*api.TimeEntry, error) {
+	return m.CreateTimeEntryFn(ctx, teamID, req)
 }
-func (m *MockClient) GetTimeEntry(teamID, timerID string) (*api.SingleTimeEntryResponse, error) {
-	return m.GetTimeEntryFn(teamID, timerID)
+func (m *MockClient) GetTimeEntry(ctx context.Context, teamID, timerID string) (*api.SingleTimeEntryResponse, error) {
+	return m.GetTimeEntryFn(ctx, teamID, timerID)
 }
-func (m *MockClient) UpdateTimeEntry(teamID, timerID string, req *api.UpdateTimeEntryRequest) error {
-	return m.UpdateTimeEntryFn(teamID, timerID, req)
+func (m *MockClient) UpdateTimeEntry(ctx context.Context, teamID, timerID string, req *api.UpdateTimeEntryRequest) error {
+	return m.UpdateTimeEntryFn(ctx, teamID, timerID, req)
 }
-func (m *MockClient) DeleteTimeEntry(teamID, timerID string) error {
-	return m.DeleteTimeEntryFn(teamID, timerID)
+func (m *MockClient) DeleteTimeEntry(ctx context.Context, teamID, timerID string) error {
+	return m.DeleteTimeEntryFn(ctx, teamID, timerID)
 }
-func (m *MockClient) StartTimer(teamID string, req *api.StartTimerRequest) (*api.SingleTimeEntryResponse, error) {
-	return m.StartTimerFn(teamID, req)
+func (m *MockClient) StartTimer(ctx context.Context, teamID string, req *api.StartTimerRequest) (*api.SingleTimeEntryResponse, error) {
+	return m.StartTimerFn(ctx, teamID, req)
 }
-func (m *MockClient) StopTimer(teamID string) (*api.SingleTimeEntryResponse, error) {
-	return m.StopTimerFn(teamID)
+func (m *MockClient) StopTimer(ctx context.Context, teamID string) (*api.SingleTimeEntryResponse, error) {
+	return m.StopTimerFn(ctx, teamID)
 }
-func (m *MockClient) GetRunningTimer(teamID string, assignee string) (*api.SingleTimeEntryResponse, error) {
-	return m.GetRunningTimerFn(teamID, assignee)
+func (m *MockClient) GetRunningTimer(ctx context.Context, teamID string, assignee string) (*api.SingleTimeEntryResponse, error) {
+	return m.GetRunningTimerFn(ctx, teamID, assignee)
 }
-func (m *MockClient) GetTimeEntryTags(teamID string) (*api.TimeEntryTagsResponse, error) {
-	return m.GetTimeEntryTagsFn(teamID)
+func (m *MockClient) GetTimeEntryTags(ctx context.Context, teamID string) (*api.TimeEntryTagsResponse, error) {
+	return m.GetTimeEntryTagsFn(ctx, teamID)
 }
 
 // Webhooks
-func (m *MockClient) GetWebhooks(teamID string) (*api.WebhooksResponse, error) {
-	return m.GetWebhooksFn(teamID)
+func (m *MockClient) GetWebhooks(ctx context.Context, teamID string) (*api.WebhooksResponse, error) {
+	return m.GetWebhooksFn(ctx, teamID)
 }
-func (m *MockClient) CreateWebhook(teamID string, req *api.CreateWebhookRequest) (*api.CreateWebhookResponse, error) {
-	return m.CreateWebhookFn(teamID, req)
+func (m *MockClient) CreateWebhook(ctx context.Context, teamID string, req *api.CreateWebhookRequest) (*api.CreateWebhookResponse, error) {
+	return m.CreateWebhookFn(ctx, teamID, req)
 }
-func (m *MockClient) UpdateWebhook(id string, req *api.UpdateWebhookRequest) (*api.UpdateWebhookResponse, error) {
-	return m.UpdateWebhookFn(id, req)
+func (m *MockClient) UpdateWebhook(ctx context.Context, id string, req *api.UpdateWebhookRequest) (*api.UpdateWebhookResponse, error) {
+	return m.UpdateWebhookFn(ctx, id, req)
 }
-func (m *MockClient) DeleteWebhook(id string) error { return m.DeleteWebhookFn(id) }
+func (m *MockClient) DeleteWebhook(ctx context.Context, id string) error {
+	return m.DeleteWebhookFn(ctx, id)
+}
 
 // Views
-func (m *MockClient) GetTeamViews(id string) (*api.ViewsResponse, error) {
-	return m.GetTeamViewsFn(id)
+func (m *MockClient) GetTeamViews(ctx context.Context, id string) (*api.ViewsResponse, error) {
+	return m.GetTeamViewsFn(ctx, id)
 }
-func (m *MockClient) GetSpaceViews(id string) (*api.ViewsResponse, error) {
-	return m.GetSpaceViewsFn(id)
+func (m *MockClient) GetSpaceViews(ctx context.Context, id string) (*api.ViewsResponse, error) {
+	return m.GetSpaceViewsFn(ctx, id)
 }
-func (m *MockClient) GetFolderViews(id string) (*api.ViewsResponse, error) {
-	return m.GetFolderViewsFn(id)
+func (m *MockClient) GetFolderViews(ctx context.Context, id string) (*api.ViewsResponse, error) {
+	return m.GetFolderViewsFn(ctx, id)
 }
-func (m *MockClient) GetListViews(id string) (*api.ViewsResponse, error) {
-	return m.GetListViewsFn(id)
+func (m *MockClient) GetListViews(ctx context.Context, id string) (*api.ViewsResponse, error) {
+	return m.GetListViewsFn(ctx, id)
 }
-func (m *MockClient) GetView(id string) (*api.ViewResponse, error) { return m.GetViewFn(id) }
-func (m *MockClient) CreateTeamView(id string, req *api.CreateViewRequest) (*api.ViewResponse, error) {
-	return m.CreateTeamViewFn(id, req)
+func (m *MockClient) GetView(ctx context.Context, id string) (*api.ViewResponse, error) {
+	return m.GetViewFn(ctx, id)
 }
-func (m *MockClient) CreateSpaceView(id string, req *api.CreateViewRequest) (*api.ViewResponse, error) {
-	return m.CreateSpaceViewFn(id, req)
+func (m *MockClient) CreateTeamView(ctx context.Context, id string, req *api.CreateViewRequest) (*api.ViewResponse, error) {
+	return m.CreateTeamViewFn(ctx, id, req)
 }
-func (m *MockClient) CreateFolderView(id string, req *api.CreateViewRequest) (*api.ViewResponse, error) {
-	return m.CreateFolderViewFn(id, req)
+func (m *MockClient) CreateSpaceView(ctx context.Context, id string, req *api.CreateViewRequest) (*api.ViewResponse, error) {
+	return m.CreateSpaceViewFn(ctx, id, req)
 }
-func (m *MockClient) CreateListView(id string, req *api.CreateViewRequest) (*api.ViewResponse, error) {
-	return m.CreateListViewFn(id, req)
+func (m *MockClient) CreateFolderView(ctx context.Context, id string, req *api.CreateViewRequest) (*api.ViewResponse, error) {
+	return m.CreateFolderViewFn(ctx, id, req)
 }
-func (m *MockClient) UpdateView(id string, req *api.UpdateViewRequest) (*api.ViewResponse, error) {
-	return m.UpdateViewFn(id, req)
+func (m *MockClient) CreateListView(ctx context.Context, id string, req *api.CreateViewRequest) (*api.ViewResponse, error) {
+	return m.CreateListViewFn(ctx, id, req)
 }
-func (m *MockClient) DeleteView(id string) error { return m.DeleteViewFn(id) }
-func (m *MockClient) GetViewTasks(id string, page int) (*api.ViewTasksResponse, error) {
-	return m.GetViewTasksFn(id, page)
+func (m *MockClient) UpdateView(ctx context.Context, id string, req *api.UpdateViewRequest) (*api.ViewResponse, error) {
+	return m.UpdateViewFn(ctx, id, req)
+}
+func (m *MockClient) DeleteView(ctx context.Context, id string) error {
+	return m.DeleteViewFn(ctx, id)
+}
+func (m *MockClient) GetViewTasks(ctx context.Context, id string, page int) (*api.ViewTasksResponse, error) {
+	return m.GetViewTasksFn(ctx, id, page)
 }
 
 // Goals
-func (m *MockClient) GetGoals(teamID string, includeCompleted bool) (*api.GoalsResponse, error) {
-	return m.GetGoalsFn(teamID, includeCompleted)
+func (m *MockClient) GetGoals(ctx context.Context, teamID string, includeCompleted bool) (*api.GoalsResponse, error) {
+	return m.GetGoalsFn(ctx, teamID, includeCompleted)
 }
-func (m *MockClient) GetGoal(id string) (*api.GoalResponse, error) { return m.GetGoalFn(id) }
-func (m *MockClient) CreateGoal(teamID string, req *api.CreateGoalRequest) (*api.GoalResponse, error) {
-	return m.CreateGoalFn(teamID, req)
+func (m *MockClient) GetGoal(ctx context.Context, id string) (*api.GoalResponse, error) {
+	return m.GetGoalFn(ctx, id)
 }
-func (m *MockClient) UpdateGoal(id string, req *api.UpdateGoalRequest) (*api.GoalResponse, error) {
-	return m.UpdateGoalFn(id, req)
+func (m *MockClient) CreateGoal(ctx context.Context, teamID string, req *api.CreateGoalRequest) (*api.GoalResponse, error) {
+	return m.CreateGoalFn(ctx, teamID, req)
 }
-func (m *MockClient) DeleteGoal(id string) error { return m.DeleteGoalFn(id) }
-func (m *MockClient) CreateKeyResult(goalID string, req *api.CreateKeyResultRequest) (*api.KeyResultResponse, error) {
-	return m.CreateKeyResultFn(goalID, req)
+func (m *MockClient) UpdateGoal(ctx context.Context, id string, req *api.UpdateGoalRequest) (*api.GoalResponse, error) {
+	return m.UpdateGoalFn(ctx, id, req)
+}
+func (m *MockClient) DeleteGoal(ctx context.Context, id string) error {
+	return m.DeleteGoalFn(ctx, id)
+}
+func (m *MockClient) CreateKeyResult(ctx context.Context, goalID string, req *api.CreateKeyResultRequest) (*api.KeyResultResponse, error) {
+	return m.CreateKeyResultFn(ctx, goalID, req)
 }
 
 // Members
-func (m *MockClient) GetListMembers(id string) (*api.MembersResponse, error) {
-	return m.GetListMembersFn(id)
+func (m *MockClient) GetListMembers(ctx context.Context, id string) (*api.MembersResponse, error) {
+	return m.GetListMembersFn(ctx, id)
 }
-func (m *MockClient) GetTaskMembers(id string) (*api.MembersResponse, error) {
-	return m.GetTaskMembersFn(id)
+func (m *MockClient) GetTaskMembers(ctx context.Context, id string) (*api.MembersResponse, error) {
+	return m.GetTaskMembersFn(ctx, id)
 }
 
 // Groups
-func (m *MockClient) GetGroups(teamID string) (*api.GroupsResponse, error) {
-	return m.GetGroupsFn(teamID)
+func (m *MockClient) GetGroups(ctx context.Context, teamID string) (*api.GroupsResponse, error) {
+	return m.GetGroupsFn(ctx, teamID)
 }
-func (m *MockClient) CreateGroup(teamID string, req *api.CreateGroupRequest) (*api.Group, error) {
-	return m.CreateGroupFn(teamID, req)
+func (m *MockClient) CreateGroup(ctx context.Context, teamID string, req *api.CreateGroupRequest) (*api.Group, error) {
+	return m.CreateGroupFn(ctx, teamID, req)
 }
-func (m *MockClient) UpdateGroup(id string, req *api.UpdateGroupRequest) (*api.Group, error) {
-	return m.UpdateGroupFn(id, req)
+func (m *MockClient) UpdateGroup(ctx context.Context, id string, req *api.UpdateGroupRequest) (*api.Group, error) {
+	return m.UpdateGroupFn(ctx, id, req)
 }
-func (m *MockClient) DeleteGroup(id string) error { return m.DeleteGroupFn(id) }
+func (m *MockClient) DeleteGroup(ctx context.Context, id string) error {
+	return m.DeleteGroupFn(ctx, id)
+}
 
 // Guests
-func (m *MockClient) InviteGuest(teamID string, req *api.InviteGuestRequest) error {
-	return m.InviteGuestFn(teamID, req)
+func (m *MockClient) InviteGuest(ctx context.Context, teamID string, req *api.InviteGuestRequest) error {
+	return m.InviteGuestFn(ctx, teamID, req)
 }
-func (m *MockClient) GetGuest(teamID, guestID string) (*api.GuestResponse, error) {
-	return m.GetGuestFn(teamID, guestID)
+func (m *MockClient) GetGuest(ctx context.Context, teamID, guestID string) (*api.GuestResponse, error) {
+	return m.GetGuestFn(ctx, teamID, guestID)
 }
-func (m *MockClient) EditGuest(teamID, guestID string, req *api.EditGuestRequest) (*api.GuestResponse, error) {
-	return m.EditGuestFn(teamID, guestID, req)
+func (m *MockClient) EditGuest(ctx context.Context, teamID, guestID string, req *api.EditGuestRequest) (*api.GuestResponse, error) {
+	return m.EditGuestFn(ctx, teamID, guestID, req)
 }
-func (m *MockClient) RemoveGuest(teamID, guestID string) error {
-	return m.RemoveGuestFn(teamID, guestID)
+func (m *MockClient) RemoveGuest(ctx context.Context, teamID, guestID string) error {
+	return m.RemoveGuestFn(ctx, teamID, guestID)
 }

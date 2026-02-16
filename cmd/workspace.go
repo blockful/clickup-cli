@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +16,8 @@ var workspaceListCmd = &cobra.Command{
 	Short: "List all workspaces",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
-		resp, err := client.ListWorkspaces()
+		ctx := context.Background()
+		resp, err := client.ListWorkspaces(ctx)
 		if err != nil {
 			return handleError(err)
 		}

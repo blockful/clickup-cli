@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestListFolders(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		spaceID    string
@@ -42,9 +44,10 @@ func TestListFolders(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.ListFolders(tt.spaceID)
+			resp, err := client.ListFolders(ctx, tt.spaceID)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")
@@ -65,6 +68,7 @@ func TestListFolders(t *testing.T) {
 }
 
 func TestGetFolder(t *testing.T) {
+	ctx := context.Background()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte(`{"id":"f1","name":"Test Folder"}`))
@@ -72,9 +76,10 @@ func TestGetFolder(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient("pk_test")
+	client.MaxRetries = 0
 	client.BaseURL = server.URL
 
-	folder, err := client.GetFolder("f1")
+	folder, err := client.GetFolder(ctx, "f1")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -84,6 +89,7 @@ func TestGetFolder(t *testing.T) {
 }
 
 func TestCreateFolder(t *testing.T) {
+	ctx := context.Background()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			t.Errorf("expected POST, got %s", r.Method)
@@ -94,9 +100,10 @@ func TestCreateFolder(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient("pk_test")
+	client.MaxRetries = 0
 	client.BaseURL = server.URL
 
-	folder, err := client.CreateFolder("s1", &CreateFolderRequest{Name: "New Folder"})
+	folder, err := client.CreateFolder(ctx, "s1", &CreateFolderRequest{Name: "New Folder"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

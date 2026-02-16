@@ -1,23 +1,26 @@
 package api
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type TimeEntry struct {
-	ID          string      `json:"id"`
-	Task        interface{} `json:"task,omitempty"`
-	Wid         string      `json:"wid,omitempty"`
-	User        interface{} `json:"user,omitempty"`
-	Billable    bool        `json:"billable"`
-	Start       string      `json:"start"`
-	End         string      `json:"end,omitempty"`
-	Duration    string      `json:"duration"`
-	Description string      `json:"description"`
-	Tags        []Tag       `json:"tags,omitempty"`
-	Source      string      `json:"source,omitempty"`
-	At          string      `json:"at,omitempty"`
+	ID           string      `json:"id"`
+	Task         interface{} `json:"task,omitempty"`
+	Wid          string      `json:"wid,omitempty"`
+	User         interface{} `json:"user,omitempty"`
+	Billable     bool        `json:"billable"`
+	Start        string      `json:"start"`
+	End          string      `json:"end,omitempty"`
+	Duration     string      `json:"duration"`
+	Description  string      `json:"description"`
+	Tags         []Tag       `json:"tags,omitempty"`
+	Source       string      `json:"source,omitempty"`
+	At           string      `json:"at,omitempty"`
 	TaskLocation interface{} `json:"task_location,omitempty"`
-	TaskTags    interface{} `json:"task_tags,omitempty"`
-	TaskURL     string      `json:"task_url,omitempty"`
+	TaskTags     interface{} `json:"task_tags,omitempty"`
+	TaskURL      string      `json:"task_url,omitempty"`
 }
 
 type TimeEntriesResponse struct {
@@ -29,18 +32,18 @@ type SingleTimeEntryResponse struct {
 }
 
 type ListTimeEntriesOptions struct {
-	StartDate              string
-	EndDate                string
-	Assignee               string
-	IncludeTaskTags        bool
-	IncludeLocationNames   bool
-	SpaceID                string
-	FolderID               string
-	ListID                 string
-	TaskID                 string
-	CustomTaskIDs          bool
-	TeamID                 string
-	IsBillable             *bool
+	StartDate            string
+	EndDate              string
+	Assignee             string
+	IncludeTaskTags      bool
+	IncludeLocationNames bool
+	SpaceID              string
+	FolderID             string
+	ListID               string
+	TaskID               string
+	CustomTaskIDs        bool
+	TeamID               string
+	IsBillable           *bool
 }
 
 type CreateTimeEntryRequest struct {
@@ -75,7 +78,7 @@ type TimeEntryTagsResponse struct {
 	Data []Tag `json:"data"`
 }
 
-func (c *Client) GetTimeEntries(teamID string, opts *ListTimeEntriesOptions) (*TimeEntriesResponse, error) {
+func (c *Client) GetTimeEntries(ctx context.Context, teamID string, opts *ListTimeEntriesOptions) (*TimeEntriesResponse, error) {
 	path := fmt.Sprintf("/v2/team/%s/time_entries", teamID)
 	if opts != nil {
 		q := ""
@@ -111,67 +114,67 @@ func (c *Client) GetTimeEntries(teamID string, opts *ListTimeEntriesOptions) (*T
 		path += q
 	}
 	var resp TimeEntriesResponse
-	if err := c.Do("GET", path, nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) CreateTimeEntry(teamID string, req *CreateTimeEntryRequest) (*TimeEntry, error) {
+func (c *Client) CreateTimeEntry(ctx context.Context, teamID string, req *CreateTimeEntryRequest) (*TimeEntry, error) {
 	var resp TimeEntry
-	if err := c.Do("POST", fmt.Sprintf("/v2/team/%s/time_entries", teamID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/team/%s/time_entries", teamID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) GetTimeEntry(teamID, timerID string) (*SingleTimeEntryResponse, error) {
+func (c *Client) GetTimeEntry(ctx context.Context, teamID, timerID string) (*SingleTimeEntryResponse, error) {
 	var resp SingleTimeEntryResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/team/%s/time_entries/%s", teamID, timerID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/team/%s/time_entries/%s", teamID, timerID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) UpdateTimeEntry(teamID, timerID string, req *UpdateTimeEntryRequest) error {
-	return c.Do("PUT", fmt.Sprintf("/v2/team/%s/time_entries/%s", teamID, timerID), req, nil)
+func (c *Client) UpdateTimeEntry(ctx context.Context, teamID, timerID string, req *UpdateTimeEntryRequest) error {
+	return c.Do(ctx, "PUT", fmt.Sprintf("/v2/team/%s/time_entries/%s", teamID, timerID), req, nil)
 }
 
-func (c *Client) DeleteTimeEntry(teamID, timerID string) error {
-	return c.Do("DELETE", fmt.Sprintf("/v2/team/%s/time_entries/%s", teamID, timerID), nil, nil)
+func (c *Client) DeleteTimeEntry(ctx context.Context, teamID, timerID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/team/%s/time_entries/%s", teamID, timerID), nil, nil)
 }
 
-func (c *Client) StartTimer(teamID string, req *StartTimerRequest) (*SingleTimeEntryResponse, error) {
+func (c *Client) StartTimer(ctx context.Context, teamID string, req *StartTimerRequest) (*SingleTimeEntryResponse, error) {
 	var resp SingleTimeEntryResponse
-	if err := c.Do("POST", fmt.Sprintf("/v2/team/%s/time_entries/start", teamID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/team/%s/time_entries/start", teamID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) StopTimer(teamID string) (*SingleTimeEntryResponse, error) {
+func (c *Client) StopTimer(ctx context.Context, teamID string) (*SingleTimeEntryResponse, error) {
 	var resp SingleTimeEntryResponse
-	if err := c.Do("POST", fmt.Sprintf("/v2/team/%s/time_entries/stop", teamID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/team/%s/time_entries/stop", teamID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) GetRunningTimer(teamID string, assignee string) (*SingleTimeEntryResponse, error) {
+func (c *Client) GetRunningTimer(ctx context.Context, teamID string, assignee string) (*SingleTimeEntryResponse, error) {
 	path := fmt.Sprintf("/v2/team/%s/time_entries/current", teamID)
 	if assignee != "" {
 		path += "?assignee=" + assignee
 	}
 	var resp SingleTimeEntryResponse
-	if err := c.Do("GET", path, nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) GetTimeEntryTags(teamID string) (*TimeEntryTagsResponse, error) {
+func (c *Client) GetTimeEntryTags(ctx context.Context, teamID string) (*TimeEntryTagsResponse, error) {
 	var resp TimeEntryTagsResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/team/%s/time_entries/tags", teamID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/team/%s/time_entries/tags", teamID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil

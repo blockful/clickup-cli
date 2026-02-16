@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestListWorkspaces(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		response   string
@@ -48,9 +50,10 @@ func TestListWorkspaces(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.ListWorkspaces()
+			resp, err := client.ListWorkspaces(ctx)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")

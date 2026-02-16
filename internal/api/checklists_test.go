@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestCreateChecklist(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v2/task/t1/checklist" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -21,7 +23,7 @@ func TestCreateChecklist(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.CreateChecklist("t1", &CreateChecklistRequest{Name: "My Checklist"})
+	resp, err := c.CreateChecklist(ctx, "t1", &CreateChecklistRequest{Name: "My Checklist"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,6 +33,7 @@ func TestCreateChecklist(t *testing.T) {
 }
 
 func TestEditChecklist(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "PUT" || r.URL.Path != "/v2/checklist/cl1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -39,12 +42,13 @@ func TestEditChecklist(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.EditChecklist("cl1", &EditChecklistRequest{Name: "Updated"}); err != nil {
+	if err := c.EditChecklist(ctx, "cl1", &EditChecklistRequest{Name: "Updated"}); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDeleteChecklist(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v2/checklist/cl1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -53,12 +57,13 @@ func TestDeleteChecklist(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.DeleteChecklist("cl1"); err != nil {
+	if err := c.DeleteChecklist(ctx, "cl1"); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestCreateChecklistItem(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v2/checklist/cl1/checklist_item" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -67,13 +72,14 @@ func TestCreateChecklistItem(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.CreateChecklistItem("cl1", &CreateChecklistItemRequest{Name: "Item 1"})
+	_, err := c.CreateChecklistItem(ctx, "cl1", &CreateChecklistItemRequest{Name: "Item 1"})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestEditChecklistItem(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "PUT" || r.URL.Path != "/v2/checklist/cl1/checklist_item/i1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -83,13 +89,14 @@ func TestEditChecklistItem(t *testing.T) {
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
 	resolved := true
-	_, err := c.EditChecklistItem("cl1", "i1", &EditChecklistItemRequest{Resolved: &resolved})
+	_, err := c.EditChecklistItem(ctx, "cl1", "i1", &EditChecklistItemRequest{Resolved: &resolved})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDeleteChecklistItem(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v2/checklist/cl1/checklist_item/i1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -98,7 +105,7 @@ func TestDeleteChecklistItem(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.DeleteChecklistItem("cl1", "i1"); err != nil {
+	if err := c.DeleteChecklistItem(ctx, "cl1", "i1"); err != nil {
 		t.Fatal(err)
 	}
 }

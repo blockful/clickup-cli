@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestClientDo(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		method     string
@@ -131,6 +133,7 @@ func TestClientDo(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test_token")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
 			var result map[string]interface{}
@@ -144,7 +147,7 @@ func TestClientDo(t *testing.T) {
 				resultPtr = &result
 			}
 
-			err := client.Do(tt.method, tt.path, tt.body, resultPtr)
+			err := client.Do(ctx, tt.method, tt.path, tt.body, resultPtr)
 
 			if tt.wantErr {
 				if err == nil {
@@ -167,10 +170,12 @@ func TestClientDo(t *testing.T) {
 }
 
 func TestClientDo_NetworkError(t *testing.T) {
+	ctx := context.Background()
 	client := NewClient("pk_test")
+	client.MaxRetries = 0
 	client.BaseURL = "http://127.0.0.1:1" // unreachable
 
-	err := client.Do("GET", "/v2/user", nil, nil)
+	err := client.Do(ctx, "GET", "/v2/user", nil, nil)
 	if err == nil {
 		t.Fatal("expected network error")
 	}
@@ -184,6 +189,7 @@ func TestClientDo_NetworkError(t *testing.T) {
 }
 
 func TestClientDo_PostBodyValidation(t *testing.T) {
+	ctx := context.Background()
 	var receivedBody map[string]string
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -197,11 +203,12 @@ func TestClientDo_PostBodyValidation(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient("pk_test")
+	client.MaxRetries = 0
 	client.BaseURL = server.URL
 
 	body := map[string]string{"name": "My Task", "description": "A test"}
 	var result map[string]string
-	err := client.Do("POST", "/v2/list/1/task", body, &result)
+	err := client.Do(ctx, "POST", "/v2/list/1/task", body, &result)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestListSpaces(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name        string
 		workspaceID string
@@ -49,9 +51,10 @@ func TestListSpaces(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.ListSpaces(tt.workspaceID)
+			resp, err := client.ListSpaces(ctx, tt.workspaceID)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")
@@ -72,6 +75,7 @@ func TestListSpaces(t *testing.T) {
 }
 
 func TestGetSpace(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		spaceID    string
@@ -107,9 +111,10 @@ func TestGetSpace(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			space, err := client.GetSpace(tt.spaceID)
+			space, err := client.GetSpace(ctx, tt.spaceID)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")
@@ -130,6 +135,7 @@ func TestGetSpace(t *testing.T) {
 }
 
 func TestCreateSpace(t *testing.T) {
+	ctx := context.Background()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			t.Errorf("expected POST, got %s", r.Method)
@@ -140,9 +146,10 @@ func TestCreateSpace(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient("pk_test")
+	client.MaxRetries = 0
 	client.BaseURL = server.URL
 
-	space, err := client.CreateSpace("ws1", &CreateSpaceRequest{Name: "New Space"})
+	space, err := client.CreateSpace(ctx, "ws1", &CreateSpaceRequest{Name: "New Space"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

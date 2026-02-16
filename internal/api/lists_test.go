@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestListLists(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name       string
 		folderID   string
@@ -47,9 +49,10 @@ func TestListLists(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient("pk_test")
+			client.MaxRetries = 0
 			client.BaseURL = server.URL
 
-			resp, err := client.ListLists(tt.folderID)
+			resp, err := client.ListLists(ctx, tt.folderID)
 			if tt.wantErr {
 				if err == nil {
 					t.Fatal("expected error")
@@ -67,6 +70,7 @@ func TestListLists(t *testing.T) {
 }
 
 func TestGetList(t *testing.T) {
+	ctx := context.Background()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte(`{"id":"l1","name":"My List","task_count":5}`))
@@ -74,9 +78,10 @@ func TestGetList(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient("pk_test")
+	client.MaxRetries = 0
 	client.BaseURL = server.URL
 
-	list, err := client.GetList("l1")
+	list, err := client.GetList(ctx, "l1")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -89,6 +94,7 @@ func TestGetList(t *testing.T) {
 }
 
 func TestCreateList(t *testing.T) {
+	ctx := context.Background()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			t.Errorf("expected POST, got %s", r.Method)
@@ -99,9 +105,10 @@ func TestCreateList(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient("pk_test")
+	client.MaxRetries = 0
 	client.BaseURL = server.URL
 
-	list, err := client.CreateList("f1", &CreateListRequest{Name: "New List"})
+	list, err := client.CreateList(ctx, "f1", &CreateListRequest{Name: "New List"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

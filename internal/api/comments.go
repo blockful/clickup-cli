@@ -1,6 +1,9 @@
 package api
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type Comment struct {
 	ID          string        `json:"id"`
@@ -18,17 +21,17 @@ type CommentsResponse struct {
 	Comments []Comment `json:"comments"`
 }
 
-func (c *Client) ListComments(taskID string) (*CommentsResponse, error) {
+func (c *Client) ListComments(ctx context.Context, taskID string) (*CommentsResponse, error) {
 	var resp CommentsResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/task/%s/comment", taskID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/task/%s/comment", taskID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) ListListComments(listID string) (*CommentsResponse, error) {
+func (c *Client) ListListComments(ctx context.Context, listID string) (*CommentsResponse, error) {
 	var resp CommentsResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/list/%s/comment", listID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/list/%s/comment", listID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -46,17 +49,17 @@ type CreateCommentResponse struct {
 	Date   int64  `json:"date"`
 }
 
-func (c *Client) CreateComment(taskID string, req *CreateCommentRequest) (*CreateCommentResponse, error) {
+func (c *Client) CreateComment(ctx context.Context, taskID string, req *CreateCommentRequest) (*CreateCommentResponse, error) {
 	var resp CreateCommentResponse
-	if err := c.Do("POST", fmt.Sprintf("/v2/task/%s/comment", taskID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/comment", taskID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) CreateListComment(listID string, req *CreateCommentRequest) (*CreateCommentResponse, error) {
+func (c *Client) CreateListComment(ctx context.Context, listID string, req *CreateCommentRequest) (*CreateCommentResponse, error) {
 	var resp CreateCommentResponse
-	if err := c.Do("POST", fmt.Sprintf("/v2/list/%s/comment", listID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/comment", listID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -68,10 +71,10 @@ type UpdateCommentRequest struct {
 	Resolved    *bool  `json:"resolved,omitempty"`
 }
 
-func (c *Client) UpdateComment(commentID string, req *UpdateCommentRequest) error {
-	return c.Do("PUT", fmt.Sprintf("/v2/comment/%s", commentID), req, nil)
+func (c *Client) UpdateComment(ctx context.Context, commentID string, req *UpdateCommentRequest) error {
+	return c.Do(ctx, "PUT", fmt.Sprintf("/v2/comment/%s", commentID), req, nil)
 }
 
-func (c *Client) DeleteComment(commentID string) error {
-	return c.Do("DELETE", fmt.Sprintf("/v2/comment/%s", commentID), nil, nil)
+func (c *Client) DeleteComment(ctx context.Context, commentID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/comment/%s", commentID), nil, nil)
 }

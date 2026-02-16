@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ var timeEntryListCmd = &cobra.Command{
 	Short: "List time entries",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 
 		opts := &api.ListTimeEntriesOptions{}
@@ -29,7 +31,7 @@ var timeEntryListCmd = &cobra.Command{
 		opts.IncludeTaskTags, _ = cmd.Flags().GetBool("include-task-tags")
 		opts.IncludeLocationNames, _ = cmd.Flags().GetBool("include-location-names")
 
-		resp, err := client.GetTimeEntries(wid, opts)
+		resp, err := client.GetTimeEntries(ctx, wid, opts)
 		if err != nil {
 			return handleError(err)
 		}
@@ -43,13 +45,14 @@ var timeEntryGetCmd = &cobra.Command{
 	Short: "Get a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetTimeEntry(wid, id)
+		resp, err := client.GetTimeEntry(ctx, wid, id)
 		if err != nil {
 			return handleError(err)
 		}
@@ -63,6 +66,7 @@ var timeEntryCreateCmd = &cobra.Command{
 	Short: "Create a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 
 		start, _ := cmd.Flags().GetInt64("start")
@@ -84,7 +88,7 @@ var timeEntryCreateCmd = &cobra.Command{
 			Billable:    billable,
 		}
 
-		resp, err := client.CreateTimeEntry(wid, req)
+		resp, err := client.CreateTimeEntry(ctx, wid, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -98,6 +102,7 @@ var timeEntryUpdateCmd = &cobra.Command{
 	Short: "Update a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
@@ -116,7 +121,7 @@ var timeEntryUpdateCmd = &cobra.Command{
 			req.TagAction, _ = cmd.Flags().GetString("tag-action")
 		}
 
-		if err := client.UpdateTimeEntry(wid, id, req); err != nil {
+		if err := client.UpdateTimeEntry(ctx, wid, id, req); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -129,13 +134,14 @@ var timeEntryDeleteCmd = &cobra.Command{
 	Short: "Delete a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteTimeEntry(wid, id); err != nil {
+		if err := client.DeleteTimeEntry(ctx, wid, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -148,6 +154,7 @@ var timeEntryStartCmd = &cobra.Command{
 	Short: "Start a timer",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		tid, _ := cmd.Flags().GetString("task")
 		description, _ := cmd.Flags().GetString("description")
@@ -159,7 +166,7 @@ var timeEntryStartCmd = &cobra.Command{
 			Billable:    billable,
 		}
 
-		resp, err := client.StartTimer(wid, req)
+		resp, err := client.StartTimer(ctx, wid, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -173,8 +180,9 @@ var timeEntryStopCmd = &cobra.Command{
 	Short: "Stop the running timer",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
-		resp, err := client.StopTimer(wid)
+		resp, err := client.StopTimer(ctx, wid)
 		if err != nil {
 			return handleError(err)
 		}
@@ -188,9 +196,10 @@ var timeEntryCurrentCmd = &cobra.Command{
 	Short: "Get the running timer",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		assignee, _ := cmd.Flags().GetString("assignee")
-		resp, err := client.GetRunningTimer(wid, assignee)
+		resp, err := client.GetRunningTimer(ctx, wid, assignee)
 		if err != nil {
 			return handleError(err)
 		}

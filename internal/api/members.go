@@ -1,6 +1,9 @@
 package api
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type Member struct {
 	ID             int         `json:"id"`
@@ -74,74 +77,74 @@ type EditGuestRequest struct {
 	CustomRoleID          *int  `json:"custom_role_id,omitempty"`
 }
 
-func (c *Client) GetListMembers(listID string) (*MembersResponse, error) {
+func (c *Client) GetListMembers(ctx context.Context, listID string) (*MembersResponse, error) {
 	var resp MembersResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/list/%s/member", listID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/list/%s/member", listID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) GetTaskMembers(taskID string) (*MembersResponse, error) {
+func (c *Client) GetTaskMembers(ctx context.Context, taskID string) (*MembersResponse, error) {
 	var resp MembersResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/task/%s/member", taskID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/task/%s/member", taskID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) GetGroups(teamID string) (*GroupsResponse, error) {
+func (c *Client) GetGroups(ctx context.Context, teamID string) (*GroupsResponse, error) {
 	path := "/v2/group"
 	if teamID != "" {
 		path += "?team_id=" + teamID
 	}
 	var resp GroupsResponse
-	if err := c.Do("GET", path, nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) CreateGroup(teamID string, req *CreateGroupRequest) (*Group, error) {
+func (c *Client) CreateGroup(ctx context.Context, teamID string, req *CreateGroupRequest) (*Group, error) {
 	var resp Group
-	if err := c.Do("POST", fmt.Sprintf("/v2/team/%s/group", teamID), req, &resp); err != nil {
+	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/team/%s/group", teamID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) UpdateGroup(groupID string, req *UpdateGroupRequest) (*Group, error) {
+func (c *Client) UpdateGroup(ctx context.Context, groupID string, req *UpdateGroupRequest) (*Group, error) {
 	var resp Group
-	if err := c.Do("PUT", fmt.Sprintf("/v2/group/%s", groupID), req, &resp); err != nil {
+	if err := c.Do(ctx, "PUT", fmt.Sprintf("/v2/group/%s", groupID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) DeleteGroup(groupID string) error {
-	return c.Do("DELETE", fmt.Sprintf("/v2/group/%s", groupID), nil, nil)
+func (c *Client) DeleteGroup(ctx context.Context, groupID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/group/%s", groupID), nil, nil)
 }
 
-func (c *Client) InviteGuest(teamID string, req *InviteGuestRequest) error {
-	return c.Do("POST", fmt.Sprintf("/v2/team/%s/guest", teamID), req, nil)
+func (c *Client) InviteGuest(ctx context.Context, teamID string, req *InviteGuestRequest) error {
+	return c.Do(ctx, "POST", fmt.Sprintf("/v2/team/%s/guest", teamID), req, nil)
 }
 
-func (c *Client) GetGuest(teamID, guestID string) (*GuestResponse, error) {
+func (c *Client) GetGuest(ctx context.Context, teamID, guestID string) (*GuestResponse, error) {
 	var resp GuestResponse
-	if err := c.Do("GET", fmt.Sprintf("/v2/team/%s/guest/%s", teamID, guestID), nil, &resp); err != nil {
+	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/team/%s/guest/%s", teamID, guestID), nil, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) EditGuest(teamID, guestID string, req *EditGuestRequest) (*GuestResponse, error) {
+func (c *Client) EditGuest(ctx context.Context, teamID, guestID string, req *EditGuestRequest) (*GuestResponse, error) {
 	var resp GuestResponse
-	if err := c.Do("PUT", fmt.Sprintf("/v2/team/%s/guest/%s", teamID, guestID), req, &resp); err != nil {
+	if err := c.Do(ctx, "PUT", fmt.Sprintf("/v2/team/%s/guest/%s", teamID, guestID), req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *Client) RemoveGuest(teamID, guestID string) error {
-	return c.Do("DELETE", fmt.Sprintf("/v2/team/%s/guest/%s", teamID, guestID), nil, nil)
+func (c *Client) RemoveGuest(ctx context.Context, teamID, guestID string) error {
+	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/team/%s/guest/%s", teamID, guestID), nil, nil)
 }

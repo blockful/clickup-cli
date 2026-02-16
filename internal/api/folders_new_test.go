@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestUpdateFolder(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "PUT" {
 			t.Errorf("method: %s", r.Method)
@@ -17,7 +19,7 @@ func TestUpdateFolder(t *testing.T) {
 	defer srv.Close()
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	f, err := c.UpdateFolder("f1", &UpdateFolderRequest{Name: "updated"})
+	f, err := c.UpdateFolder(ctx, "f1", &UpdateFolderRequest{Name: "updated"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,6 +29,7 @@ func TestUpdateFolder(t *testing.T) {
 }
 
 func TestDeleteFolder(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" {
 			t.Errorf("method: %s", r.Method)
@@ -36,7 +39,7 @@ func TestDeleteFolder(t *testing.T) {
 	defer srv.Close()
 
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.DeleteFolder("f1"); err != nil {
+	if err := c.DeleteFolder(ctx, "f1"); err != nil {
 		t.Fatal(err)
 	}
 }

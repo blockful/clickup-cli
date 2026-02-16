@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestGetWebhooks(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/team/123/webhook" {
 			t.Errorf("path = %s", r.URL.Path)
@@ -16,7 +18,7 @@ func TestGetWebhooks(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.GetWebhooks("123")
+	resp, err := c.GetWebhooks(ctx, "123")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,6 +28,7 @@ func TestGetWebhooks(t *testing.T) {
 }
 
 func TestCreateWebhook(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" || r.URL.Path != "/v2/team/123/webhook" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -34,7 +37,7 @@ func TestCreateWebhook(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	resp, err := c.CreateWebhook("123", &CreateWebhookRequest{Endpoint: "https://example.com", Events: []string{"*"}})
+	resp, err := c.CreateWebhook(ctx, "123", &CreateWebhookRequest{Endpoint: "https://example.com", Events: []string{"*"}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,6 +47,7 @@ func TestCreateWebhook(t *testing.T) {
 }
 
 func TestDeleteWebhook(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" || r.URL.Path != "/v2/webhook/wh1" {
 			t.Errorf("unexpected: %s %s", r.Method, r.URL.Path)
@@ -52,7 +56,7 @@ func TestDeleteWebhook(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	if err := c.DeleteWebhook("wh1"); err != nil {
+	if err := c.DeleteWebhook(ctx, "wh1"); err != nil {
 		t.Fatal(err)
 	}
 }

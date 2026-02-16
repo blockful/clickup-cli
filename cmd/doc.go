@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,9 +17,10 @@ var docListCmd = &cobra.Command{
 	Short: "List/search docs in a workspace",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 
-		resp, err := client.SearchDocs(wid)
+		resp, err := client.SearchDocs(ctx, wid)
 		if err != nil {
 			return handleError(err)
 		}
@@ -32,6 +34,7 @@ var docGetCmd = &cobra.Command{
 	Short: "Get a doc by ID",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		docID, _ := cmd.Flags().GetString("id")
 		if docID == "" {
@@ -39,7 +42,7 @@ var docGetCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		resp, err := client.GetDoc(wid, docID)
+		resp, err := client.GetDoc(ctx, wid, docID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -53,6 +56,7 @@ var docCreateCmd = &cobra.Command{
 	Short: "Create a doc",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		name, _ := cmd.Flags().GetString("name")
 		visibility, _ := cmd.Flags().GetString("visibility")
@@ -69,7 +73,7 @@ var docCreateCmd = &cobra.Command{
 			req.Parent = &api.DocParent{ID: parentID, Type: parentType}
 		}
 
-		resp, err := client.CreateDoc(wid, req)
+		resp, err := client.CreateDoc(ctx, wid, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -83,6 +87,7 @@ var docPageListCmd = &cobra.Command{
 	Short: "List pages in a doc",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		docID, _ := cmd.Flags().GetString("doc")
 		if docID == "" {
@@ -90,7 +95,7 @@ var docPageListCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		resp, err := client.GetDocPageListing(wid, docID)
+		resp, err := client.GetDocPageListing(ctx, wid, docID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -104,6 +109,7 @@ var docPageGetCmd = &cobra.Command{
 	Short: "Get a page from a doc",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		docID, _ := cmd.Flags().GetString("doc")
 		pageID, _ := cmd.Flags().GetString("page")
@@ -112,7 +118,7 @@ var docPageGetCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		resp, err := client.GetPage(wid, docID, pageID)
+		resp, err := client.GetPage(ctx, wid, docID, pageID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -126,6 +132,7 @@ var docPageCreateCmd = &cobra.Command{
 	Short: "Create a page in a doc",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		docID, _ := cmd.Flags().GetString("doc")
 		name, _ := cmd.Flags().GetString("name")
@@ -145,7 +152,7 @@ var docPageCreateCmd = &cobra.Command{
 			ParentPageID: parentPageID,
 		}
 
-		resp, err := client.CreatePage(wid, docID, req)
+		resp, err := client.CreatePage(ctx, wid, docID, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -159,6 +166,7 @@ var docPageUpdateCmd = &cobra.Command{
 	Short: "Update a page in a doc",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		docID, _ := cmd.Flags().GetString("doc")
 		pageID, _ := cmd.Flags().GetString("page")
@@ -177,7 +185,7 @@ var docPageUpdateCmd = &cobra.Command{
 			ContentHtml: contentHtml,
 		}
 
-		resp, err := client.EditPage(wid, docID, pageID, req)
+		resp, err := client.EditPage(ctx, wid, docID, pageID, req)
 		if err != nil {
 			return handleError(err)
 		}

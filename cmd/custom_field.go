@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/blockful/clickup-cli/internal/api"
@@ -18,6 +19,7 @@ var customFieldListCmd = &cobra.Command{
 	Short: "List custom fields for a list, folder, space, or workspace",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		listID, _ := cmd.Flags().GetString("list")
 		folderID, _ := cmd.Flags().GetString("folder")
 		spaceID, _ := cmd.Flags().GetString("space")
@@ -28,13 +30,13 @@ var customFieldListCmd = &cobra.Command{
 
 		switch {
 		case listID != "":
-			resp, err = client.GetListCustomFields(listID)
+			resp, err = client.GetListCustomFields(ctx, listID)
 		case folderID != "":
-			resp, err = client.GetFolderCustomFields(folderID)
+			resp, err = client.GetFolderCustomFields(ctx, folderID)
 		case spaceID != "":
-			resp, err = client.GetSpaceCustomFields(spaceID)
+			resp, err = client.GetSpaceCustomFields(ctx, spaceID)
 		case workspaceID != "":
-			resp, err = client.GetWorkspaceCustomFields(workspaceID)
+			resp, err = client.GetWorkspaceCustomFields(ctx, workspaceID)
 		default:
 			output.PrintError("VALIDATION_ERROR", "one of --list, --folder, --space, or --workspace is required")
 			return &exitError{code: 1}
@@ -53,6 +55,7 @@ var customFieldSetCmd = &cobra.Command{
 	Short: "Set a custom field value on a task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		taskID, _ := cmd.Flags().GetString("task")
 		fieldID, _ := cmd.Flags().GetString("field")
 		value, _ := cmd.Flags().GetString("value")
@@ -69,7 +72,7 @@ var customFieldSetCmd = &cobra.Command{
 		}
 
 		req := &api.SetCustomFieldRequest{Value: v}
-		if err := client.SetCustomFieldValue(taskID, fieldID, req); err != nil {
+		if err := client.SetCustomFieldValue(ctx, taskID, fieldID, req); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -82,6 +85,7 @@ var customFieldRemoveCmd = &cobra.Command{
 	Short: "Remove a custom field value from a task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		taskID, _ := cmd.Flags().GetString("task")
 		fieldID, _ := cmd.Flags().GetString("field")
 
@@ -90,7 +94,7 @@ var customFieldRemoveCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		if err := client.RemoveCustomFieldValue(taskID, fieldID); err != nil {
+		if err := client.RemoveCustomFieldValue(ctx, taskID, fieldID); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})

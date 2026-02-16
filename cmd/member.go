@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ var memberListCmd = &cobra.Command{
 	Short: "List members of a list or task",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		listID, _ := cmd.Flags().GetString("list")
 		taskID, _ := cmd.Flags().GetString("task")
 
@@ -24,9 +26,9 @@ var memberListCmd = &cobra.Command{
 
 		switch {
 		case taskID != "":
-			resp, err = client.GetTaskMembers(taskID)
+			resp, err = client.GetTaskMembers(ctx, taskID)
 		case listID != "":
-			resp, err = client.GetListMembers(listID)
+			resp, err = client.GetListMembers(ctx, listID)
 		default:
 			output.PrintError("VALIDATION_ERROR", "--list or --task is required")
 			return &exitError{code: 1}
@@ -49,8 +51,9 @@ var groupListCmd = &cobra.Command{
 	Short: "List groups",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
-		resp, err := client.GetGroups(wid)
+		resp, err := client.GetGroups(ctx, wid)
 		if err != nil {
 			return handleError(err)
 		}
@@ -64,6 +67,7 @@ var groupCreateCmd = &cobra.Command{
 	Short: "Create a group",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		name, _ := cmd.Flags().GetString("name")
 		handle, _ := cmd.Flags().GetString("handle")
@@ -74,7 +78,7 @@ var groupCreateCmd = &cobra.Command{
 		}
 
 		req := &api.CreateGroupRequest{Name: name, Handle: handle}
-		resp, err := client.CreateGroup(wid, req)
+		resp, err := client.CreateGroup(ctx, wid, req)
 		if err != nil {
 			return handleError(err)
 		}
@@ -88,12 +92,13 @@ var groupDeleteCmd = &cobra.Command{
 	Short: "Delete a group",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteGroup(id); err != nil {
+		if err := client.DeleteGroup(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -111,6 +116,7 @@ var guestInviteCmd = &cobra.Command{
 	Short: "Invite a guest to workspace",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		email, _ := cmd.Flags().GetString("email")
 		if email == "" {
@@ -118,7 +124,7 @@ var guestInviteCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 		req := &api.InviteGuestRequest{Email: email}
-		if err := client.InviteGuest(wid, req); err != nil {
+		if err := client.InviteGuest(ctx, wid, req); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})
@@ -131,13 +137,14 @@ var guestGetCmd = &cobra.Command{
 	Short: "Get a guest",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetGuest(wid, id)
+		resp, err := client.GetGuest(ctx, wid, id)
 		if err != nil {
 			return handleError(err)
 		}
@@ -151,13 +158,14 @@ var guestRemoveCmd = &cobra.Command{
 	Short: "Remove a guest from workspace",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		wid := getWorkspaceID(cmd)
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.RemoveGuest(wid, id); err != nil {
+		if err := client.RemoveGuest(ctx, wid, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"status": "ok"})

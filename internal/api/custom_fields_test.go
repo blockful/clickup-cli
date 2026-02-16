@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestGetListCustomFields(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name   string
 		listID string
@@ -28,7 +30,7 @@ func TestGetListCustomFields(t *testing.T) {
 			}))
 			defer srv.Close()
 			c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-			resp, err := c.GetListCustomFields(tt.listID)
+			resp, err := c.GetListCustomFields(ctx, tt.listID)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -40,6 +42,7 @@ func TestGetListCustomFields(t *testing.T) {
 }
 
 func TestGetFolderCustomFields(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/folder/456/field" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -48,13 +51,14 @@ func TestGetFolderCustomFields(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.GetFolderCustomFields("456")
+	_, err := c.GetFolderCustomFields(ctx, "456")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestGetSpaceCustomFields(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/space/789/field" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -63,13 +67,14 @@ func TestGetSpaceCustomFields(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.GetSpaceCustomFields("789")
+	_, err := c.GetSpaceCustomFields(ctx, "789")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestGetWorkspaceCustomFields(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v2/team/111/field" {
 			t.Errorf("path: %s", r.URL.Path)
@@ -78,13 +83,14 @@ func TestGetWorkspaceCustomFields(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	_, err := c.GetWorkspaceCustomFields("111")
+	_, err := c.GetWorkspaceCustomFields(ctx, "111")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestSetCustomFieldValue(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			t.Errorf("method = %s", r.Method)
@@ -101,13 +107,14 @@ func TestSetCustomFieldValue(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	err := c.SetCustomFieldValue("t1", "f1", &SetCustomFieldRequest{Value: "hello"})
+	err := c.SetCustomFieldValue(ctx, "t1", "f1", &SetCustomFieldRequest{Value: "hello"})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestRemoveCustomFieldValue(t *testing.T) {
+	ctx := context.Background()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" {
 			t.Errorf("method = %s", r.Method)
@@ -119,7 +126,7 @@ func TestRemoveCustomFieldValue(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	err := c.RemoveCustomFieldValue("t1", "f1")
+	err := c.RemoveCustomFieldValue(ctx, "t1", "f1")
 	if err != nil {
 		t.Fatal(err)
 	}

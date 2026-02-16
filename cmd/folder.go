@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/blockful/clickup-cli/internal/api"
 	"github.com/blockful/clickup-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -16,12 +17,13 @@ var folderListCmd = &cobra.Command{
 	Short: "List folders in a space",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		spaceID, _ := cmd.Flags().GetString("space")
 		if spaceID == "" {
 			output.PrintError("VALIDATION_ERROR", "--space is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.ListFolders(spaceID)
+		resp, err := client.ListFolders(ctx, spaceID)
 		if err != nil {
 			return handleError(err)
 		}
@@ -35,12 +37,13 @@ var folderGetCmd = &cobra.Command{
 	Short: "Get a folder by ID",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.GetFolder(id)
+		resp, err := client.GetFolder(ctx, id)
 		if err != nil {
 			return handleError(err)
 		}
@@ -54,6 +57,7 @@ var folderCreateCmd = &cobra.Command{
 	Short: "Create a new folder",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		spaceID, _ := cmd.Flags().GetString("space")
 		if spaceID == "" {
 			output.PrintError("VALIDATION_ERROR", "--space is required")
@@ -64,7 +68,7 @@ var folderCreateCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--name is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.CreateFolder(spaceID, &api.CreateFolderRequest{Name: name})
+		resp, err := client.CreateFolder(ctx, spaceID, &api.CreateFolderRequest{Name: name})
 		if err != nil {
 			return handleError(err)
 		}
@@ -78,6 +82,7 @@ var folderUpdateCmd = &cobra.Command{
 	Short: "Update a folder",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
@@ -88,7 +93,7 @@ var folderUpdateCmd = &cobra.Command{
 			output.PrintError("VALIDATION_ERROR", "--name is required")
 			return &exitError{code: 1}
 		}
-		resp, err := client.UpdateFolder(id, &api.UpdateFolderRequest{Name: name})
+		resp, err := client.UpdateFolder(ctx, id, &api.UpdateFolderRequest{Name: name})
 		if err != nil {
 			return handleError(err)
 		}
@@ -102,12 +107,13 @@ var folderDeleteCmd = &cobra.Command{
 	Short: "Delete a folder",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient()
+		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
 		}
-		if err := client.DeleteFolder(id); err != nil {
+		if err := client.DeleteFolder(ctx, id); err != nil {
 			return handleError(err)
 		}
 		output.JSON(map[string]string{"message": "folder deleted", "id": id})

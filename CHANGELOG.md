@@ -2,7 +2,7 @@
 
 ## [1.0.0] - 2026-02-16
 
-First release of `clickup-cli` — a production-quality CLI covering the **complete ClickUp API** (135+ commands), optimized for AI agents.
+First release of `clickup-cli` — a production-quality CLI covering **99.3% of the ClickUp API** (134/135 endpoints), optimized for AI agents.
 
 ### Command Groups (27 resource groups)
 

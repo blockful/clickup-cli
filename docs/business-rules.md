@@ -41,7 +41,7 @@
 
 ## BR-007: Task Operations
 
-- **BR-007a**: `task create` requires `--list-id` and `--name` at minimum.
+- **BR-007a**: `task create` requires `--list` and `--name` at minimum.
 - **BR-007b**: `task update` accepts any combination of mutable fields; only specified fields are sent to API.
 - **BR-007c**: `task search` uses the filtered team tasks endpoint (GET /v2/team/{team_id}/task) with query parameters.
 - **BR-007d**: Custom field values on tasks are set via `custom-field set`, not via `task update`.
@@ -51,12 +51,12 @@
 
 - **BR-008a**: ClickUp hierarchy: Workspace → Space → Folder → List → Task.
 - **BR-008b**: Lists can exist directly under Spaces (folderless). The CLI supports both paths.
-- **BR-008c**: When `--workspace-id` is omitted, use the default workspace from config.
+- **BR-008c**: When `--workspace` is omitted, use the default workspace from config.
 - **BR-008d**: Commands MUST fail with `MISSING_PARAM` if a required parent ID is not provided and cannot be inferred from config.
 
 ## BR-009: Comments
 
-- **BR-009a**: Comments can be attached to tasks, lists, or views. The CLI uses `--task-id`, `--list-id`, or `--view-id` to specify the parent.
+- **BR-009a**: Comments can be attached to tasks, lists, or views. The CLI uses `--task`, `--list`, or `--view-id` to specify the parent.
 - **BR-009b**: Exactly one parent flag is required for `comment create` and `comment list`.
 
 ## BR-010: Docs (v3 API)
@@ -85,7 +85,7 @@
 ## BR-014: Custom Fields
 
 - **BR-014a**: `custom-field list` can scope to list, folder, space, or workspace level.
-- **BR-014b**: `custom-field set` requires `--task-id`, `--field-id`, and `--value`.
+- **BR-014b**: `custom-field set` requires `--task`, `--field`, and `--value`.
 - **BR-014c**: The `--value` flag accepts JSON for complex field types (e.g., dropdowns, labels).
 
 ## BR-015: Time Entries
@@ -101,7 +101,7 @@
 
 ## BR-017: Attachments
 
-- **BR-017a**: `attachment create` requires `--task-id` and `--file` (local path).
+- **BR-017a**: `attachment create` requires `--task-id` and `--file` (local file path).
 - **BR-017b**: File upload uses multipart/form-data encoding.
 
 ## BR-018: Guests

@@ -2,7 +2,7 @@
 
 ## Overview
 
-clickup-cli is a Go CLI built with [Cobra](https://github.com/spf13/cobra) and [Viper](https://github.com/spf13/viper). It wraps the complete ClickUp API (v2 + v3 Docs) into 135+ commands across 27 resource groups.
+clickup-cli is a Go CLI built with [Cobra](https://github.com/spf13/cobra) and [Viper](https://github.com/spf13/viper). It wraps the ClickUp API (v2 + v3 Docs) with 99.3% coverage — 134/135 endpoints across 27 resource groups.
 
 ```
 clickup-cli/
@@ -41,7 +41,7 @@ clickup-cli/
 │   │   ├── tasks.go                 # Task endpoints
 │   │   ├── lists.go                 # List endpoints
 │   │   ├── spaces.go                # Space endpoints
-│   │   ├── folders.go               # Folder endpoints (inferred)
+│   │   ├── folders.go               # Folder endpoints
 │   │   ├── comments.go              # Comment endpoints
 │   │   ├── docs.go                  # Docs v3 endpoints
 │   │   ├── checklists.go            # Checklist endpoints
@@ -58,7 +58,7 @@ clickup-cli/
 │   │   ├── roles.go                 # Role endpoints
 │   │   ├── shared.go                # Shared hierarchy endpoints
 │   │   ├── custom_task_types.go     # Custom task type endpoints
-│   │   ├── templates.go             # Template endpoints (inferred)
+│   │   ├── templates.go             # Template endpoints
 │   │   ├── attachments.go           # Attachment endpoints
 │   │   ├── relationships.go         # Relationship (dependency/link) endpoints
 │   │   ├── auth.go                  # Auth/user endpoints

@@ -1,25 +1,37 @@
 # clickup-cli
 
-A production-quality command-line interface for the **complete ClickUp API** — 135+ endpoints, every parameter exposed as a CLI flag. Designed for AI agents and automation. All output is JSON by default.
+A production-quality command-line interface for the **complete ClickUp API** — 134/135 endpoints (99.3% coverage), every parameter exposed as a CLI flag. Built for AI agents and automation. JSON output by default.
 
 [![Go](https://github.com/blockful/clickup-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/blockful/clickup-cli/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+## Why This Exists
+
+Most ClickUp integrations are partial. This CLI wraps **every endpoint** so AI agents can manage ClickUp programmatically — no SDK, no HTTP wrangling, no missing features. Every command returns valid JSON, has no interactive prompts, and supports `--dry-run` on destructive operations.
+
 ## Features
 
-- **Full API coverage** — 135+ commands spanning 27 resource groups
+- **99.3% API coverage** — 134 of 135 ClickUp API endpoints across 27 resource groups
 - **JSON-first output** — every command outputs valid JSON; errors are structured `{"error":"...","code":"..."}`
-- **AI-agent optimized** — no interactive prompts, deterministic output, `--dry-run` on destructive ops
+- **AI-agent optimized** — no interactive prompts, deterministic output, machine-parseable
 - **Every flag documented** — see [docs/api.md](docs/api.md) for complete flag→API parameter mapping
+- **Markdown content** — `--markdown-content` / `--markdown-description` for rich task descriptions
+- **Custom task IDs** — `--custom-task-ids` + `--team-id` for human-readable task references
 - **v3 Docs API** — full support for ClickUp Docs with page CRUD
 
 ## Installation
+
+### Go install (recommended)
 
 ```bash
 go install github.com/blockful/clickup-cli@latest
 ```
 
-Or build from source:
+### Binary releases
+
+Download pre-built binaries from [GitHub Releases](https://github.com/blockful/clickup-cli/releases) for Linux, macOS, and Windows (amd64 + arm64).
+
+### Build from source
 
 ```bash
 git clone https://github.com/blockful/clickup-cli.git
@@ -30,31 +42,41 @@ go build -o clickup ./
 ## Quick Start
 
 ```bash
-# Authenticate
+# 1. Authenticate (saves token to ~/.clickup-cli.yaml)
 clickup auth login --token pk_YOUR_TOKEN
+clickup auth whoami  # verify
 
-# Explore your workspace
+# 2. Explore your workspace
 clickup workspace list
 clickup space list --workspace 1234567
-clickup task list --list 900100200300
+clickup folder list --space 5678
+clickup list list --folder 9012
 
-# Create a task
-clickup task create --list 900100200300 --name "Ship feature" --priority 2 --status "in progress"
+# 3. Create a task with markdown description
+clickup task create --list 900100200300 \
+  --name "Ship feature" \
+  --priority 2 \
+  --status "in progress" \
+  --assignee 12345 \
+  --markdown-content "## Requirements\n- Fast\n- Reliable"
 
-# Search across workspace
+# 4. Search across workspace
 clickup task search --workspace 1234567 --assignee 12345 --include-closed
 
-# Track time
+# 5. Track time
 clickup time-entry start --workspace 1234567 --task abc123 --description "Working on feature"
 clickup time-entry stop --workspace 1234567
 
-# Upload a file
+# 6. Upload a file
 clickup attachment create --task-id abc123 --file ./screenshot.png
+
+# 7. Human-readable output (for debugging)
+clickup task list --list 900100200300 --format text
 ```
 
 ## Command Reference
 
-27 top-level command groups, 135+ total commands. For **complete flag documentation** with types, defaults, and API parameter mappings, see **[docs/api.md](docs/api.md)**.
+27 top-level command groups, 134+ total commands. For **complete flag documentation** with types, defaults, and API parameter mappings, see **[docs/api.md](docs/api.md)**.
 
 ### Core Hierarchy
 
@@ -70,7 +92,8 @@ clickup attachment create --task-id abc123 --file ./screenshot.png
 | Command | Subcommands | Description |
 |---------|-------------|-------------|
 | `task` | `list`, `get`, `create`, `update`, `delete`, `search` | Full task CRUD + workspace search |
-| `task` | `add-to-list`, `remove-from-list`, `merge`, `time-in-status` | Multi-list, merge, status timing |
+| `task` | `add-to-list`, `remove-from-list` | Multi-list task management |
+| `task` | `merge`, `time-in-status` | Merge tasks, get status timing |
 | `task dependency` | `add`, `remove` | Task dependency management |
 | `task link` | `add`, `remove` | Task link management |
 
@@ -90,7 +113,7 @@ clickup attachment create --task-id abc123 --file ./screenshot.png
 
 | Command | Subcommands | Description |
 |---------|-------------|-------------|
-| `custom-field` | `list`, `set`, `remove` | Custom field values |
+| `custom-field` | `list`, `set`, `remove` | Custom field values (workspace/space/folder/list scope) |
 | `tag` | `list`, `create`, `update`, `delete`, `add`, `remove` | Space tags & task tagging |
 | `custom-task-type` | `list` | List custom task types |
 
@@ -151,24 +174,53 @@ token: pk_12345...
 workspace: "1234567"
 ```
 
-Precedence: CLI flags > environment variables (`CLICKUP_TOKEN`) > config file.
+**Precedence:** CLI flags > environment variables (`CLICKUP_TOKEN`) > config file.
 
 ## Output Format
 
-All commands output valid JSON. Errors:
+**Default: JSON.** Every command outputs valid JSON to stdout. Use `--format text` for human-readable output.
 
+**Success:** raw JSON from the ClickUp API (object or array).
+
+**Error:**
 ```json
-{"error": "description of what went wrong", "code": "ERROR_CODE", "status": 400}
+{"error": "task not found", "code": "NOT_FOUND", "status": 404}
 ```
+
+**Exit codes:** 0 = success, non-zero = error.
+
+## Key Features for Agents
+
+### Markdown Content
+
+Create tasks with rich descriptions using `--markdown-content` or `--markdown-description`:
+
+```bash
+clickup task create --list 123 --name "Bug fix" \
+  --markdown-content "## Steps to reproduce\n1. Open app\n2. Click button\n\n**Expected:** no crash"
+```
+
+Retrieve markdown descriptions with `--include-markdown` on `task get`, `task list`, and `task search`.
+
+### Custom Task IDs
+
+Reference tasks by custom IDs (e.g., `PROJ-123`) instead of ClickUp's internal IDs:
+
+```bash
+clickup task get --id "PROJ-123" --custom-task-ids --team-id 1234567
+clickup task update --id "PROJ-123" --custom-task-ids --team-id 1234567 --status "done"
+```
+
+The `--custom-task-ids` + `--team-id` pattern works on: `task get`, `task update`, `task delete`, `task add-to-list`, `task remove-from-list`, `task merge`, `task time-in-status`, `task dependency add/remove`, `task link add/remove`, `comment create`, `custom-field set/remove`, `attachment create`, `guest add-to-task/remove-from-task`, and `time-entry legacy` commands.
 
 ## Documentation
 
 - **[API Reference](docs/api.md)** — Every command, every flag, every API mapping
+- **[Agents Guide](AGENTS.md)** — For AI agents using this CLI
 - **[Architecture](docs/architecture.md)** — Codebase structure and design
 - **[Business Rules](docs/business-rules.md)** — Invariants and conventions
 - **[Decision Records](docs/decisions/)** — ADRs for key decisions
 - **[Contributing](CONTRIBUTING.md)** — How to contribute
-- **[Agents Guide](AGENTS.md)** — For AI agents using this CLI
 
 ## License
 

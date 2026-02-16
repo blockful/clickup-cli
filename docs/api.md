@@ -1,4 +1,4 @@
-# ClickUp CLI — Complete Command & Flag Reference (135+ commands)
+# ClickUp CLI — Complete Command & Flag Reference (134 endpoints, 99.3% API coverage)
 
 > **Base URL:** `https://api.clickup.com/api`
 > Docs API (v3) uses `https://api.clickup.com/api/v3/workspaces/`.

@@ -26,7 +26,7 @@ var attachmentCreateCmd = &cobra.Command{
 			return &exitError{code: 1}
 		}
 
-		resp, err := client.CreateTaskAttachment(ctx, taskID, filePath)
+		resp, err := client.CreateTaskAttachment(ctx, taskID, filePath, getTaskScopedOpts(cmd))
 		if err != nil {
 			return handleError(err)
 		}
@@ -41,4 +41,5 @@ func init() {
 
 	attachmentCreateCmd.Flags().String("task-id", "", "Task ID (required)")
 	attachmentCreateCmd.Flags().String("file", "", "Path to file (required)")
+	addTaskScopedFlags(attachmentCreateCmd)
 }

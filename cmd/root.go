@@ -76,3 +76,19 @@ type exitError struct {
 func (e *exitError) Error() string {
 	return ""
 }
+
+// getTaskScopedOpts extracts --custom-task-ids and --team-id from a command.
+func getTaskScopedOpts(cmd *cobra.Command) *api.TaskScopedOptions {
+	ct, _ := cmd.Flags().GetBool("custom-task-ids")
+	tid, _ := cmd.Flags().GetString("team-id")
+	if !ct && tid == "" {
+		return nil
+	}
+	return &api.TaskScopedOptions{CustomTaskIDs: ct, TeamID: tid}
+}
+
+// addTaskScopedFlags adds --custom-task-ids and --team-id flags to a command.
+func addTaskScopedFlags(cmd *cobra.Command) {
+	cmd.Flags().Bool("custom-task-ids", false, "Use custom task IDs (requires --team-id)")
+	cmd.Flags().String("team-id", "", "Team ID (required when --custom-task-ids is set)")
+}

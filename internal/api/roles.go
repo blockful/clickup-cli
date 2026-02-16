@@ -6,9 +6,9 @@ import (
 )
 
 type CustomRole struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	CustomType int    `json:"custom_type"`
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	CustomType  int    `json:"custom_type"`
 	DateCreated string `json:"date_created,omitempty"`
 }
 

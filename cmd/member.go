@@ -174,22 +174,28 @@ var guestInviteCmd = &cobra.Command{
 		}
 		req := &api.InviteGuestRequest{Email: email}
 		if cmd.Flags().Changed("can-edit-tags") {
-			v, _ := cmd.Flags().GetBool("can-edit-tags"); req.CanEditTags = &v
+			v, _ := cmd.Flags().GetBool("can-edit-tags")
+			req.CanEditTags = &v
 		}
 		if cmd.Flags().Changed("can-see-time-spent") {
-			v, _ := cmd.Flags().GetBool("can-see-time-spent"); req.CanSeeTimeSpent = &v
+			v, _ := cmd.Flags().GetBool("can-see-time-spent")
+			req.CanSeeTimeSpent = &v
 		}
 		if cmd.Flags().Changed("can-see-time-estimated") {
-			v, _ := cmd.Flags().GetBool("can-see-time-estimated"); req.CanSeeTimeEstimated = &v
+			v, _ := cmd.Flags().GetBool("can-see-time-estimated")
+			req.CanSeeTimeEstimated = &v
 		}
 		if cmd.Flags().Changed("can-create-views") {
-			v, _ := cmd.Flags().GetBool("can-create-views"); req.CanCreateViews = &v
+			v, _ := cmd.Flags().GetBool("can-create-views")
+			req.CanCreateViews = &v
 		}
 		if cmd.Flags().Changed("can-see-points-estimated") {
-			v, _ := cmd.Flags().GetBool("can-see-points-estimated"); req.CanSeePointsEstimated = &v
+			v, _ := cmd.Flags().GetBool("can-see-points-estimated")
+			req.CanSeePointsEstimated = &v
 		}
 		if cmd.Flags().Changed("custom-role-id") {
-			v, _ := cmd.Flags().GetInt("custom-role-id"); req.CustomRoleID = &v
+			v, _ := cmd.Flags().GetInt("custom-role-id")
+			req.CustomRoleID = &v
 		}
 		if err := client.InviteGuest(ctx, wid, req); err != nil {
 			return handleError(err)
@@ -254,22 +260,28 @@ var guestEditCmd = &cobra.Command{
 		}
 		req := &api.EditGuestRequest{}
 		if cmd.Flags().Changed("can-edit-tags") {
-			v, _ := cmd.Flags().GetBool("can-edit-tags"); req.CanEditTags = &v
+			v, _ := cmd.Flags().GetBool("can-edit-tags")
+			req.CanEditTags = &v
 		}
 		if cmd.Flags().Changed("can-see-time-spent") {
-			v, _ := cmd.Flags().GetBool("can-see-time-spent"); req.CanSeeTimeSpent = &v
+			v, _ := cmd.Flags().GetBool("can-see-time-spent")
+			req.CanSeeTimeSpent = &v
 		}
 		if cmd.Flags().Changed("can-see-time-estimated") {
-			v, _ := cmd.Flags().GetBool("can-see-time-estimated"); req.CanSeeTimeEstimated = &v
+			v, _ := cmd.Flags().GetBool("can-see-time-estimated")
+			req.CanSeeTimeEstimated = &v
 		}
 		if cmd.Flags().Changed("can-create-views") {
-			v, _ := cmd.Flags().GetBool("can-create-views"); req.CanCreateViews = &v
+			v, _ := cmd.Flags().GetBool("can-create-views")
+			req.CanCreateViews = &v
 		}
 		if cmd.Flags().Changed("can-see-points-estimated") {
-			v, _ := cmd.Flags().GetBool("can-see-points-estimated"); req.CanSeePointsEstimated = &v
+			v, _ := cmd.Flags().GetBool("can-see-points-estimated")
+			req.CanSeePointsEstimated = &v
 		}
 		if cmd.Flags().Changed("custom-role-id") {
-			v, _ := cmd.Flags().GetInt("custom-role-id"); req.CustomRoleID = &v
+			v, _ := cmd.Flags().GetInt("custom-role-id")
+			req.CustomRoleID = &v
 		}
 		resp, err := client.EditGuest(ctx, wid, id, req)
 		if err != nil {

@@ -214,10 +214,10 @@ type RemoveTagsFromTimeEntriesRequest struct {
 }
 
 type ChangeTagNameRequest struct {
-	Name   string `json:"name"`
+	Name    string `json:"name"`
 	NewName string `json:"new_name"`
-	TagBg  string `json:"tag_bg"`
-	TagFg  string `json:"tag_fg"`
+	TagBg   string `json:"tag_bg"`
+	TagFg   string `json:"tag_fg"`
 }
 
 func (c *Client) GetTimeEntryHistory(ctx context.Context, teamID, timerID string) (*TimeEntryHistoryResponse, error) {

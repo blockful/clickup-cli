@@ -175,11 +175,17 @@ func (c *Client) AddGuestToTask(ctx context.Context, taskID string, guestID int,
 		params.Set("include_shared", "true")
 	}
 	if len(opts) > 0 && opts[0] != nil {
-		if opts[0].CustomTaskIDs { params.Set("custom_task_ids", "true") }
-		if opts[0].TeamID != "" { params.Set("team_id", opts[0].TeamID) }
+		if opts[0].CustomTaskIDs {
+			params.Set("custom_task_ids", "true")
+		}
+		if opts[0].TeamID != "" {
+			params.Set("team_id", opts[0].TeamID)
+		}
 	}
 	path := fmt.Sprintf("/v2/task/%s/guest/%d", taskID, guestID)
-	if q := params.Encode(); q != "" { path += "?" + q }
+	if q := params.Encode(); q != "" {
+		path += "?" + q
+	}
 	var resp GuestResponse
 	if err := c.Do(ctx, "POST", path, req, &resp); err != nil {
 		return nil, err
@@ -193,11 +199,17 @@ func (c *Client) RemoveGuestFromTask(ctx context.Context, taskID string, guestID
 		params.Set("include_shared", "true")
 	}
 	if len(opts) > 0 && opts[0] != nil {
-		if opts[0].CustomTaskIDs { params.Set("custom_task_ids", "true") }
-		if opts[0].TeamID != "" { params.Set("team_id", opts[0].TeamID) }
+		if opts[0].CustomTaskIDs {
+			params.Set("custom_task_ids", "true")
+		}
+		if opts[0].TeamID != "" {
+			params.Set("team_id", opts[0].TeamID)
+		}
 	}
 	path := fmt.Sprintf("/v2/task/%s/guest/%d", taskID, guestID)
-	if q := params.Encode(); q != "" { path += "?" + q }
+	if q := params.Encode(); q != "" {
+		path += "?" + q
+	}
 	return c.Do(ctx, "DELETE", path, nil, nil)
 }
 

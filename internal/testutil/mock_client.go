@@ -34,7 +34,7 @@ type MockClient struct {
 	DeleteTaskFn           func(context.Context, string) error
 	SearchTasksFn          func(context.Context, string, *api.SearchTasksOptions) (*api.TasksResponse, error)
 	ListCommentsFn         func(context.Context, string, string) (*api.CommentsResponse, error)
-	ListListCommentsFn         func(context.Context, string, string) (*api.CommentsResponse, error)
+	ListListCommentsFn     func(context.Context, string, string) (*api.CommentsResponse, error)
 	CreateCommentFn        func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
 	CreateListCommentFn    func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
 	UpdateCommentFn        func(context.Context, string, *api.UpdateCommentRequest) error
@@ -74,23 +74,23 @@ type MockClient struct {
 	GetDocPageListingFn func(context.Context, string, string) (*api.DocPagesResponse, error)
 
 	// Time Tracking
-	GetTimeEntriesFn   func(context.Context, string, *api.ListTimeEntriesOptions) (*api.TimeEntriesResponse, error)
-	CreateTimeEntryFn  func(context.Context, string, *api.CreateTimeEntryRequest) (*api.TimeEntry, error)
-	GetTimeEntryFn     func(context.Context, string, string) (*api.SingleTimeEntryResponse, error)
-	UpdateTimeEntryFn  func(context.Context, string, string, *api.UpdateTimeEntryRequest) error
-	DeleteTimeEntryFn  func(context.Context, string, string) error
-	StartTimerFn       func(context.Context, string, *api.StartTimerRequest) (*api.SingleTimeEntryResponse, error)
-	StopTimerFn        func(context.Context, string) (*api.SingleTimeEntryResponse, error)
-	GetRunningTimerFn  func(context.Context, string, string) (*api.SingleTimeEntryResponse, error)
-	GetTimeEntryTagsFn            func(context.Context, string) (*api.TimeEntryTagsResponse, error)
-	GetTimeEntryHistoryFn         func(context.Context, string, string) (*api.TimeEntryHistoryResponse, error)
-	AddTagsToTimeEntriesFn        func(context.Context, string, *api.AddTagsToTimeEntriesRequest) error
-	RemoveTagsFromTimeEntriesFn   func(context.Context, string, *api.RemoveTagsFromTimeEntriesRequest) error
-	ChangeTagNamesFn              func(context.Context, string, *api.ChangeTagNameRequest) error
-	GetLegacyTrackedTimeFn        func(context.Context, string, string) (*api.LegacyTimeResponse, error)
-	TrackLegacyTimeFn             func(context.Context, string, *api.LegacyTrackTimeRequest) (*api.LegacyTimeResponse, error)
-	EditLegacyTimeFn              func(context.Context, string, string, *api.LegacyEditTimeRequest) error
-	DeleteLegacyTimeFn            func(context.Context, string, string) error
+	GetTimeEntriesFn            func(context.Context, string, *api.ListTimeEntriesOptions) (*api.TimeEntriesResponse, error)
+	CreateTimeEntryFn           func(context.Context, string, *api.CreateTimeEntryRequest) (*api.TimeEntry, error)
+	GetTimeEntryFn              func(context.Context, string, string) (*api.SingleTimeEntryResponse, error)
+	UpdateTimeEntryFn           func(context.Context, string, string, *api.UpdateTimeEntryRequest) error
+	DeleteTimeEntryFn           func(context.Context, string, string) error
+	StartTimerFn                func(context.Context, string, *api.StartTimerRequest) (*api.SingleTimeEntryResponse, error)
+	StopTimerFn                 func(context.Context, string) (*api.SingleTimeEntryResponse, error)
+	GetRunningTimerFn           func(context.Context, string, string) (*api.SingleTimeEntryResponse, error)
+	GetTimeEntryTagsFn          func(context.Context, string) (*api.TimeEntryTagsResponse, error)
+	GetTimeEntryHistoryFn       func(context.Context, string, string) (*api.TimeEntryHistoryResponse, error)
+	AddTagsToTimeEntriesFn      func(context.Context, string, *api.AddTagsToTimeEntriesRequest) error
+	RemoveTagsFromTimeEntriesFn func(context.Context, string, *api.RemoveTagsFromTimeEntriesRequest) error
+	ChangeTagNamesFn            func(context.Context, string, *api.ChangeTagNameRequest) error
+	GetLegacyTrackedTimeFn      func(context.Context, string, string) (*api.LegacyTimeResponse, error)
+	TrackLegacyTimeFn           func(context.Context, string, *api.LegacyTrackTimeRequest) (*api.LegacyTimeResponse, error)
+	EditLegacyTimeFn            func(context.Context, string, string, *api.LegacyEditTimeRequest) error
+	DeleteLegacyTimeFn          func(context.Context, string, string) error
 
 	// Webhooks
 	GetWebhooksFn   func(context.Context, string) (*api.WebhooksResponse, error)
@@ -147,11 +147,11 @@ type MockClient struct {
 	CreateViewCommentFn func(context.Context, string, *api.CreateCommentRequest) (*api.CreateCommentResponse, error)
 
 	// Guest Assignments
-	AddGuestToTaskFn       func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
-	RemoveGuestFromTaskFn  func(context.Context, string, int, bool) error
-	AddGuestToListFn       func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
-	RemoveGuestFromListFn  func(context.Context, string, int, bool) error
-	AddGuestToFolderFn     func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
+	AddGuestToTaskFn        func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
+	RemoveGuestFromTaskFn   func(context.Context, string, int, bool) error
+	AddGuestToListFn        func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
+	RemoveGuestFromListFn   func(context.Context, string, int, bool) error
+	AddGuestToFolderFn      func(context.Context, string, int, *api.GuestPermissionRequest, bool) (*api.GuestResponse, error)
 	RemoveGuestFromFolderFn func(context.Context, string, int, bool) error
 
 	// Users
@@ -174,17 +174,17 @@ type MockClient struct {
 	GetWorkspacePlanFn  func(context.Context, string) (*api.PlanResponse, error)
 
 	// Templates
-	GetTaskTemplatesFn            func(context.Context, string, int) (*api.TaskTemplatesResponse, error)
-	CreateTaskFromTemplateFn      func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
-	CreateFolderFromTemplateFn    func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
+	GetTaskTemplatesFn             func(context.Context, string, int) (*api.TaskTemplatesResponse, error)
+	CreateTaskFromTemplateFn       func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
+	CreateFolderFromTemplateFn     func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
 	CreateListFromFolderTemplateFn func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
 	CreateListFromSpaceTemplateFn  func(context.Context, string, string, *api.CreateFromTemplateRequest) (*api.CreateFromTemplateResponse, error)
 
 	// Relationships
-	AddDependencyFn       func(context.Context, string, *api.AddDependencyRequest) (*api.DependencyResponse, error)
-	DeleteDependencyFn    func(context.Context, string, string, string) error
-	AddTaskLinkFn         func(context.Context, string, string) (*api.TaskLinkResponse, error)
-	DeleteTaskLinkFn      func(context.Context, string, string) error
+	AddDependencyFn    func(context.Context, string, *api.AddDependencyRequest) (*api.DependencyResponse, error)
+	DeleteDependencyFn func(context.Context, string, string, string) error
+	AddTaskLinkFn      func(context.Context, string, string) (*api.TaskLinkResponse, error)
+	DeleteTaskLinkFn   func(context.Context, string, string) error
 
 	// Task Extras
 	MergeTasksFn          func(context.Context, string, *api.MergeTasksRequest) error
@@ -274,10 +274,10 @@ func (m *MockClient) DeleteTask(ctx context.Context, id string, opts ...*api.Tas
 func (m *MockClient) SearchTasks(ctx context.Context, teamID string, opts *api.SearchTasksOptions) (*api.TasksResponse, error) {
 	return m.SearchTasksFn(ctx, teamID, opts)
 }
-func (m *MockClient) ListComments(ctx context.Context, id string, startID string, opts ...*api.TaskScopedOptions) (*api.CommentsResponse, error) {
+func (m *MockClient) ListComments(ctx context.Context, id, startID string, opts ...*api.TaskScopedOptions) (*api.CommentsResponse, error) {
 	return m.ListCommentsFn(ctx, id, startID)
 }
-func (m *MockClient) ListListComments(ctx context.Context, id string, startID string) (*api.CommentsResponse, error) {
+func (m *MockClient) ListListComments(ctx context.Context, id, startID string) (*api.CommentsResponse, error) {
 	return m.ListListCommentsFn(ctx, id, startID)
 }
 func (m *MockClient) CreateComment(ctx context.Context, tid string, req *api.CreateCommentRequest, opts ...*api.TaskScopedOptions) (*api.CreateCommentResponse, error) {
@@ -416,7 +416,7 @@ func (m *MockClient) RemoveTagsFromTimeEntries(ctx context.Context, teamID strin
 func (m *MockClient) ChangeTagNames(ctx context.Context, teamID string, req *api.ChangeTagNameRequest) error {
 	return m.ChangeTagNamesFn(ctx, teamID, req)
 }
-func (m *MockClient) GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string, opts ...*api.TaskScopedOptions) (*api.LegacyTimeResponse, error) {
+func (m *MockClient) GetLegacyTrackedTime(ctx context.Context, taskID, subcategoryID string, opts ...*api.TaskScopedOptions) (*api.LegacyTimeResponse, error) {
 	return m.GetLegacyTrackedTimeFn(ctx, taskID, subcategoryID)
 }
 func (m *MockClient) TrackLegacyTime(ctx context.Context, taskID string, req *api.LegacyTrackTimeRequest, opts ...*api.TaskScopedOptions) (*api.LegacyTimeResponse, error) {
@@ -552,7 +552,7 @@ func (m *MockClient) CreateThreadedComment(ctx context.Context, commentID string
 }
 
 // View Comments
-func (m *MockClient) ListViewComments(ctx context.Context, viewID string, startID string) (*api.CommentsResponse, error) {
+func (m *MockClient) ListViewComments(ctx context.Context, viewID, startID string) (*api.CommentsResponse, error) {
 	return m.ListViewCommentsFn(ctx, viewID, startID)
 }
 func (m *MockClient) CreateViewComment(ctx context.Context, viewID string, req *api.CreateCommentRequest) (*api.CreateCommentResponse, error) {

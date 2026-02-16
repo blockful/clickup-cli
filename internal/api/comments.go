@@ -22,7 +22,7 @@ type CommentsResponse struct {
 	Comments []Comment `json:"comments"`
 }
 
-func (c *Client) ListComments(ctx context.Context, taskID string, startID string, opts ...*TaskScopedOptions) (*CommentsResponse, error) {
+func (c *Client) ListComments(ctx context.Context, taskID, startID string, opts ...*TaskScopedOptions) (*CommentsResponse, error) {
 	params := url.Values{}
 	if startID != "" {
 		params.Set("start_id", startID)
@@ -46,7 +46,7 @@ func (c *Client) ListComments(ctx context.Context, taskID string, startID string
 	return &resp, nil
 }
 
-func (c *Client) ListListComments(ctx context.Context, listID string, startID string) (*CommentsResponse, error) {
+func (c *Client) ListListComments(ctx context.Context, listID, startID string) (*CommentsResponse, error) {
 	path := fmt.Sprintf("/v2/list/%s/comment", listID)
 	if startID != "" {
 		path += "?start_id=" + startID
@@ -73,7 +73,9 @@ type CreateCommentResponse struct {
 
 func (c *Client) CreateComment(ctx context.Context, taskID string, req *CreateCommentRequest, opts ...*TaskScopedOptions) (*CreateCommentResponse, error) {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	var resp CreateCommentResponse
 	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/comment", taskID)+taskScopedQuery(o), req, &resp); err != nil {
 		return nil, err
@@ -124,7 +126,7 @@ func (c *Client) CreateThreadedComment(ctx context.Context, commentID string, re
 
 // Chat View Comments
 
-func (c *Client) ListViewComments(ctx context.Context, viewID string, startID string) (*CommentsResponse, error) {
+func (c *Client) ListViewComments(ctx context.Context, viewID, startID string) (*CommentsResponse, error) {
 	path := fmt.Sprintf("/v2/view/%s/comment", viewID)
 	if startID != "" {
 		path += "?start_id=" + startID

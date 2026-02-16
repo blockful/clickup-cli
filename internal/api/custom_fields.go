@@ -49,12 +49,16 @@ func (c *Client) GetWorkspaceCustomFields(ctx context.Context, teamID string) (*
 
 func (c *Client) SetCustomFieldValue(ctx context.Context, taskID, fieldID string, req *SetCustomFieldRequest, opts ...*TaskScopedOptions) error {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	return c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/field/%s", taskID, fieldID)+taskScopedQuery(o), req, nil)
 }
 
 func (c *Client) RemoveCustomFieldValue(ctx context.Context, taskID, fieldID string, opts ...*TaskScopedOptions) error {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s/field/%s", taskID, fieldID)+taskScopedQuery(o), nil, nil)
 }

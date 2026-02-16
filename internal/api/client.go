@@ -60,8 +60,8 @@ type ClientInterface interface {
 	SearchTasks(ctx context.Context, teamID string, opts *SearchTasksOptions) (*TasksResponse, error)
 
 	// Comments
-	ListComments(ctx context.Context, taskID string, startID string, opts ...*TaskScopedOptions) (*CommentsResponse, error)
-	ListListComments(ctx context.Context, listID string, startID string) (*CommentsResponse, error)
+	ListComments(ctx context.Context, taskID, startID string, opts ...*TaskScopedOptions) (*CommentsResponse, error)
+	ListListComments(ctx context.Context, listID, startID string) (*CommentsResponse, error)
 	CreateComment(ctx context.Context, taskID string, req *CreateCommentRequest, opts ...*TaskScopedOptions) (*CreateCommentResponse, error)
 	CreateListComment(ctx context.Context, listID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
 	UpdateComment(ctx context.Context, commentID string, req *UpdateCommentRequest) error
@@ -116,7 +116,7 @@ type ClientInterface interface {
 	ChangeTagNames(ctx context.Context, teamID string, req *ChangeTagNameRequest) error
 
 	// Time Tracking Legacy (task-level)
-	GetLegacyTrackedTime(ctx context.Context, taskID string, subcategoryID string, opts ...*TaskScopedOptions) (*LegacyTimeResponse, error)
+	GetLegacyTrackedTime(ctx context.Context, taskID, subcategoryID string, opts ...*TaskScopedOptions) (*LegacyTimeResponse, error)
 	TrackLegacyTime(ctx context.Context, taskID string, req *LegacyTrackTimeRequest, opts ...*TaskScopedOptions) (*LegacyTimeResponse, error)
 	EditLegacyTime(ctx context.Context, taskID, intervalID string, req *LegacyEditTimeRequest, opts ...*TaskScopedOptions) error
 	DeleteLegacyTime(ctx context.Context, taskID, intervalID string, opts ...*TaskScopedOptions) error
@@ -207,7 +207,7 @@ type ClientInterface interface {
 	CreateThreadedComment(ctx context.Context, commentID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
 
 	// View Comments
-	ListViewComments(ctx context.Context, viewID string, startID string) (*CommentsResponse, error)
+	ListViewComments(ctx context.Context, viewID, startID string) (*CommentsResponse, error)
 	CreateViewComment(ctx context.Context, viewID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
 
 	// Guest Assignments

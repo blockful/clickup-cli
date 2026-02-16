@@ -132,8 +132,8 @@ func (c *Client) CreateKeyResult(ctx context.Context, goalID string, req *Create
 }
 
 type UpdateKeyResultRequest struct {
-	StepsCurrent *int    `json:"steps_current,omitempty"`
-	Note         string  `json:"note,omitempty"`
+	StepsCurrent *int   `json:"steps_current,omitempty"`
+	Note         string `json:"note,omitempty"`
 }
 
 func (c *Client) UpdateKeyResult(ctx context.Context, keyResultID string, req *UpdateKeyResultRequest) (*KeyResultResponse, error) {

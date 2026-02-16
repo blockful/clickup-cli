@@ -305,17 +305,17 @@ type UpdateTaskRequest struct {
 	MarkdownDescription *string                   `json:"markdown_description,omitempty"`
 	Status              *string                   `json:"status,omitempty"`
 	Priority            *int                      `json:"priority,omitempty"`
-	Assignees           *UpdateTaskAssignees       `json:"assignees,omitempty"`
-	GroupAssignees      *UpdateTaskGroupAssignees  `json:"group_assignees,omitempty"`
-	DueDate             *int64                     `json:"due_date,omitempty"`
-	DueDateTime         *bool                      `json:"due_date_time,omitempty"`
-	StartDate           *int64                     `json:"start_date,omitempty"`
-	StartDateTime       *bool                      `json:"start_date_time,omitempty"`
-	TimeEstimate        *int64                     `json:"time_estimate,omitempty"`
-	Points              *float64                   `json:"points,omitempty"`
-	Archived            *bool                      `json:"archived,omitempty"`
-	Parent              *string                    `json:"parent,omitempty"`
-	CustomItemID        *int                       `json:"custom_item_id,omitempty"`
+	Assignees           *UpdateTaskAssignees      `json:"assignees,omitempty"`
+	GroupAssignees      *UpdateTaskGroupAssignees `json:"group_assignees,omitempty"`
+	DueDate             *int64                    `json:"due_date,omitempty"`
+	DueDateTime         *bool                     `json:"due_date_time,omitempty"`
+	StartDate           *int64                    `json:"start_date,omitempty"`
+	StartDateTime       *bool                     `json:"start_date_time,omitempty"`
+	TimeEstimate        *int64                    `json:"time_estimate,omitempty"`
+	Points              *float64                  `json:"points,omitempty"`
+	Archived            *bool                     `json:"archived,omitempty"`
+	Parent              *string                   `json:"parent,omitempty"`
+	CustomItemID        *int                      `json:"custom_item_id,omitempty"`
 }
 
 type UpdateTaskOptions struct {
@@ -348,7 +348,9 @@ func (c *Client) UpdateTask(ctx context.Context, taskID string, req *UpdateTaskR
 
 func (c *Client) DeleteTask(ctx context.Context, taskID string, opts ...*TaskScopedOptions) error {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s", taskID)+taskScopedQuery(o), nil, nil)
 }
 
@@ -480,8 +482,8 @@ type MergeTasksRequest struct {
 
 // TimeInStatusResponse is the response for time in status.
 type TimeInStatusResponse struct {
-	CurrentStatus    interface{}   `json:"current_status"`
-	StatusHistory    []interface{} `json:"status_history"`
+	CurrentStatus interface{}   `json:"current_status"`
+	StatusHistory []interface{} `json:"status_history"`
 }
 
 // BulkTimeInStatusResponse is the response for bulk time in status.
@@ -513,13 +515,17 @@ func taskScopedQuery(opts *TaskScopedOptions) string {
 
 func (c *Client) MergeTasks(ctx context.Context, taskID string, req *MergeTasksRequest, opts ...*TaskScopedOptions) error {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	return c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/merge", taskID)+taskScopedQuery(o), req, nil)
 }
 
 func (c *Client) GetTimeInStatus(ctx context.Context, taskID string, opts ...*TaskScopedOptions) (*TimeInStatusResponse, error) {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	var resp TimeInStatusResponse
 	if err := c.Do(ctx, "GET", fmt.Sprintf("/v2/task/%s/time_in_status", taskID)+taskScopedQuery(o), nil, &resp); err != nil {
 		return nil, err
@@ -541,12 +547,16 @@ func (c *Client) GetBulkTimeInStatus(ctx context.Context, taskIDs []string) (*Bu
 
 func (c *Client) AddTaskToList(ctx context.Context, listID, taskID string, opts ...*TaskScopedOptions) error {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	return c.Do(ctx, "POST", fmt.Sprintf("/v2/list/%s/task/%s", listID, taskID)+taskScopedQuery(o), nil, nil)
 }
 
 func (c *Client) RemoveTaskFromList(ctx context.Context, listID, taskID string, opts ...*TaskScopedOptions) error {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/list/%s/task/%s", listID, taskID)+taskScopedQuery(o), nil, nil)
 }

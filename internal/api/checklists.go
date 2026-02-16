@@ -56,7 +56,9 @@ type EditChecklistItemRequest struct {
 
 func (c *Client) CreateChecklist(ctx context.Context, taskID string, req *CreateChecklistRequest, opts ...*TaskScopedOptions) (*ChecklistResponse, error) {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	var resp ChecklistResponse
 	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/checklist", taskID)+taskScopedQuery(o), req, &resp); err != nil {
 		return nil, err

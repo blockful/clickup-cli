@@ -42,7 +42,9 @@ func (c *Client) CreateTaskAttachment(ctx context.Context, taskID, filePath stri
 	writer.Close()
 
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	url := c.BaseURL + fmt.Sprintf("/v2/task/%s/attachment", taskID) + taskScopedQuery(o)
 	req, err := http.NewRequestWithContext(ctx, "POST", url, &buf)
 	if err != nil {

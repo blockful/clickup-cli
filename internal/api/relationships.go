@@ -22,7 +22,9 @@ type TaskLinkResponse struct {
 
 func (c *Client) AddDependency(ctx context.Context, taskID string, req *AddDependencyRequest, opts ...*TaskScopedOptions) (*DependencyResponse, error) {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	var resp DependencyResponse
 	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/dependency", taskID)+taskScopedQuery(o), req, &resp); err != nil {
 		return nil, err
@@ -55,7 +57,9 @@ func (c *Client) DeleteDependency(ctx context.Context, taskID, dependsOn, depend
 
 func (c *Client) AddTaskLink(ctx context.Context, taskID, linksTo string, opts ...*TaskScopedOptions) (*TaskLinkResponse, error) {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	var resp TaskLinkResponse
 	if err := c.Do(ctx, "POST", fmt.Sprintf("/v2/task/%s/link/%s", taskID, linksTo)+taskScopedQuery(o), nil, &resp); err != nil {
 		return nil, err
@@ -65,6 +69,8 @@ func (c *Client) AddTaskLink(ctx context.Context, taskID, linksTo string, opts .
 
 func (c *Client) DeleteTaskLink(ctx context.Context, taskID, linksTo string, opts ...*TaskScopedOptions) error {
 	var o *TaskScopedOptions
-	if len(opts) > 0 { o = opts[0] }
+	if len(opts) > 0 {
+		o = opts[0]
+	}
 	return c.Do(ctx, "DELETE", fmt.Sprintf("/v2/task/%s/link/%s", taskID, linksTo)+taskScopedQuery(o), nil, nil)
 }

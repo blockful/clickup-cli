@@ -46,7 +46,7 @@ func runCommand(t *testing.T, serverURL string, args ...string) (string, error) 
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer
-	io.Copy(&buf, r)
+	_, _ = io.Copy(&buf, r)
 
 	return buf.String(), err
 }

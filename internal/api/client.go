@@ -57,6 +57,94 @@ type ClientInterface interface {
 	CreateListComment(listID string, req *CreateCommentRequest) (*CreateCommentResponse, error)
 	UpdateComment(commentID string, req *UpdateCommentRequest) error
 	DeleteComment(commentID string) error
+
+	// Custom Fields
+	GetListCustomFields(listID string) (*CustomFieldsResponse, error)
+	GetFolderCustomFields(folderID string) (*CustomFieldsResponse, error)
+	GetSpaceCustomFields(spaceID string) (*CustomFieldsResponse, error)
+	GetWorkspaceCustomFields(teamID string) (*CustomFieldsResponse, error)
+	SetCustomFieldValue(taskID, fieldID string, req *SetCustomFieldRequest) error
+	RemoveCustomFieldValue(taskID, fieldID string) error
+
+	// Tags
+	GetSpaceTags(spaceID string) (*TagsResponse, error)
+	CreateSpaceTag(spaceID string, req *CreateTagRequest) error
+	UpdateSpaceTag(spaceID, tagName string, req *UpdateTagRequest) error
+	DeleteSpaceTag(spaceID, tagName string) error
+	AddTagToTask(taskID, tagName string) error
+	RemoveTagFromTask(taskID, tagName string) error
+
+	// Checklists
+	CreateChecklist(taskID string, req *CreateChecklistRequest) (*ChecklistResponse, error)
+	EditChecklist(checklistID string, req *EditChecklistRequest) error
+	DeleteChecklist(checklistID string) error
+	CreateChecklistItem(checklistID string, req *CreateChecklistItemRequest) (*ChecklistResponse, error)
+	EditChecklistItem(checklistID, checklistItemID string, req *EditChecklistItemRequest) (*ChecklistResponse, error)
+	DeleteChecklistItem(checklistID, checklistItemID string) error
+
+	// Docs (v3)
+	CreateDoc(workspaceID string, req *CreateDocRequest) (*Doc, error)
+	SearchDocs(workspaceID string) (*DocsResponse, error)
+	GetDoc(workspaceID, docID string) (*Doc, error)
+	CreatePage(workspaceID, docID string, req *CreatePageRequest) (*DocPage, error)
+	GetPage(workspaceID, docID, pageID string) (*DocPage, error)
+	EditPage(workspaceID, docID, pageID string, req *EditPageRequest) (*DocPage, error)
+	GetDocPageListing(workspaceID, docID string) (*DocPagesResponse, error)
+
+	// Time Tracking
+	GetTimeEntries(teamID string, opts *ListTimeEntriesOptions) (*TimeEntriesResponse, error)
+	CreateTimeEntry(teamID string, req *CreateTimeEntryRequest) (*TimeEntry, error)
+	GetTimeEntry(teamID, timerID string) (*SingleTimeEntryResponse, error)
+	UpdateTimeEntry(teamID, timerID string, req *UpdateTimeEntryRequest) error
+	DeleteTimeEntry(teamID, timerID string) error
+	StartTimer(teamID string, req *StartTimerRequest) (*SingleTimeEntryResponse, error)
+	StopTimer(teamID string) (*SingleTimeEntryResponse, error)
+	GetRunningTimer(teamID string, assignee string) (*SingleTimeEntryResponse, error)
+	GetTimeEntryTags(teamID string) (*TimeEntryTagsResponse, error)
+
+	// Webhooks
+	GetWebhooks(teamID string) (*WebhooksResponse, error)
+	CreateWebhook(teamID string, req *CreateWebhookRequest) (*CreateWebhookResponse, error)
+	UpdateWebhook(webhookID string, req *UpdateWebhookRequest) (*UpdateWebhookResponse, error)
+	DeleteWebhook(webhookID string) error
+
+	// Views
+	GetTeamViews(teamID string) (*ViewsResponse, error)
+	GetSpaceViews(spaceID string) (*ViewsResponse, error)
+	GetFolderViews(folderID string) (*ViewsResponse, error)
+	GetListViews(listID string) (*ViewsResponse, error)
+	GetView(viewID string) (*ViewResponse, error)
+	CreateTeamView(teamID string, req *CreateViewRequest) (*ViewResponse, error)
+	CreateSpaceView(spaceID string, req *CreateViewRequest) (*ViewResponse, error)
+	CreateFolderView(folderID string, req *CreateViewRequest) (*ViewResponse, error)
+	CreateListView(listID string, req *CreateViewRequest) (*ViewResponse, error)
+	UpdateView(viewID string, req *UpdateViewRequest) (*ViewResponse, error)
+	DeleteView(viewID string) error
+	GetViewTasks(viewID string, page int) (*ViewTasksResponse, error)
+
+	// Goals
+	GetGoals(teamID string, includeCompleted bool) (*GoalsResponse, error)
+	GetGoal(goalID string) (*GoalResponse, error)
+	CreateGoal(teamID string, req *CreateGoalRequest) (*GoalResponse, error)
+	UpdateGoal(goalID string, req *UpdateGoalRequest) (*GoalResponse, error)
+	DeleteGoal(goalID string) error
+	CreateKeyResult(goalID string, req *CreateKeyResultRequest) (*KeyResultResponse, error)
+
+	// Members
+	GetListMembers(listID string) (*MembersResponse, error)
+	GetTaskMembers(taskID string) (*MembersResponse, error)
+
+	// Groups
+	GetGroups(teamID string) (*GroupsResponse, error)
+	CreateGroup(teamID string, req *CreateGroupRequest) (*Group, error)
+	UpdateGroup(groupID string, req *UpdateGroupRequest) (*Group, error)
+	DeleteGroup(groupID string) error
+
+	// Guests
+	InviteGuest(teamID string, req *InviteGuestRequest) error
+	GetGuest(teamID, guestID string) (*GuestResponse, error)
+	EditGuest(teamID, guestID string, req *EditGuestRequest) (*GuestResponse, error)
+	RemoveGuest(teamID, guestID string) error
 }
 
 // Client implements ClientInterface using HTTP requests to the ClickUp API.

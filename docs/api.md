@@ -398,6 +398,113 @@ Search tasks across a workspace.
 | `--space-ids` | string[] | — | `space_ids[]` (query) | Filter by space IDs |
 | `--folder-ids` | string[] | — | `folder_ids[]` (query) | Filter by folder IDs |
 
+### `clickup task add-to-list`
+
+Add a task to an additional list.
+
+**API:** `POST /v2/list/{list_id}/task/{task_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--id` | string | *(required)* | `task_id` (path) | Task ID |
+| `--list` | string | *(required)* | `list_id` (path) | List ID |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID (required with custom-task-ids) |
+
+### `clickup task remove-from-list`
+
+Remove a task from a list.
+
+**API:** `DELETE /v2/list/{list_id}/task/{task_id}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--id` | string | *(required)* | `task_id` (path) | Task ID |
+| `--list` | string | *(required)* | `list_id` (path) | List ID |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID (required with custom-task-ids) |
+
+### `clickup task merge`
+
+Merge tasks into a target task.
+
+**API:** `POST /v2/task/{task_id}/merge`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--id` | string | *(required)* | `task_id` (path) | Target task ID |
+| `--merge-with` | string[] | *(required)* | `merge_with` (body) | Task IDs to merge into target |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID (required with custom-task-ids) |
+
+### `clickup task time-in-status`
+
+Get time a task has spent in each status.
+
+**API:** `GET /v2/task/{task_id}/time_in_status` or `GET /v2/task/bulk_time_in_status/task_ids`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--id` | string | — | `task_id` (path) | Single task ID |
+| `--task-ids` | string[] | — | `task_ids` (query) | Task IDs for bulk query |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID (required with custom-task-ids) |
+
+### `clickup task dependency add`
+
+Add a dependency to a task.
+
+**API:** `POST /v2/task/{task_id}/dependency`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task` | string | *(required)* | `task_id` (path) | Task ID |
+| `--depends-on` | string | — | `depends_on` (body) | Task ID this task depends on |
+| `--dependency-of` | string | — | `dependency_of` (body) | Task ID that depends on this task |
+| `--type` | string | — | `type` (body) | Dependency type |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+### `clickup task dependency remove`
+
+Remove a dependency from a task.
+
+**API:** `DELETE /v2/task/{task_id}/dependency`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task` | string | *(required)* | `task_id` (path) | Task ID |
+| `--depends-on` | string | — | `depends_on` (query) | Task ID this task depends on |
+| `--dependency-of` | string | — | `dependency_of` (query) | Task ID that depends on this task |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+### `clickup task link add`
+
+Add a link between tasks.
+
+**API:** `POST /v2/task/{task_id}/link/{links_to}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task` | string | *(required)* | `task_id` (path) | Task ID |
+| `--links-to` | string | *(required)* | `links_to` (path) | Task ID to link to |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
+### `clickup task link remove`
+
+Remove a link between tasks.
+
+**API:** `DELETE /v2/task/{task_id}/link/{links_to}`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--task` | string | *(required)* | `task_id` (path) | Task ID |
+| `--links-to` | string | *(required)* | `links_to` (path) | Task ID to unlink |
+| `--custom-task-ids` | bool | `false` | `custom_task_ids` (query) | Use custom task IDs |
+| `--team-id` | string | — | `team_id` (query) | Team ID |
+
 ---
 
 ## Comments
@@ -449,6 +556,29 @@ Delete a comment.
 | Flag | Type | Default | API Param | Description |
 |------|------|---------|-----------|-------------|
 | `--id` | string | *(required)* | `comment_id` (path) | Comment ID |
+
+### `clickup comment reply list`
+
+List threaded replies on a comment.
+
+**API:** `GET /v2/comment/{comment_id}/reply`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--comment-id` | string | *(required)* | `comment_id` (path) | Comment ID |
+
+### `clickup comment reply create`
+
+Create a threaded reply on a comment.
+
+**API:** `POST /v2/comment/{comment_id}/reply`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--comment-id` | string | *(required)* | `comment_id` (path) | Comment ID |
+| `--text` | string | *(required)* | `comment_text` (body) | Reply text |
+| `--assignee` | int | — | `assignee` (body) | Assignee user ID |
+| `--notify-all` | bool | `false` | `notify_all` (body) | Notify all |
 
 ---
 

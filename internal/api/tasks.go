@@ -477,7 +477,7 @@ func ParseCustomFields(s string) ([]CustomFieldValue, error) {
 
 // MergeTasksRequest is the request body for merging tasks.
 type MergeTasksRequest struct {
-	MergeWith []string `json:"merge_with"`
+	SourceTaskIDs []string `json:"source_task_ids"`
 }
 
 // TimeInStatusResponse is the response for time in status.

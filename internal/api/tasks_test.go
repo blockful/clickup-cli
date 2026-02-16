@@ -294,14 +294,14 @@ func TestMergeTasks(t *testing.T) {
 		}
 		var req MergeTasksRequest
 		_ = json.NewDecoder(r.Body).Decode(&req)
-		if len(req.MergeWith) != 2 {
-			t.Errorf("merge_with len = %d", len(req.MergeWith))
+		if len(req.SourceTaskIDs) != 2 {
+			t.Errorf("merge_with len = %d", len(req.SourceTaskIDs))
 		}
 		w.WriteHeader(200)
 	}))
 	defer srv.Close()
 	c := &Client{BaseURL: srv.URL, Token: "test", HTTPClient: srv.Client()}
-	err := c.MergeTasks(ctx, "t1", &MergeTasksRequest{MergeWith: []string{"t2", "t3"}})
+	err := c.MergeTasks(ctx, "t1", &MergeTasksRequest{SourceTaskIDs: []string{"t2", "t3"}})
 	if err != nil {
 		t.Fatal(err)
 	}

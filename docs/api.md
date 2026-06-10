@@ -507,6 +507,41 @@ Remove a link between tasks.
 
 ---
 
+## Changes
+
+### `clickup changes`
+
+List tasks and docs updated in a workspace since a point in time — a "what changed since my last visit" log. Tasks are filtered server-side via `date_updated_gt`; docs have no server-side updated filter, so they are fetched and filtered client-side by `date_updated` (falling back to `date_created`).
+
+With `--since last` (the default), the timestamp of each run is recorded per workspace in `~/.clickup-cli-state.json`, so the next run reports only what changed in between. The first run defaults to a 24-hour window and sets `"first_run": true` in the output.
+
+**API:** `GET /v2/team/{team_id}/task` + `GET /v3/workspaces/{workspace_id}/docs`
+
+| Flag | Type | Default | API Param | Description |
+|------|------|---------|-----------|-------------|
+| `--workspace` | string | *(global)* | `team_id` / `workspace_id` (path) | Workspace ID |
+| `--since` | string | `last` | `date_updated_gt` (query, tasks) | `last`, a duration (`30m`, `24h`, `7d`, `2w`), a date (`2026-06-09`), an RFC3339 timestamp, or Unix ms |
+| `--skip-docs` | bool | `false` | — | Skip checking docs for updates |
+| `--no-save` | bool | `false` | — | Don't record this check as the new `last` timestamp |
+| `--space-ids` | string[] | — | `space_ids[]` (query) | Limit task changes to space IDs |
+| `--folder-ids` | string[] | — | `folder_ids[]` (query) | Limit task changes to folder IDs |
+| `--list-ids` | string[] | — | `list_ids[]` (query) | Limit task changes to list IDs |
+
+Output shape: `{"workspace_id", "since", "until", "first_run", "task_count", "doc_count", "tasks": [...], "docs": [...]}`. Task pagination is handled automatically (up to 5,000 tasks per run).
+
+```bash
+# What changed since I last checked? (tracks state automatically)
+clickup changes --workspace 1234567
+
+# What changed in the last 2 days, without touching saved state
+clickup changes --workspace 1234567 --since 2d
+
+# Tasks only, scoped to two lists
+clickup changes --workspace 1234567 --since 2026-06-09 --skip-docs --list-ids 111,222
+```
+
+---
+
 ## Comments
 
 ### `clickup comment list`

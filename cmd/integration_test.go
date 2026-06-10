@@ -33,20 +33,26 @@ func runCommand(t *testing.T, serverURL string, args ...string) (string, error) 
 	viper.Set("workspace", "12345678")
 	defer viper.Reset()
 
-	// Capture stdout
+	// Capture stdout, draining concurrently so output larger than the
+	// pipe buffer (64KB) doesn't deadlock the command.
 	oldStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
+
+	var buf bytes.Buffer
+	done := make(chan struct{})
+	go func() {
+		_, _ = io.Copy(&buf, r)
+		close(done)
+	}()
 
 	// Reset and execute root command
 	rootCmd.SetArgs(args)
 	err := rootCmd.Execute()
 
 	w.Close()
+	<-done
 	os.Stdout = oldStdout
-
-	var buf bytes.Buffer
-	_, _ = io.Copy(&buf, r)
 
 	return buf.String(), err
 }

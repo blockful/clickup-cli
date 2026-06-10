@@ -14,6 +14,7 @@ type Doc struct {
 	Parent      interface{} `json:"parent,omitempty"`
 	Creator     interface{} `json:"creator,omitempty"`
 	DateCreated json.Number `json:"date_created,omitempty"`
+	DateUpdated json.Number `json:"date_updated,omitempty"`
 	Deleted     bool        `json:"deleted,omitempty"`
 	Visibility  string      `json:"visibility,omitempty"`
 }

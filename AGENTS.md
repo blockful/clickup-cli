@@ -120,6 +120,26 @@ clickup task link add --task abc123 --links-to def456
 clickup task link remove --task abc123 --links-to def456
 ```
 
+### Change Tracking
+
+```bash
+# Everything updated since the previous run (timestamp tracked per workspace
+# in ~/.clickup-cli-state.json; first run defaults to a 24h window)
+clickup changes --workspace 1234
+
+# Explicit windows: durations (30m, 24h, 7d, 2w), dates, RFC3339, or Unix ms
+clickup changes --workspace 1234 --since 7d
+clickup changes --workspace 1234 --since 2026-06-09
+
+# Peek without advancing the saved 'last' timestamp
+clickup changes --workspace 1234 --no-save
+
+# Tasks only, scoped to specific lists/spaces/folders
+clickup changes --workspace 1234 --skip-docs --list-ids 111,222
+```
+
+Output: `{"workspace_id", "since", "until", "first_run", "task_count", "doc_count", "tasks": [...], "docs": [...]}`. Tasks are filtered server-side (`date_updated_gt`, paginated automatically up to 5,000); docs have no server-side updated filter, so they are filtered client-side by `date_updated` — granularity is per-doc (use `doc page-list` to find which page changed).
+
 ### Custom Task IDs
 
 When your workspace uses custom task IDs (e.g., `PROJ-123`), add `--custom-task-ids` and `--team-id`:
@@ -417,6 +437,19 @@ Or override per-command: `--workspace 9999`
 ---
 
 ## Common Agent Workflows
+
+### Catch up on what changed since the last visit
+
+```bash
+# First call returns the last 24h and records the timestamp;
+# every later call returns only what changed in between.
+clickup changes --workspace 1234
+
+# Then drill into anything interesting
+clickup task get --id TASKID --include-markdown
+clickup comment list --task TASKID
+clickup doc page-list --workspace 1234 --doc DOCID  # pages carry date_updated
+```
 
 ### Create a task with full metadata
 

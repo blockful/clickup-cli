@@ -63,6 +63,9 @@ clickup task create --list 900100200300 \
 # 4. Search across workspace
 clickup task search --workspace 1234567 --assignee 12345 --include-closed
 
+# 4b. What changed since my last visit? (tasks + docs, state tracked automatically)
+clickup changes --workspace 1234567
+
 # 5. Track time
 clickup time-entry start --workspace 1234567 --task abc123 --description "Working on feature"
 clickup time-entry stop --workspace 1234567
@@ -96,6 +99,7 @@ clickup task list --list 900100200300 --format text
 | `task` | `merge`, `time-in-status` | Merge tasks, get status timing |
 | `task dependency` | `add`, `remove` | Task dependency management |
 | `task link` | `add`, `remove` | Task link management |
+| `changes` | — | Tasks & docs updated since a point in time (`--since last\|24h\|7d\|date`) |
 
 ### Content & Collaboration
 

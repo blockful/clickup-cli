@@ -107,9 +107,9 @@ by their date_updated field.
 			if err != nil {
 				return handleError(err)
 			}
-			for _, doc := range resp.Docs {
-				if docUpdatedAt(doc) > since {
-					docs = append(docs, doc)
+			for i := range resp.Docs {
+				if docUpdatedAt(&resp.Docs[i]) > since {
+					docs = append(docs, resp.Docs[i])
 				}
 			}
 		}
@@ -137,7 +137,7 @@ by their date_updated field.
 
 // docUpdatedAt returns the doc's date_updated in Unix ms, falling back to
 // date_created when the API omits date_updated.
-func docUpdatedAt(doc api.Doc) int64 {
+func docUpdatedAt(doc *api.Doc) int64 {
 	if v, err := doc.DateUpdated.Int64(); err == nil && v > 0 {
 		return v
 	}

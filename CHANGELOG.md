@@ -4,7 +4,7 @@
 
 ### Added
 
-- **`clickup changes`** — list tasks and docs updated in a workspace since a point in time. `--since` accepts `last` (tracked per workspace in `~/.clickup-cli-state.json`), durations (`30m`, `24h`, `7d`, `2w`), dates, RFC3339 timestamps, or Unix ms. Tasks are filtered server-side (`date_updated_gt`); docs are filtered client-side by `date_updated` since the v3 Docs API has no updated-since parameter. Supports `--skip-docs`, `--no-save`, and `--space-ids`/`--folder-ids`/`--list-ids` scoping.
+- **`clickup changes`** — list tasks and docs updated in a workspace since a point in time. `--since` accepts `last` (tracked per workspace in `~/.clickup-cli-state.json`), durations (`30m`, `24h`, `7d`, `2w`), dates, RFC3339 timestamps, or Unix ms. Tasks are filtered server-side (`date_updated_gt`); docs are filtered client-side by `date_updated` since the v3 Docs API has no updated-since parameter. Supports `--compact` for token-light agent summaries, `--limit` to cap returned rows while keeping total counts, `--skip-docs`, `--no-save`, and `--space-ids`/`--folder-ids`/`--list-ids` scoping.
 - `date_updated` field on the Doc model (returned by the v3 API but previously dropped during decoding).
 
 ## [1.0.0] - 2026-02-16

@@ -521,23 +521,28 @@ With `--since last` (the default), the timestamp of each run is recorded per wor
 |------|------|---------|-----------|-------------|
 | `--workspace` | string | *(global)* | `team_id` / `workspace_id` (path) | Workspace ID |
 | `--since` | string | `last` | `date_updated_gt` (query, tasks) | `last`, a duration (`30m`, `24h`, `7d`, `2w`), a date (`2026-06-09`), an RFC3339 timestamp, or Unix ms |
+| `--compact` | bool | `false` | — | Return token-light task/doc summaries for agent workflows |
+| `--limit` | int | `0` | — | Maximum tasks and docs to return after counting all matches (`0` = no limit) |
 | `--skip-docs` | bool | `false` | — | Skip checking docs for updates |
 | `--no-save` | bool | `false` | — | Don't record this check as the new `last` timestamp |
 | `--space-ids` | string[] | — | `space_ids[]` (query) | Limit task changes to space IDs |
 | `--folder-ids` | string[] | — | `folder_ids[]` (query) | Limit task changes to folder IDs |
 | `--list-ids` | string[] | — | `list_ids[]` (query) | Limit task changes to list IDs |
 
-Output shape: `{"workspace_id", "since", "until", "first_run", "task_count", "doc_count", "tasks": [...], "docs": [...]}`. Task pagination is handled automatically (up to 5,000 tasks per run).
+Output shape: `{"workspace_id", "since", "until", "first_run", "task_count", "doc_count", "tasks": [...], "docs": [...]}`. Task pagination is handled automatically (up to 5,000 tasks per run). With `--compact`, each task is reduced to `id`, `custom_id`, `name`, `status`, `url`, list/folder/space identifiers, and `date_updated`; docs are reduced to `id`, `name`, and `date_updated`. When `--limit` is set, `task_count`/`doc_count` still report total matches, while `task_returned`/`doc_returned` and `truncated` describe the capped payload.
 
 ```bash
 # What changed since I last checked? (tracks state automatically)
 clickup changes --workspace 1234567
 
 # What changed in the last 2 days, without touching saved state
-clickup changes --workspace 1234567 --since 2d
+clickup changes --workspace 1234567 --since 2d --no-save
+
+# Low-token agent summary for recent changes
+clickup changes --workspace 1234567 --since 24h --no-save --compact --limit 25
 
 # Tasks only, scoped to two lists
-clickup changes --workspace 1234567 --since 2026-06-09 --skip-docs --list-ids 111,222
+clickup changes --workspace 1234567 --since 2026-06-09 --skip-docs --list-ids 111,222 --compact
 ```
 
 ---

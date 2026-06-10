@@ -134,11 +134,16 @@ clickup changes --workspace 1234 --since 2026-06-09
 # Peek without advancing the saved 'last' timestamp
 clickup changes --workspace 1234 --no-save
 
+# Agent-friendly / token-light output: keep only IDs, names, status, URL,
+# hierarchy IDs/names, and updated timestamps. Limit returned rows while
+# preserving full task_count/doc_count totals.
+clickup changes --workspace 1234 --since 24h --no-save --compact --limit 25
+
 # Tasks only, scoped to specific lists/spaces/folders
-clickup changes --workspace 1234 --skip-docs --list-ids 111,222
+clickup changes --workspace 1234 --skip-docs --list-ids 111,222 --compact
 ```
 
-Output: `{"workspace_id", "since", "until", "first_run", "task_count", "doc_count", "tasks": [...], "docs": [...]}`. Tasks are filtered server-side (`date_updated_gt`, paginated automatically up to 5,000); docs have no server-side updated filter, so they are filtered client-side by `date_updated` — granularity is per-doc (use `doc page-list` to find which page changed).
+Output: `{"workspace_id", "since", "until", "first_run", "task_count", "doc_count", "tasks": [...], "docs": [...]}`. With `--compact`, the response also includes `task_returned`, `doc_returned`, and `truncated` when a `--limit` caps returned rows. Tasks are filtered server-side (`date_updated_gt`, paginated automatically up to 5,000); docs have no server-side updated filter, so they are filtered client-side by `date_updated` — granularity is per-doc (use `doc page-list` to find which page changed). For agent workflows, prefer `--compact --limit <n>` to avoid spending tokens on assignees, watchers, tags, custom fields, and other full task metadata.
 
 ### Custom Task IDs
 

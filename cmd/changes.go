@@ -21,14 +21,51 @@ const defaultChangesWindow = 24 * time.Hour
 const maxChangesPages = 50
 
 type changesResponse struct {
-	WorkspaceID string     `json:"workspace_id"`
-	Since       int64      `json:"since"`
-	Until       int64      `json:"until"`
-	FirstRun    bool       `json:"first_run,omitempty"`
-	TaskCount   int        `json:"task_count"`
-	DocCount    int        `json:"doc_count"`
-	Tasks       []api.Task `json:"tasks"`
-	Docs        []api.Doc  `json:"docs"`
+	WorkspaceID  string     `json:"workspace_id"`
+	Since        int64      `json:"since"`
+	Until        int64      `json:"until"`
+	FirstRun     bool       `json:"first_run,omitempty"`
+	TaskCount    int        `json:"task_count"`
+	DocCount     int        `json:"doc_count"`
+	TaskReturned int        `json:"task_returned,omitempty"`
+	DocReturned  int        `json:"doc_returned,omitempty"`
+	Truncated    bool       `json:"truncated,omitempty"`
+	Tasks        []api.Task `json:"tasks"`
+	Docs         []api.Doc  `json:"docs"`
+}
+
+type compactChangesResponse struct {
+	WorkspaceID  string              `json:"workspace_id"`
+	Since        int64               `json:"since"`
+	Until        int64               `json:"until"`
+	FirstRun     bool                `json:"first_run,omitempty"`
+	TaskCount    int                 `json:"task_count"`
+	DocCount     int                 `json:"doc_count"`
+	TaskReturned int                 `json:"task_returned"`
+	DocReturned  int                 `json:"doc_returned"`
+	Truncated    bool                `json:"truncated,omitempty"`
+	Tasks        []compactTaskChange `json:"tasks"`
+	Docs         []compactDocChange  `json:"docs"`
+}
+
+type compactTaskChange struct {
+	ID          string `json:"id"`
+	CustomID    string `json:"custom_id,omitempty"`
+	Name        string `json:"name"`
+	Status      string `json:"status,omitempty"`
+	URL         string `json:"url,omitempty"`
+	ListID      string `json:"list_id,omitempty"`
+	ListName    string `json:"list_name,omitempty"`
+	FolderID    string `json:"folder_id,omitempty"`
+	FolderName  string `json:"folder_name,omitempty"`
+	SpaceID     string `json:"space_id,omitempty"`
+	DateUpdated string `json:"date_updated,omitempty"`
+}
+
+type compactDocChange struct {
+	ID          string `json:"id"`
+	Name        string `json:"name,omitempty"`
+	DateUpdated int64  `json:"date_updated,omitempty"`
 }
 
 var changesCmd = &cobra.Command{
@@ -121,15 +158,42 @@ by their date_updated field.
 			}
 		}
 
+		limit, _ := cmd.Flags().GetInt("limit")
+		if limit < 0 {
+			output.PrintError("VALIDATION_ERROR", "--limit must be 0 or greater")
+			return &exitError{code: 1}
+		}
+
+		if compact, _ := cmd.Flags().GetBool("compact"); compact {
+			output.JSON(buildCompactChangesResponse(workspaceID, since, now, firstRun, tasks, docs, limit))
+			return nil
+		}
+
+		taskCount := len(tasks)
+		docCount := len(docs)
+		taskReturned := 0
+		docReturned := 0
+		truncated := false
+		if limit > 0 {
+			tasks = limitTasks(tasks, limit)
+			docs = limitDocs(docs, limit)
+			taskReturned = len(tasks)
+			docReturned = len(docs)
+			truncated = len(tasks) < taskCount || len(docs) < docCount
+		}
+
 		output.JSON(changesResponse{
-			WorkspaceID: workspaceID,
-			Since:       since,
-			Until:       now,
-			FirstRun:    firstRun,
-			TaskCount:   len(tasks),
-			DocCount:    len(docs),
-			Tasks:       tasks,
-			Docs:        docs,
+			WorkspaceID:  workspaceID,
+			Since:        since,
+			Until:        now,
+			FirstRun:     firstRun,
+			TaskCount:    taskCount,
+			DocCount:     docCount,
+			TaskReturned: taskReturned,
+			DocReturned:  docReturned,
+			Truncated:    truncated,
+			Tasks:        tasks,
+			Docs:         docs,
 		})
 		return nil
 	},
@@ -185,9 +249,70 @@ func parseDuration(s string) (time.Duration, error) {
 	return time.ParseDuration(s)
 }
 
+func buildCompactChangesResponse(workspaceID string, since, until int64, firstRun bool, tasks []api.Task, docs []api.Doc, limit int) compactChangesResponse {
+	taskCount := len(tasks)
+	docCount := len(docs)
+	tasks = limitTasks(tasks, limit)
+	docs = limitDocs(docs, limit)
+
+	resp := compactChangesResponse{
+		WorkspaceID:  workspaceID,
+		Since:        since,
+		Until:        until,
+		FirstRun:     firstRun,
+		TaskCount:    taskCount,
+		DocCount:     docCount,
+		TaskReturned: len(tasks),
+		DocReturned:  len(docs),
+		Truncated:    len(tasks) < taskCount || len(docs) < docCount,
+		Tasks:        make([]compactTaskChange, 0, len(tasks)),
+		Docs:         make([]compactDocChange, 0, len(docs)),
+	}
+	for i := range tasks {
+		task := &tasks[i]
+		resp.Tasks = append(resp.Tasks, compactTaskChange{
+			ID:          task.ID,
+			CustomID:    task.CustomID,
+			Name:        task.Name,
+			Status:      task.Status.Status,
+			URL:         task.URL,
+			ListID:      task.List.ID,
+			ListName:    task.List.Name,
+			FolderID:    task.Folder.ID,
+			FolderName:  task.Folder.Name,
+			SpaceID:     task.Space.ID,
+			DateUpdated: task.DateUpdated,
+		})
+	}
+	for i := range docs {
+		resp.Docs = append(resp.Docs, compactDocChange{
+			ID:          docs[i].ID,
+			Name:        docs[i].Name,
+			DateUpdated: docUpdatedAt(&docs[i]),
+		})
+	}
+	return resp
+}
+
+func limitTasks(tasks []api.Task, limit int) []api.Task {
+	if limit <= 0 || len(tasks) <= limit {
+		return tasks
+	}
+	return tasks[:limit]
+}
+
+func limitDocs(docs []api.Doc, limit int) []api.Doc {
+	if limit <= 0 || len(docs) <= limit {
+		return docs
+	}
+	return docs[:limit]
+}
+
 func init() {
 	changesCmd.Flags().String("workspace", "", "Workspace/Team ID")
 	changesCmd.Flags().String("since", "last", "Point in time: last, duration (24h, 7d), date, RFC3339, or Unix ms")
+	changesCmd.Flags().Bool("compact", false, "Return token-light task/doc summaries for agent workflows")
+	changesCmd.Flags().Int("limit", 0, "Maximum tasks and docs to return after counting all matches (0 = no limit)")
 	changesCmd.Flags().Bool("skip-docs", false, "Skip checking docs for updates")
 	changesCmd.Flags().Bool("no-save", false, "Don't record this check as the new 'last' timestamp")
 	changesCmd.Flags().StringSlice("space-ids", nil, "Limit task changes to space IDs")

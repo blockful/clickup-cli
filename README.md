@@ -66,6 +66,9 @@ clickup task search --workspace 1234567 --assignee 12345 --include-closed
 # 4b. What changed since my last visit? (tasks + docs, state tracked automatically)
 clickup changes --workspace 1234567
 
+# Agent-friendly compact activity feed (lower token usage)
+clickup changes --workspace 1234567 --since 24h --no-save --compact --limit 25
+
 # 5. Track time
 clickup time-entry start --workspace 1234567 --task abc123 --description "Working on feature"
 clickup time-entry stop --workspace 1234567

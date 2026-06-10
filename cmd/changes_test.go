@@ -80,6 +80,98 @@ func TestChangesCommand(t *testing.T) {
 	}
 }
 
+func TestChangesCompactOutput(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	docsJSON := `{"docs":[{"id":"doc-new","name":"Fresh","date_updated":9000000000000,"creator":{"id":1},"visibility":"private"}]}`
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/v2/team/") {
+			fmt.Fprint(w, `{"tasks":[{"id":"task1","name":"Updated Task","status":{"status":"in progress","color":"#fff","type":"custom"},"date_updated":"9000000000000","url":"https://app.clickup.com/t/task1","list":{"id":"list1","name":"Sprint"},"folder":{"id":"folder1","name":"Product"},"space":{"id":"space1"},"assignees":[{"id":1,"username":"Agent"}],"custom_fields":[{"id":"field1","name":"Huge field"}]}]}`)
+			return
+		}
+		fmt.Fprint(w, docsJSON)
+	}))
+	t.Cleanup(server.Close)
+
+	out, err := runCommand(t, server.URL, "changes", "--since", "5000", "--compact")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if strings.Contains(out, "custom_fields") || strings.Contains(out, "assignees") || strings.Contains(out, "creator") {
+		t.Fatalf("compact output should omit token-heavy fields, got: %s", out)
+	}
+
+	var resp struct {
+		TaskCount    int `json:"task_count"`
+		TaskReturned int `json:"task_returned"`
+		DocCount     int `json:"doc_count"`
+		DocReturned  int `json:"doc_returned"`
+		Tasks        []struct {
+			ID          string `json:"id"`
+			Name        string `json:"name"`
+			Status      string `json:"status"`
+			URL         string `json:"url"`
+			ListID      string `json:"list_id"`
+			ListName    string `json:"list_name"`
+			FolderName  string `json:"folder_name"`
+			SpaceID     string `json:"space_id"`
+			DateUpdated string `json:"date_updated"`
+		} `json:"tasks"`
+		Docs []struct {
+			ID          string `json:"id"`
+			Name        string `json:"name"`
+			DateUpdated int64  `json:"date_updated"`
+		} `json:"docs"`
+	}
+	if err := json.Unmarshal([]byte(out), &resp); err != nil {
+		t.Fatalf("invalid JSON output: %v\n%s", err, out)
+	}
+	if resp.TaskCount != 1 || resp.TaskReturned != 1 || resp.DocCount != 1 || resp.DocReturned != 1 {
+		t.Fatalf("unexpected counts: %+v", resp)
+	}
+	task := resp.Tasks[0]
+	if task.ID != "task1" || task.Status != "in progress" || task.ListName != "Sprint" || task.FolderName != "Product" || task.SpaceID != "space1" || task.URL == "" || task.DateUpdated == "" {
+		t.Errorf("unexpected compact task: %+v", task)
+	}
+	if resp.Docs[0].ID != "doc-new" || resp.Docs[0].Name != "Fresh" || resp.Docs[0].DateUpdated == 0 {
+		t.Errorf("unexpected compact doc: %+v", resp.Docs[0])
+	}
+}
+
+func TestChangesLimitCompactsReturnedItemsWithoutChangingCounts(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/v2/team/") {
+			fmt.Fprint(w, `{"tasks":[{"id":"task1","name":"One"},{"id":"task2","name":"Two"},{"id":"task3","name":"Three"}]}`)
+			return
+		}
+		fmt.Fprint(w, `{"docs":[{"id":"doc1","name":"One","date_updated":9000000000000},{"id":"doc2","name":"Two","date_updated":9000000000000}]}`)
+	}))
+	t.Cleanup(server.Close)
+
+	out, err := runCommand(t, server.URL, "changes", "--since", "5000", "--compact", "--limit", "1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	var resp struct {
+		TaskCount    int                   `json:"task_count"`
+		TaskReturned int                   `json:"task_returned"`
+		DocCount     int                   `json:"doc_count"`
+		DocReturned  int                   `json:"doc_returned"`
+		Truncated    bool                  `json:"truncated"`
+		Tasks        []struct{ ID string } `json:"tasks"`
+		Docs         []struct{ ID string } `json:"docs"`
+	}
+	if err := json.Unmarshal([]byte(out), &resp); err != nil {
+		t.Fatalf("invalid JSON output: %v\n%s", err, out)
+	}
+	if resp.TaskCount != 3 || resp.TaskReturned != 1 || resp.DocCount != 2 || resp.DocReturned != 1 || !resp.Truncated {
+		t.Fatalf("expected full counts but limited returned items, got %+v", resp)
+	}
+	if resp.Tasks[0].ID != "task1" || resp.Docs[0].ID != "doc1" {
+		t.Errorf("limit should preserve updated ordering, got tasks=%+v docs=%+v", resp.Tasks, resp.Docs)
+	}
+}
+
 func TestChangesTaskQueryParams(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	var taskQuery string

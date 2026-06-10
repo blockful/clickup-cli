@@ -15,7 +15,7 @@ import (
 type Attachment struct {
 	ID             string `json:"id"`
 	Version        string `json:"version"`
-	Date           int64  `json:"date"`
+	Date           string `json:"date"`
 	Title          string `json:"title"`
 	Extension      string `json:"extension"`
 	ThumbnailSmall string `json:"thumbnail_small"`

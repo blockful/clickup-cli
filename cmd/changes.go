@@ -268,7 +268,8 @@ func buildCompactChangesResponse(workspaceID string, since, until int64, firstRu
 		Tasks:        make([]compactTaskChange, 0, len(tasks)),
 		Docs:         make([]compactDocChange, 0, len(docs)),
 	}
-	for _, task := range tasks {
+	for i := range tasks {
+		task := &tasks[i]
 		resp.Tasks = append(resp.Tasks, compactTaskChange{
 			ID:          task.ID,
 			CustomID:    task.CustomID,

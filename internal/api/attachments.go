@@ -12,15 +12,38 @@ import (
 	"path/filepath"
 )
 
+// FlexString is a string that also accepts a JSON number. ClickUp is not
+// consistent about which scalar it uses for a field: an attachment's `date`
+// arrives as "1749381600000" while its `version` arrives as 0, and the same
+// field can differ between the attachment endpoint and the copy embedded in a
+// task response. Typing such a field as either Go scalar makes every response
+// carrying an attachment fail to unmarshal, which took out `task get` and
+// `task update` twice (#6, and again on 2026-08-18 with `version`).
+type FlexString string
+
+func (f *FlexString) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err == nil {
+		*f = FlexString(s)
+		return nil
+	}
+	var n json.Number
+	if err := json.Unmarshal(b, &n); err != nil {
+		return fmt.Errorf("value is neither a string nor a number: %s", string(b))
+	}
+	*f = FlexString(n.String())
+	return nil
+}
+
 type Attachment struct {
-	ID             string `json:"id"`
-	Version        string `json:"version"`
-	Date           string `json:"date"`
-	Title          string `json:"title"`
-	Extension      string `json:"extension"`
-	ThumbnailSmall string `json:"thumbnail_small"`
-	ThumbnailLarge string `json:"thumbnail_large"`
-	URL            string `json:"url"`
+	ID             string     `json:"id"`
+	Version        FlexString `json:"version"`
+	Date           FlexString `json:"date"`
+	Title          string     `json:"title"`
+	Extension      string     `json:"extension"`
+	ThumbnailSmall string     `json:"thumbnail_small"`
+	ThumbnailLarge string     `json:"thumbnail_large"`
+	URL            string     `json:"url"`
 }
 
 func (c *Client) CreateTaskAttachment(ctx context.Context, taskID, filePath string, opts ...*TaskScopedOptions) (*Attachment, error) {

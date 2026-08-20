@@ -38,10 +38,19 @@ type CreateWebhookResponse struct {
 	Webhook Webhook `json:"webhook"`
 }
 
+// UpdateWebhookRequest is a PATCH in PUT's clothing: ClickUp preserves any field
+// the body omits, so every field is omitempty and callers send only what changes.
+//
+// Both tags matter, and each cost a real outage to find:
+//   - `Events` must marshal as an ARRAY. As a scalar string ClickUp answers
+//     400 "Invalid events" (OAUTH_150) — for the very value its own GET returns.
+//   - Without omitempty, an endpoint-only update still sends `"status": ""`,
+//     which ClickUp answers 500 (OAUTH_152). The endpoint-only update it
+//     rejected is one the API accepts happily when the empty field is absent.
 type UpdateWebhookRequest struct {
-	Endpoint string `json:"endpoint"`
-	Events   string `json:"events"`
-	Status   string `json:"status"`
+	Endpoint string   `json:"endpoint,omitempty"`
+	Events   []string `json:"events,omitempty"`
+	Status   string   `json:"status,omitempty"`
 }
 
 type UpdateWebhookResponse struct {

@@ -81,12 +81,27 @@ var webhookUpdateCmd = &cobra.Command{
 		ctx := context.Background()
 		id, _ := cmd.Flags().GetString("id")
 		endpoint, _ := cmd.Flags().GetString("endpoint")
-		events, _ := cmd.Flags().GetString("events")
+		events, _ := cmd.Flags().GetStringSlice("events")
 		status, _ := cmd.Flags().GetString("status")
 
 		if id == "" {
 			output.PrintError("VALIDATION_ERROR", "--id is required")
 			return &exitError{code: 1}
+		}
+
+		if endpoint == "" && len(events) == 0 && status == "" {
+			output.PrintError("VALIDATION_ERROR", "nothing to update: pass at least one of --endpoint, --events, --status")
+			return &exitError{code: 1}
+		}
+
+		// ClickUp accepts `*` on update and answers 200 with `events: []` — it
+		// unsubscribes the webhook from everything instead of subscribing it to
+		// everything. Refusing beats a silent unsubscribe on a live webhook.
+		for _, e := range events {
+			if e == "*" {
+				output.PrintError("VALIDATION_ERROR", "--events does not accept '*' on update: ClickUp clears the event list instead of subscribing to all. Name each event explicitly.")
+				return &exitError{code: 1}
+			}
 		}
 
 		req := &api.UpdateWebhookRequest{Endpoint: endpoint, Events: events, Status: status}
@@ -131,7 +146,7 @@ func init() {
 
 	webhookUpdateCmd.Flags().String("id", "", "Webhook ID (required)")
 	webhookUpdateCmd.Flags().String("endpoint", "", "Webhook URL")
-	webhookUpdateCmd.Flags().String("events", "", "Events (use * for all)")
+	webhookUpdateCmd.Flags().StringSlice("events", nil, "Events to subscribe to; repeat or comma-separate. Omit to leave unchanged ('*' is rejected — ClickUp clears the list)")
 	webhookUpdateCmd.Flags().String("status", "", "Status (active/inactive)")
 
 	webhookDeleteCmd.Flags().String("id", "", "Webhook ID (required)")
